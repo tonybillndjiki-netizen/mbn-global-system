@@ -106,6 +106,7 @@ export function createHandler(deps:Dependencies){
    if(!actor)throw new AppError('authentication_required',401);
    const input=await readJSON(request);if(Object.keys(input).some(k=>!['action','data'].includes(k)))throw new AppError('invalid_request');
    const data=object(input.data||{}),args={p_actor:actor.id,p_session:actor.session_id,p_action:input.action,p_data:data};
+   if(['routing_context','routing_save','routing_toggle','routing_reassign_preview','routing_reassign_apply'].includes(input.action))return json(await rpc('mbn_routing_action',args));
    if(actions.has(input.action))return json(await rpc('mbn_workspace_action',args));
    if(['test_leads_list','test_applications_list'].includes(input.action))return json(await rpc('mbn_workspace_tests',{p_actor:actor.id,p_session:actor.session_id,p_kind:input.action==='test_leads_list'?'LEADS':'APPLICATIONS',p_data:data}));
    if(input.action==='link_create'){

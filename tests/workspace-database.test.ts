@@ -473,3 +473,139 @@ test('moving a school to a paused sender blocks its mail without using the forme
  const claim=await invoke('mbn_mail_profile_claim',['ADMISSIONS_COMMUN',null]);assert.ok(claim);
  assert.equal(claim.school_code,groupSchool('MBN_GLOBAL'));assert.equal(claim.sender_identity,groupEmail('ADMISSIONS_COMMUN'));
 }));
+
+const routing=(name:string,data:object={},actor=owner)=>invoke('mbn_routing_action',[actor,sid(actor),name,JSON.stringify(data)]);
+const routingRule=(overrides={})=>routing('routing_save',{school_code:'MLV BTS',primary_user:reviewer,backup_user:'',campus_code:'',program_id:'',intake:'',priority:0,...overrides});
+async function routingApplication(overrides:Record<string,any>={}){
+ const token=crypto.randomUUID(),school=overrides.school_code||'MLV BTS';
+ const l=await action('lead_save',lead({school_code:school,email:'routing-'+token+'@example.invalid'}));
+ const row={school_code:school,campus_code:'NOISIEL',program_id:program,form_payload:{},is_test:false,status:'RECEIVED',...overrides};
+ return (await db.query<any>(`insert into public.crm_applications(lead_id,school_code,campus_code,program_id,application_reference,admission_type,form_payload,is_test,status)
+ values($1,$2,$3,$4,$5,'INTERNATIONAL',$6,$7,$8) returning *`,[l.id,row.school_code,row.campus_code,row.program_id,'ROUTING-'+token,JSON.stringify(row.form_payload),row.is_test,row.status])).rows[0];
+}
+const reviewedRows=(preview:any)=>preview.rows.filter((r:any)=>r.user_id).map(({id,expected_updated_at,rule_id,rule_revision,user_id}:any)=>({id,expected_updated_at,rule_id,rule_revision,user_id}));
+async function allowBackup(){await db.exec(`update public.school_memberships set role='ADMISSIONS' where user_id='${cm}' and school_code='MLV BTS'`);}
+
+test('routing administration exposes all schools and only eligible school-specific staff',()=>isolated(async()=>{
+ const context=await routing('routing_context');assert.equal(context.schools.length,19);assert.equal(context.rules.length,0);
+ assert.ok(context.schools.every((s:any)=>!s.general_ready&&Number(s.active_rules)===0));
+ assert.deepEqual(context.people.filter((p:any)=>p.school_code==='MLV BTS').map((p:any)=>p.id),[reviewer]);
+ assert.ok(context.people.some((p:any)=>p.id===other&&p.school_code==='EMSP'));
+ assert.ok(!context.people.some((p:any)=>p.id===cm));
+ for(const action of ['routing_context','routing_save','routing_toggle','routing_reassign_preview','routing_reassign_apply'])await assert.rejects(routing(action,{},cm),{message:'access_denied'});
+ const {rows:[permissions]}=await db.query<{allowed:boolean}>("select has_function_privilege('authenticated','public.mbn_routing_action(uuid,uuid,text,jsonb)','EXECUTE') allowed");assert.equal(permissions.allowed,false);
+}));
+
+test('routing choices validate school, campus, active program, distinct staff and duplicate scopes',()=>isolated(async()=>{
+ await assert.rejects(routingRule({primary_user:other}),{message:'inactive_assignee'});
+ await assert.rejects(routingRule({primary_user:reviewer,backup_user:reviewer}),{message:'invalid_routing_rule'});
+ await assert.rejects(routingRule({campus_code:'TORCY'}),{message:'invalid_campus'});
+ await assert.rejects(routingRule({program_id:'not-a-uuid'}),{message:'invalid_routing_rule'});
+ await assert.rejects(routingRule({program_id:'10000000-0000-4000-8000-000000000099'}),{message:'invalid_program'});
+ await assert.rejects(routingRule({priority:1001}),{message:'invalid_routing_rule'});
+ const {id}=await routingRule();await assert.rejects(routingRule(),{message:'routing_rule_exists'});
+ const context=await routing('routing_context'),rule=context.rules.find((r:any)=>r.id===id);
+ assert.equal(context.schools.find((s:any)=>s.code==='MLV BTS').general_ready,true);
+ await routingRule({id,expected_revision:rule.revision,intake:' septembre 2027 '});
+ const updated=(await routing('routing_context')).rules.find((r:any)=>r.id===id);assert.equal(updated.intake,'septembre 2027');assert.notEqual(updated.revision,rule.revision);
+ await assert.rejects(routingRule({id,expected_revision:rule.revision}),{message:'routing_changed'});
+ await assert.rejects(routing('routing_toggle',{id,expected_revision:rule.revision}),{message:'routing_changed'});
+}));
+
+test('the most specific campus, program and intake rule wins before numeric priority',()=>isolated(async()=>{
+ await allowBackup();await routingRule({priority:1000});
+ await routingRule({primary_user:cm,campus_code:'NOISIEL',program_id:program,intake:'septembre 2027',priority:0});
+ const targeted=await routingApplication({form_payload:{intake:'septembre 2027'}});assert.equal(targeted.assigned_admissions_user,cm);
+ const general=await routingApplication({form_payload:{intake:'janvier 2028'}});assert.equal(general.assigned_admissions_user,reviewer);
+ const otherSchool=await routingApplication({school_code:'EMSP',campus_code:'TORCY',program_id:null});assert.equal(otherSchool.assigned_admissions_user,null);
+}));
+
+test('an inactive principal uses its authorized backup and never a lower-specificity team',()=>isolated(async()=>{
+ await allowBackup();await routingRule({primary_user:reviewer,backup_user:cm});
+ await db.exec(`update public.profiles set is_active=false where user_id='${reviewer}'`);
+ const backup=await routingApplication();assert.equal(backup.assigned_admissions_user,cm);
+ const context=await routing('routing_context');assert.equal(context.rules[0].primary_available,false);assert.equal(context.rules[0].backup_available,true);
+ await db.exec(`update public.profiles set is_active=true where user_id='${reviewer}'`);
+ await routingRule({primary_user:reviewer,program_id:program});
+ await db.exec(`update public.profiles set is_active=false where user_id='${reviewer}'`);
+ const blocked=await routingApplication();assert.equal(blocked.assigned_admissions_user,null);assert.equal(blocked.routing_status,'UNASSIGNED');
+}));
+
+test('pausing a routing rule is versioned and resuming needs an available assignee',()=>isolated(async()=>{
+ const {id}=await routingRule(),rule=(await routing('routing_context')).rules.find((r:any)=>r.id===id);
+ await routing('routing_toggle',{id,expected_revision:rule.revision});
+ assert.equal((await routingApplication()).assigned_admissions_user,null);
+ const paused=(await routing('routing_context')).rules.find((r:any)=>r.id===id);
+ await db.exec(`update public.profiles set is_active=false where user_id='${reviewer}'`);
+ await assert.rejects(routing('routing_toggle',{id,expected_revision:paused.revision}),{message:'inactive_assignee'});
+}));
+
+test('reviewing unassigned dossiers is read-only and excludes tests, final dossiers and assigned dossiers',()=>isolated(async()=>{
+ const open=await routingApplication();await routingApplication({is_test:true});await routingApplication({status:'CLOSED'});
+ await routingRule();await routingApplication();
+ const preview=await routing('routing_reassign_preview');assert.equal(preview.total_unassigned,1);assert.equal(preview.rows.length,1);assert.equal(preview.rows[0].id,open.id);assert.equal(preview.rows[0].user_id,reviewer);
+ assert.equal((await db.query<any>('select assigned_admissions_user from public.crm_applications where id=$1',[open.id])).rows[0].assigned_admissions_user,null);
+ assert.equal((await db.query<any>('select count(*)::int n from public.mail_messages')).rows[0].n,0);
+}));
+
+test('applying a reviewed assignment records its actor and can never assign it a second time',()=>isolated(async()=>{
+ const app=await routingApplication();await routingRule();const rows=reviewedRows(await routing('routing_reassign_preview'));
+ assert.deepEqual(await routing('routing_reassign_apply',{rows}),{assigned:1,skipped:0});
+ assert.equal((await db.query<any>('select assigned_admissions_user from public.crm_applications where id=$1',[app.id])).rows[0].assigned_admissions_user,reviewer);
+ assert.deepEqual(await routing('routing_reassign_apply',{rows}),{assigned:0,skipped:1});
+ const events=(await db.query<any>("select event_metadata from public.crm_lead_events where event_type='ASSIGNMENT_CHANGED' and lead_id=$1",[app.lead_id])).rows;
+ assert.equal(events.length,1);assert.equal(events[0].event_metadata.actor_id,owner);assert.equal(events[0].event_metadata.source,'ROUTING_REVIEW');
+ assert.equal((await db.query<any>('select count(*)::int n from public.mail_messages')).rows[0].n,0);
+}));
+
+test('a changed rule or revoked account invalidates a previously reviewed assignment',()=>isolated(async()=>{
+ await routingApplication();const {id}=await routingRule();let rows=reviewedRows(await routing('routing_reassign_preview'));
+ const rule=(await routing('routing_context')).rules.find((r:any)=>r.id===id);
+ await routingRule({id,expected_revision:rule.revision,priority:1});
+ assert.deepEqual(await routing('routing_reassign_apply',{rows}),{assigned:0,skipped:1});
+ rows=reviewedRows(await routing('routing_reassign_preview'));
+ await db.exec(`update public.school_memberships set is_active=false where user_id='${reviewer}' and school_code='MLV BTS'`);
+ assert.deepEqual(await routing('routing_reassign_apply',{rows}),{assigned:0,skipped:1});
+}));
+
+test('a manual assignment or dossier closure after preview is preserved',()=>isolated(async()=>{
+ await allowBackup();const manual=await routingApplication(),closed=await routingApplication();await routingRule();
+ const rows=reviewedRows(await routing('routing_reassign_preview'));
+ await action('application_assign',{id:manual.id,user_id:cm});
+ await db.query("update public.crm_applications set status='CLOSED' where id=$1",[closed.id]);
+ assert.deepEqual(await routing('routing_reassign_apply',{rows}),{assigned:0,skipped:2});
+ assert.equal((await db.query<any>('select assigned_admissions_user from public.crm_applications where id=$1',[manual.id])).rows[0].assigned_admissions_user,cm);
+}));
+
+test('forged assignees and duplicate reviewed rows cannot redirect a dossier',()=>isolated(async()=>{
+ const app=await routingApplication();await routingRule();const rows=reviewedRows(await routing('routing_reassign_preview'));
+ assert.deepEqual(await routing('routing_reassign_apply',{rows:[{...rows[0],user_id:other}]}),{assigned:0,skipped:1});
+ await assert.rejects(routing('routing_reassign_apply',{rows:[rows[0],rows[0]]}),{message:'invalid_routing_preview'});
+ assert.equal((await db.query<any>('select assigned_admissions_user from public.crm_applications where id=$1',[app.id])).rows[0].assigned_admissions_user,null);
+}));
+
+test('a dossier changed since review is skipped even when its proposed assignee is unchanged',()=>isolated(async()=>{
+ const app=await routingApplication();await routingRule();const rows=reviewedRows(await routing('routing_reassign_preview'));
+ await db.query("update public.crm_applications set updated_at=updated_at+interval '1 second' where id=$1",[app.id]);
+ assert.deepEqual(await routing('routing_reassign_apply',{rows}),{assigned:0,skipped:1});
+}));
+
+test('bounded routing reviews prioritize resolvable dossiers beyond the oldest 200',()=>isolated(async()=>{
+ await db.exec(`with leads as (
+  insert into public.crm_leads(school_code,full_name,email,source)
+   select 'EMSP','Synthetic batch','routing-batch-'||i||'@example.invalid','DIRECT' from generate_series(1,201) i returning id
+ ) insert into public.crm_applications(lead_id,school_code,campus_code,application_reference,admission_type)
+  select id,'EMSP','TORCY','ROUTING-BATCH-'||id,'INTERNATIONAL' from leads;`);
+ const resolvable=await routingApplication();await routingRule();
+ const preview=await routing('routing_reassign_preview');assert.equal(preview.total_unassigned,202);assert.equal(preview.rows.length,200);assert.equal(preview.has_more,true);
+ const rows=reviewedRows(preview);assert.equal(rows.length,1);assert.equal(rows[0].id,resolvable.id);
+ assert.deepEqual(await routing('routing_reassign_apply',{rows}),{assigned:1,skipped:0});
+}));
+
+test('school readiness follows the effective general rule instead of an unused lower-priority rule',()=>isolated(async()=>{
+ await allowBackup();await routingRule({priority:0});await routingRule({primary_user:cm,priority:10});
+ await db.exec(`update public.profiles set is_active=false where user_id='${cm}'`);
+ const school=(await routing('routing_context')).schools.find((s:any)=>s.code==='MLV BTS');
+ assert.equal(school.general_ready,false);assert.equal(Number(school.active_rules),2);
+ assert.equal((await routingApplication()).assigned_admissions_user,null);
+}));
