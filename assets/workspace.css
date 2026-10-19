@@ -14,11 +14,13 @@
 .letter-pdf{width:100%;height:680px;min-height:420px;border:0;background:#fff}.school-tile .btn{margin-top:6px}.school-tile .small{max-width:100%}
 @media(max-width:700px){.letter-pdf{height:520px}}
 
-/* Two equally weighted sender profiles, with an explicit route for each school. */
-.settings-layout.mail-sender-groups{grid-template-columns:repeat(2,minmax(0,1fr));margin-top:22px;gap:20px}
+/* Sender profiles and an explicit route shared by all campuses of a school. */
+.settings-layout.mail-sender-groups{grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));margin-top:22px;gap:20px}
 .mail-sender-groups>.panel{min-width:0}
 .mail-route-table{min-width:950px}
 .mail-route-table th:nth-child(2){width:29%}
 .mail-route-table th:nth-child(3){width:31%}
+.mail-route-preview,.mail-route-change{margin-top:8px;max-width:320px;overflow-wrap:anywhere}
+.mail-route-change{color:var(--brand)}
 #mailLimitForm .dialog-actions{margin-top:0}
 @media(max-width:900px){.settings-layout.mail-sender-groups{grid-template-columns:1fr}}

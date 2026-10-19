@@ -26,7 +26,7 @@ export function rpcError(error:NonNullable<Reply['error']>){
  throw Error('service_unavailable');
 }
 const h=(s:unknown)=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]!));
-export const SENDER_GROUPS=['MBN_GLOBAL','CAMPUS_INNOVATION_MLV'] as const;
+export const SENDER_GROUPS=['MBN_GLOBAL','CAMPUS_INNOVATION_MLV','ADMISSIONS_COMMUN'] as const;
 function senderGroup(value:unknown){if(typeof value!=='string'||!SENDER_GROUPS.includes(value as typeof SENDER_GROUPS[number]))throw new AppError('invalid_sender_group',422);return value;}
 export async function capability(secret:string,id:string,purpose:'admission'|'unsubscribe'){
  const key=await crypto.subtle.importKey('raw',new TextEncoder().encode(secret),{name:'HMAC',hash:'SHA-256'},false,['sign']);

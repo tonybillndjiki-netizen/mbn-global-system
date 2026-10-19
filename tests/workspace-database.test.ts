@@ -285,10 +285,10 @@ test('Brevo delivery after a complaint cannot restore a suppressed address or ov
  assert.ok((await action('lead_detail',{id:l.id})).lead.email_suppressed_at);
 }));
 
-const groupCodes=['MBN_GLOBAL','CAMPUS_INNOVATION_MLV'] as const;
-const groupSchool=(group:string)=>group==='MBN_GLOBAL'?'EMSP':'MLV BTS';
-const groupEmail=(group:string)=>group==='MBN_GLOBAL'?'no-reply@mbn.example.invalid':'no-reply@campus.example.invalid';
-const groupName=(group:string)=>group==='MBN_GLOBAL'?'MBN Global Éducation':'Campus Innovation Marne-la-Vallée';
+const groupCodes=['MBN_GLOBAL','CAMPUS_INNOVATION_MLV','ADMISSIONS_COMMUN'] as const;
+const groupSchool=(group:string)=>({MBN_GLOBAL:'EMSP',CAMPUS_INNOVATION_MLV:'MLV BTS',ADMISSIONS_COMMUN:'ESETH'}[group]!);
+const groupEmail=(group:string)=>'no-reply@'+({MBN_GLOBAL:'mbn',CAMPUS_INNOVATION_MLV:'campus',ADMISSIONS_COMMUN:'admissions'}[group]!)+'.example.invalid';
+const groupName=(group:string)=>({MBN_GLOBAL:'MBN Global Éducation',CAMPUS_INNOVATION_MLV:'Campus Innovation Marne-la-Vallée',ADMISSIONS_COMMUN:'Service admissions'}[group]!);
 const groupSave=(group:string,overrides={})=>action('mail_group_save',{sender_group:group,from_name:groupName(group),from_email:groupEmail(group),enabled:false,...overrides});
 const routeSave=(group:string,overrides={})=>action('mail_route_save',{school_code:groupSchool(group),sender_group:group,admissions_email:group.toLowerCase()+'-admissions@example.invalid',...overrides});
 async function groupCheck(group:string,fingerprint='a'.repeat(64)){
@@ -303,7 +303,7 @@ async function groupProof(group:string,deliver=true){
  assert.equal(claimed.sender_identity,groupEmail(group));
  await invoke('mbn_mail_finish',[claimed.id,claimed.attempt_id,'ACCEPTED','<test-'+group+'>',null]);
  const event={event:'delivered',message_id:claimed.id,provider_id:'<test-'+group+'>',email:claimed.recipient};
- if(deliver)await invoke('mbn_brevo_event',[(group==='MBN_GLOBAL'?'1':'2').repeat(64),JSON.stringify(event)]);
+ if(deliver)await invoke('mbn_brevo_event',[String([1,2,7][groupCodes.indexOf(group as typeof groupCodes[number])]).repeat(64),JSON.stringify(event)]);
  return {claimed,event};
 }
 async function configureGroups(){
@@ -321,8 +321,8 @@ async function groupCampaign(group:string){
  const row=await action('campaign_save',{school_code,name:'Synthetic '+group,subject:'Synthetic',body:'Synthetic'});
  await action('campaign_launch',{id:row.id});return row;
 }
-test('two sender profiles start paused with no inferred domains or school affiliations',()=>isolated(async()=>{
- const config=await action('mail_config_get');assert.equal(config.groups.length,2);assert.equal(config.schools.length,19);
+test('three sender profiles start paused with no inferred domains or school affiliations',()=>isolated(async()=>{
+ const config=await action('mail_config_get');assert.equal(config.groups.length,3);assert.equal(config.schools.length,19);
  assert.ok(config.groups.every((g:any)=>g.from_email===''&&!g.enabled&&!('credential_fingerprint' in g)));
  assert.ok(config.schools.every((s:any)=>s.sender_group===null&&s.admissions_email===''));
  assert.equal(await invoke('mbn_mail_profile_claim',['MBN_GLOBAL',null]),null);
@@ -331,7 +331,7 @@ test('two sender profiles start paused with no inferred domains or school affili
   const {rows:[p]}=await db.query<{allowed:boolean}>("select has_function_privilege('authenticated',$1,'EXECUTE') allowed",['public.'+rpc]);assert.equal(p.allowed,false);
  }
 }));
-test('an administrator explicitly selects each school route and cannot reuse one sender for both groups',()=>isolated(async()=>{
+test('an administrator explicitly selects each school route and cannot reuse an address across the three groups',()=>isolated(async()=>{
  await assert.rejects(groupSave('MBN_GLOBAL',{reply_to:'spoof@example.invalid'}),{message:'invalid_sender'});
  await groupSave('MBN_GLOBAL');await assert.rejects(groupSave('CAMPUS_INNOVATION_MLV',{from_email:groupEmail('MBN_GLOBAL')}),{message:'sender_email_already_used'});
  await assert.rejects(routeSave('MBN_GLOBAL',{admissions_email:'bad\nBcc: x@example.invalid'}),{message:'invalid_mail_route'});
@@ -350,6 +350,8 @@ test('each sender requires its own delivered test; API acceptance and another gr
  await assert.rejects(groupSave('CAMPUS_INNOVATION_MLV',{enabled:true}),{message:'sender_not_ready'});
  await invoke('mbn_brevo_event',['3'.repeat(64),JSON.stringify(proof.event)]);
  await groupSave('CAMPUS_INNOVATION_MLV',{enabled:true});
+ await assert.rejects(groupSave('ADMISSIONS_COMMUN',{enabled:true}),{message:'sender_not_ready'});
+ await groupProof('ADMISSIONS_COMMUN');await groupSave('ADMISSIONS_COMMUN',{enabled:true});
  assert.ok((await action('mail_config_get')).groups.every((g:any)=>g.enabled&&g.events_verified_at));
 }));
 test('campaign leases use the assigned group and contact and are revoked when the school route changes',()=>isolated(async()=>{
@@ -377,7 +379,7 @@ test('a delayed test delivery cannot validate a replacement sender',()=>isolated
  assert.equal(group.events_verified_at,null);assert.equal(group.enabled,false);
  await assert.rejects(groupSave('MBN_GLOBAL',{from_email:'no-reply@replacement.example.invalid',enabled:true}),{message:'sender_not_ready'});
 }));
-test('rotating the shared key or rebuilding the webhook invalidates proofs for both senders',()=>isolated(async()=>{
+test('rotating the shared key or rebuilding the webhook invalidates proofs for all three senders',()=>isolated(async()=>{
  await enableGroups();const stale=await invoke('mbn_mail_profile_settings',['CAMPUS_INNOVATION_MLV']);
  await groupCheck('MBN_GLOBAL','b'.repeat(64));
  let config=await action('mail_config_get');assert.ok(config.groups.every((g:any)=>!g.enabled&&g.events_verified_at===null));assert.equal(config.brevo_webhook_id,null);
@@ -387,8 +389,8 @@ test('rotating the shared key or rebuilding the webhook invalidates proofs for b
  await invoke('mbn_brevo_webhook_configured',[13]);
  config=await action('mail_config_get');assert.ok(config.groups.every((g:any)=>!g.enabled&&g.events_verified_at===null));
 }));
-test('the daily allowance is shared by both senders and includes tests and in-flight attempts',()=>isolated(async()=>{
- await enableGroups();await action('mail_limit_save',{daily_limit:3});
+test('the daily allowance is shared by all three senders and includes tests and in-flight attempts',()=>isolated(async()=>{
+ await enableGroups();await action('mail_limit_save',{daily_limit:4});
  for(const group of groupCodes)await groupCampaign(group);
  const claim=await invoke('mbn_mail_profile_claim',['MBN_GLOBAL',null]);assert.ok(claim);
  assert.equal(await invoke('mbn_mail_profile_claim',['CAMPUS_INNOVATION_MLV',null]),null);
@@ -414,10 +416,60 @@ test('pausing one sender revokes its outstanding campaign lease while the other 
  assert.equal(await invoke('mbn_mail_profile_authorized',[claim.id,claim.attempt_id]),false);
  assert.equal((await action('mail_config_get')).groups.find((g:any)=>g.code==='CAMPUS_INNOVATION_MLV').enabled,true);
 }));
-test('reconfiguring the same webhook invalidates both successful tests and ignores their delayed callbacks',()=>isolated(async()=>{
+test('reconfiguring the same webhook invalidates all three successful tests and ignores their delayed callbacks',()=>isolated(async()=>{
  await enableGroups();
  await invoke('mbn_brevo_webhook_configured',[12]);
  let config=await action('mail_config_get');assert.ok(config.groups.every((g:any)=>!g.enabled&&g.events_verified_at===null));
  await invoke('mbn_brevo_event',['6'.repeat(64),JSON.stringify({event:'delivered',provider_id:'<test-MBN_GLOBAL>',email:'nbtonybill@gmail.com'})]);
  config=await action('mail_config_get');assert.ok(config.groups.every((g:any)=>!g.enabled&&g.events_verified_at===null));
+}));
+
+test('ESETH, LSB and both Evry schools can share a neutral sender across campuses',()=>isolated(async()=>{
+ await configureGroups();await groupSave('ADMISSIONS_COMMUN',{from_name:'Admissions du réseau'});
+ for(const group of groupCodes){await groupProof(group);await groupSave(group,{from_name:group==='ADMISSIONS_COMMUN'?'Admissions du réseau':groupName(group),enabled:true});}
+ const schools=['ESETH','LSB','EVRY BTS','EVRY BS'];
+ for(const school_code of schools){
+  await routeSave('ADMISSIONS_COMMUN',{school_code,admissions_email:school_code.toLowerCase().replaceAll(' ','-')+'@example.invalid'});
+  await action('lead_save',lead({school_code,email:school_code.toLowerCase().replaceAll(' ','-')+'-prospect@example.invalid'}));
+  const campaign=await action('campaign_save',{school_code,name:'Shared sender',subject:'Synthetic',body:'Synthetic'});
+  await action('campaign_launch',{id:campaign.id});
+ }
+ const claimed=[];
+ for(const school of schools){
+  const claim=await invoke('mbn_mail_profile_claim',['ADMISSIONS_COMMUN',null]);assert.ok(claim,school);
+  assert.equal(claim.sender.from_name,'Admissions du réseau');assert.equal(claim.sender.from_email,groupEmail('ADMISSIONS_COMMUN'));
+  assert.equal(claim.service_contact_email,claim.school_code.toLowerCase().replaceAll(' ','-')+'@example.invalid');
+  claimed.push(claim.school_code);await invoke('mbn_mail_finish',[claim.id,claim.attempt_id,'ACCEPTED','<shared-'+claim.id+'>',null]);
+ }
+ assert.deepEqual(claimed.sort(),[...schools].sort());
+ for(const group of groupCodes)assert.equal(await invoke('mbn_mail_profile_claim',[group,null]),null);
+}));
+
+test('moving a school to the common sender changes queued mail and preserves sent history and campuses',()=>isolated(async()=>{
+ await enableGroups();const school_code=groupSchool('MBN_GLOBAL');
+ const campusQuery='select campus_code from public.school_campuses where school_code=$1 order by campus_code';
+ const campuses=(await db.query(campusQuery,[school_code])).rows;
+ await action('lead_save',lead({school_code,email:'history@example.invalid'}));await groupCampaign('MBN_GLOBAL');
+ const sent=await invoke('mbn_mail_profile_claim',['MBN_GLOBAL',null]);assert.ok(sent);
+ await invoke('mbn_mail_finish',[sent.id,sent.attempt_id,'ACCEPTED','<before-move>',null]);
+ const reserved=await invoke('mbn_mail_profile_claim',['MBN_GLOBAL',null]);assert.ok(reserved);
+ await routeSave('ADMISSIONS_COMMUN',{school_code,admissions_email:'new-school-service@example.invalid'});
+ assert.equal(await invoke('mbn_mail_profile_authorized',[reserved.id,reserved.attempt_id]),false);
+ assert.equal(await invoke('mbn_mail_profile_claim',['MBN_GLOBAL',null]),null);
+ await db.query("update public.mail_messages set scheduled_at=now() where id=(select id from public.mail_messages where school_code=$1 and status='QUEUED' order by scheduled_at limit 1)",[school_code]);
+ const next=await invoke('mbn_mail_profile_claim',['ADMISSIONS_COMMUN',null]);assert.ok(next);
+ assert.equal(next.sender_identity,groupEmail('ADMISSIONS_COMMUN'));assert.equal(next.service_contact_email,'new-school-service@example.invalid');
+ assert.equal(await invoke('mbn_mail_profile_authorized',[next.id,next.attempt_id]),true);
+ const history=(await db.query<{sender_group:string;sender_identity:string;status:string}>('select sender_group,sender_identity,status from public.mail_messages where id=$1',[sent.id])).rows[0];
+ assert.deepEqual(history,{sender_group:'MBN_GLOBAL',sender_identity:groupEmail('MBN_GLOBAL'),status:'ACCEPTED'});
+ assert.deepEqual((await db.query(campusQuery,[school_code])).rows,campuses);assert.equal(campuses.length,3);
+}));
+
+test('moving a school to a paused sender blocks its mail without using the former group',()=>isolated(async()=>{
+ await enableGroups();await groupSave('ADMISSIONS_COMMUN');await groupCampaign('MBN_GLOBAL');
+ await routeSave('ADMISSIONS_COMMUN',{school_code:groupSchool('MBN_GLOBAL')});
+ for(const group of groupCodes)assert.equal(await invoke('mbn_mail_profile_claim',[group,null]),null);
+ await groupSave('ADMISSIONS_COMMUN',{enabled:true});
+ const claim=await invoke('mbn_mail_profile_claim',['ADMISSIONS_COMMUN',null]);assert.ok(claim);
+ assert.equal(claim.school_code,groupSchool('MBN_GLOBAL'));assert.equal(claim.sender_identity,groupEmail('ADMISSIONS_COMMUN'));
 }));

@@ -1,4 +1,4 @@
-# Brevo : deux expéditeurs pour les 19 écoles
+# Brevo : trois expéditeurs et gestion des groupes par école
 
 ## Audit du 19 octobre 2026
 
@@ -19,14 +19,30 @@ réussi. Cela ne prouve pas la livraison d'un e-mail réel.
 
 ## Comportement du nouveau lot
 
-Deux profils sont créés : `MBN_GLOBAL` et `CAMPUS_INNOVATION_MLV`.
+Trois profils sont disponibles :
+
+| Code | Nom initial, modifiable | Usage prévu |
+| --- | --- | --- |
+| `MBN_GLOBAL` | MBN Global Éducation | Écoles rattachées à MBN, quel que soit leur campus |
+| `CAMPUS_INNOVATION_MLV` | Campus Innovation Marne-la-Vallée | Les huit écoles de Noisiel |
+| `ADMISSIONS_COMMUN` | Service admissions | Expéditeur commun neutre, notamment ESETH, LSB, EVRY BTS et EVRY BS |
+
+Ces groupes sont des profils d’envoi, pas un modèle d’entités juridiques.
+Une école peut être présente sur plusieurs campus : son groupe d’expédition
+est commun à tous ses campus. Les affectations restent à confirmer et à
+saisir dans l’interface ; la migration ne les devine pas.
+
+Le troisième profil est ajouté par une nouvelle migration additive,
+`20261019130000_mbn_mail_third_sender.sql`, après le premier lot à deux
+expéditeurs. Les routes et les preuves existantes des deux premiers profils
+sont conservées. Aucun expéditeur déjà configuré n’est remplacé.
 Ils utilisent une clé Brevo commune, un suivi de livraison commun et un plafond
 quotidien commun. Le nom et l'adresse d'expédition sont propres à chaque profil.
 Les réponses restent dirigées vers l'adresse automatique d'expédition.
 
 Un administrateur renseigne, pour chaque école, le groupe et le contact du
 service des admissions. Aucun domaine ni rattachement n'est déduit du campus.
-Les deux profils démarrent en pause, avec des adresses vides ; les 19
+Les trois profils démarrent en pause, avec des adresses vides ; les 19
 rattachements et contacts sont à renseigner. Les domaines des tests utilisent
 uniquement `example.invalid` et ne sont pas des valeurs de production.
 
@@ -49,12 +65,26 @@ figés sur le message au moment de sa réservation. L'autorisation est vérifié
 une nouvelle fois avant l'appel Brevo. Un changement de rattachement ou de
 contact annule un envoi réservé devenu obsolète. Une nouvelle adresse ou un
 nouveau nom d'expéditeur invalide son test précédent. Une rotation de la clé
-commune ou une reconfiguration des retours impose de revalider les deux profils.
+commune ou une reconfiguration des retours impose de revalider les trois profils.
 Un ancien retour de livraison ne valide pas une configuration remplacée.
 
-Le plafond quotidien compte les deux groupes, les lettres, les tests et les
+Le plafond quotidien compte les trois groupes, les lettres, les tests et les
 tentatives en cours ou incertaines. Les résultats ambigus restent à vérifier ;
 aucune nouvelle tentative automatique n'est ajoutée.
+
+## Changer le groupe depuis le front
+
+La page **Connexion e-mail → Écoles et adresses de contact** présente les trois
+profils dans chaque liste de sélection. L’administrateur choisit le nouveau
+groupe, contrôle l’adresse automatique affichée et le contact du service,
+puis enregistre. Le nom du troisième expéditeur est librement modifiable.
+
+Le changement s’applique aux prochaines réservations de campagnes et de lettres.
+Un message en attente prend le nouveau groupe ; une réservation en cours devenue
+obsolète est annulée avant envoi, sans nouvelle émission automatique. Les messages
+déjà acceptés ou remis conservent leur expéditeur enregistré. Les relations entre
+écoles et campus, les permissions et les dossiers ne sont pas modifiés.
+Si le profil choisi est en pause ou non validé, aucun autre expéditeur n’est utilisé.
 
 ## Fichiers à reprendre
 
@@ -63,7 +93,8 @@ aucune nouvelle tentative automatique n'est ajoutée.
 | `supabase/migrations/20261019120000_mbn_mail_sender_groups.sql` | Profils, routes par école, autorisations, preuves de livraison et réservations atomiques |
 | `supabase/functions/mbn-workspace/handler.ts` | Administration, choix du groupe, campagnes et pied de page des messages |
 | `supabase/functions/mbn-letters/handler.ts` | Même routage pour les lettres et leurs pièces privées |
-| `assets/workspace-ui.js`, `assets/workspace.css` | Deux profils, plafond commun et formulaire des 19 écoles |
+| `assets/workspace-ui.js`, `assets/workspace.css` | Trois profils, choix du groupe par école et aperçu de l’adresse automatique |
+| `supabase/migrations/20261019130000_mbn_mail_third_sender.sql` | Ajout du troisième profil sans modifier les configurations existantes |
 | `tests/workspace-database.test.ts`, `tests/workspace-brevo.test.ts` | Tests du routage, des contacts et de l'isolation des preuves |
 | `CONNEXION_BREVO.md` | Procédure de configuration après validation du lot |
 
@@ -93,24 +124,28 @@ livrés ensemble dans l'environnement de validation lors de la mise en service.
 
 ## Validation et éléments encore nécessaires
 
-`npm run check` : **157 tests réussis**, typage réussi et paquet statique
-construit. Les 14 tests ajoutés couvrent les contacts HTML/texte, le choix
-d'expéditeur pour les campagnes et lettres, l'accès administrateur, les preuves
-séparées, les changements de configuration et le plafond commun.
-Une vérification locale dans un DOM simulé a aussi contrôlé les deux profils,
-les 19 formulaires d'école et les trois parcours d'enregistrement (expéditeur,
-rattachement/contact et plafond). La vérification visuelle dans un navigateur
-reste à réaliser ; le moteur de navigateur n'était pas disponible ici.
+`npm run check` : **161 tests réussis**, typage réussi et paquet statique
+construit. Les contrôles couvrent les trois expéditeurs, leurs preuves de remise
+séparées, le plafond commun et le changement de groupe d’une école. Ils vérifient
+que les quatre écoles du profil commun gardent leur propre contact admissions,
+que les messages déjà envoyés conservent leur identité et que les campus restent
+inchangés. Les échanges Brevo sont simulés ; aucun e-mail réel n’a été envoyé.
+
+Une vérification du front dans un DOM simulé a contrôlé les trois profils,
+les 19 formulaires, le changement ESETH de MBN vers le profil commun et sa
+persistance après rechargement, le renommage de l’expéditeur, le plafond et
+l’aperçu bloqué d’une école sans groupe. La vérification visuelle dans un
+navigateur reste à réaliser ; aucun moteur de navigateur n’est installé ici.
 Les tests de base utilisent PGlite et le schéma initial de référence fourni par
 le dépôt. La reconstitution des migrations initiales manquantes reste un
 chantier distinct identifié dans le PDF du responsable.
 
 Pour mettre les envois en service, il reste à fournir et vérifier :
 
-- Les deux adresses automatiques exactes et leurs noms d'expéditeur.
-- Le rattachement confirmé des 19 écoles à ces deux groupes.
+- Les trois adresses automatiques exactes et leurs noms d'expéditeur.
+- Le rattachement confirmé des 19 écoles à ces trois groupes.
 - Le contact réel du service des admissions pour chaque école.
-- La clé API installée directement dans les secrets du serveur, les deux
+- La clé API installée directement dans les secrets du serveur, les trois
   expéditeurs vérifiés et l'authentification de leurs domaines dans Brevo.
 - L'autorisation de réaliser les tests réels, puis la réception de chaque test
   et le parcours complet « candidature → admission → lettre → remise ».
