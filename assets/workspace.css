@@ -35,3 +35,9 @@
 .routing-rule>div:first-child{min-width:0;overflow-wrap:anywhere}
 .routing-rule p{margin-top:4px;font-size:12px}
 @media(max-width:600px){.routing-summary{grid-template-columns:1fr}.routing-rule{align-items:flex-start;flex-direction:column}}
+
+.document-request-item{padding:14px 0;border-bottom:1px solid var(--line)}
+.document-request-item small{display:block;margin-top:4px}
+.correction-card{width:min(650px,100%)}
+.correction-card h1{font-size:28px}
+.correction-card .btn{margin-top:22px}

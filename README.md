@@ -15,6 +15,8 @@ Trois profils d’expédition Brevo sont prévus : MBN Global Éducation, Campus
 
 Le [lot équipes et affectations](docs/EQUIPES_AFFECTATIONS.md) ajoute le choix des responsables par école, campus et formation, un suivi de configuration des écoles et un aperçu avant reprise des dossiers sans responsable. La répartition réelle reste à valider et à renseigner dans l’interface.
 
+Le [lot pièces complémentaires](docs/PIECES_COMPLEMENTAIRES.md) permet de préparer une demande, de l’envoyer avec l’expéditeur de l’école et de recevoir uniquement les pièces demandées sur un lien personnel. Les anciennes versions restent privées et les nouveaux fichiers reviennent en vérification.
+
 ## Développement et livraison
 
 Node 24.19.0, Python 3.12. Dépendances exactes et verrouillées.

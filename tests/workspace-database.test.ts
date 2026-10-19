@@ -609,3 +609,115 @@ test('school readiness follows the effective general rule instead of an unused l
  assert.equal(school.general_ready,false);assert.equal(Number(school.active_rules),2);
  assert.equal((await routingApplication()).assigned_admissions_user,null);
 }));
+
+const documentAction=(name:string,data:object={},actor=reviewer)=>invoke('mbn_document_requests_action',[actor,sid(actor),name,JSON.stringify(data)]);
+const correctionItems=[{kind:'CV',reason:'Merci de joindre un CV lisible et à jour.'}];
+const correctionManifest=[{kind:'CV',original_name:'updated-cv.pdf',mime_type:'application/pdf',byte_size:20,sha256:'b'.repeat(64),extension:'pdf'}];
+async function correctionApplication(){
+ const leadRow=await action('lead_save',lead()),link=await invoke('mbn_mail_link',[leadRow.id]);
+ const payload={reference_dossier:'MBNAPP-'+link.id,school_code:'MLV BTS',campus_code:'NOISIEL',program_id:program,program_name:'Synthetic BTS',cycle:'BTS',full_name:'Synthetic Prospect',email:'synthetic@example.invalid',country_of_residence:'Cameroun',consent_email:false};
+ const docs=['CV','DIPLOME','PIECE_IDENTITE'].map(kind=>({kind,original_name:kind+'.pdf',mime_type:'application/pdf',byte_size:20,sha256:'a'.repeat(64),extension:'pdf'}));
+ const draft=await invoke('mbn_candidate_prepare',[link.id,JSON.stringify(payload),'{}',JSON.stringify(docs),'a'.repeat(64)]);
+ for(const d of docs)await db.query('insert into storage.objects(bucket_id,name,metadata) values($1,$2,$3)',['mbn-admissions',draft.submission_id+'/'+d.kind+'.pdf',JSON.stringify({size:20,mimetype:'application/pdf'})]);
+ const receipt=await invoke('mbn_candidate_complete',[link.id,draft.submission_id]);
+ const detail=await action('application_detail',{id:receipt.application_id});
+ for(const doc of detail.documents)await action('document_review',{id:receipt.application_id,document_id:doc.id,review_status:doc.kind==='CV'?'REJECTED':'APPROVED',note:'Synthetic review'},reviewer);
+ return {id:receipt.application_id,documents:detail.documents,lead_id:leadRow.id};
+}
+const createCorrection=(application_id:string,overrides={})=>documentAction('create',{application_id,request_id:crypto.randomUUID(),items:correctionItems,...overrides});
+async function uploadCorrection(request_id:string){
+ const draft=await invoke('mbn_correction_prepare',[request_id,JSON.stringify(correctionManifest),'c'.repeat(64)]);
+ await db.query('insert into storage.objects(bucket_id,name,metadata) values($1,$2,$3)',['mbn-admissions',draft.submission_id+'/CV.pdf',JSON.stringify({size:20,mimetype:'application/pdf'})]);return draft;
+}
+
+test('document requests require review permission and preserve already approved pieces',()=>isolated(async()=>{
+ const app=await correctionApplication();
+ await assert.rejects(documentAction('context',{application_id:app.id},cm),{message:'record_not_found'});
+ await assert.rejects(documentAction('context',{application_id:app.id},other),{message:'record_not_found'});
+ await assert.rejects(createCorrection(app.id,{items:[{kind:'DIPLOME',reason:'Synthetic reason'}]}),{message:'document_already_approved'});
+ await assert.rejects(createCorrection(app.id,{items:[...correctionItems,...correctionItems]}),{message:'invalid_document_request'});
+ const request_id=crypto.randomUUID(),q=await createCorrection(app.id,{request_id});
+ assert.equal(q.id,request_id);assert.equal((await createCorrection(app.id,{request_id})).id,q.id);
+ await assert.rejects(createCorrection(app.id),{message:'document_request_exists'});
+ const ctx=await invoke('mbn_correction_info',[q.id]);assert.equal(ctx.school_code,'MLV BTS');assert.equal(ctx.email,undefined);assert.equal(ctx.documents,undefined);assert.deepEqual(ctx.items,correctionItems);
+ assert.equal((await action('application_detail',{id:app.id})).application.status,'MISSING_DOCUMENTS');
+ const {rows:[priv]}=await db.query<any>("select has_function_privilege('anon','public.mbn_correction_info(uuid)','EXECUTE') allowed");assert.equal(priv.allowed,false);
+}));
+
+test('requested corrections reserve exact files, retain earlier versions and require a fresh review',()=>isolated(async()=>{
+ const app=await correctionApplication(),q=await createCorrection(app.id);
+ const draft=await invoke('mbn_correction_prepare',[q.id,JSON.stringify(correctionManifest),'c'.repeat(64)]);
+ await assert.rejects(invoke('mbn_correction_complete',[q.id,draft.submission_id]),{message:'documents_pending'});
+ await assert.rejects(invoke('mbn_correction_prepare',[q.id,JSON.stringify(correctionManifest),'d'.repeat(64)]),{message:'reference_conflict'});
+ await db.query('insert into storage.objects(bucket_id,name,metadata) values($1,$2,$3)',['mbn-admissions',draft.submission_id+'/CV.pdf',JSON.stringify({size:20,mimetype:'application/pdf'})]);
+ assert.deepEqual(await invoke('mbn_correction_complete',[q.id,draft.submission_id]),{success:true,duplicated:false,document_count:1});
+ assert.equal((await invoke('mbn_correction_complete',[q.id,draft.submission_id])).duplicated,true);
+ assert.equal((await invoke('mbn_correction_prepare',[q.id,JSON.stringify(correctionManifest),'c'.repeat(64)])).completed,true);
+ const context=await documentAction('context',{application_id:app.id});assert.equal(context.documents.length,4);
+ const old=context.documents.find((d:any)=>d.id===app.documents.find((d:any)=>d.kind==='CV').id),current=context.documents.find((d:any)=>d.kind==='CV'&&!d.superseded_at);
+ assert.ok(old.superseded_at);assert.equal(current.review_status,'PENDING');assert.equal(current.sha256,undefined);assert.equal(current.scan_status,'NOT_SCANNED');
+ for(const original of app.documents.filter((d:any)=>d.kind!=='CV'))assert.ok(context.documents.some((d:any)=>d.id===original.id&&!d.superseded_at&&d.review_status==='APPROVED'));
+ assert.equal((await action('application_detail',{id:app.id})).application.status,'DOCUMENTS_TO_VERIFY');
+ await assert.rejects(action('document_review',{id:app.id,document_id:old.id,review_status:'APPROVED',note:'Stale review'},reviewer),{message:'document_superseded'});
+ await assert.rejects(action('application_transition',{id:app.id,expected_status:'DOCUMENTS_TO_VERIFY',status:'COMPLETE'},reviewer),{message:'required_documents_not_approved'});
+ await action('document_review',{id:app.id,document_id:current.id,review_status:'APPROVED',note:'New review'},reviewer);
+ await action('application_transition',{id:app.id,expected_status:'DOCUMENTS_TO_VERIFY',status:'COMPLETE'},reviewer);
+ assert.equal((await action('application_detail',{id:app.id})).application.status,'COMPLETE');
+}));
+
+test('expired or canceled correction links cannot read or commit a replacement',()=>isolated(async()=>{
+ const app=await correctionApplication(),q=await createCorrection(app.id),draft=await uploadCorrection(q.id);
+ await documentAction('cancel',{id:q.id});
+ await assert.rejects(invoke('mbn_correction_info',[q.id]),{message:'link_unavailable'});
+ await assert.rejects(invoke('mbn_correction_complete',[q.id,draft.submission_id]),{message:'link_unavailable'});
+ const next=await createCorrection(app.id);await db.query("update private.mbn_document_requests set expires_at=now()-interval '1 second' where id=$1",[next.id]);
+ await assert.rejects(invoke('mbn_correction_info',[next.id]),{message:'link_unavailable'});
+ const third=await createCorrection(app.id);assert.notEqual(third.id,next.id);
+ assert.equal((await documentAction('context',{application_id:app.id})).documents.length,3);
+}));
+
+test('a correction cannot replace an unrequested kind or a piece approved after the request',()=>isolated(async()=>{
+ const app=await correctionApplication(),q=await createCorrection(app.id);
+ await assert.rejects(invoke('mbn_correction_prepare',[q.id,'[]','c'.repeat(64)]),{message:'requested_documents_only'});
+ await assert.rejects(invoke('mbn_correction_prepare',[q.id,JSON.stringify([{...correctionManifest[0],kind:'DIPLOME'}]),'c'.repeat(64)]),{message:'invalid_document'});
+ const draft=await uploadCorrection(q.id),original=app.documents.find((d:any)=>d.kind==='CV');
+ await action('document_review',{id:app.id,document_id:original.id,review_status:'APPROVED',note:'Approved while waiting'},reviewer);
+ await assert.rejects(invoke('mbn_correction_complete',[q.id,draft.submission_id]),{message:'document_request_changed'});
+ await assert.rejects(action('application_transition',{id:app.id,expected_status:'MISSING_DOCUMENTS',status:'COMPLETE'},reviewer),{message:'document_request_pending'});
+ assert.equal((await documentAction('context',{application_id:app.id})).documents.length,3);
+}));
+
+test('a correction email uses its school sender without marketing consent and has a single send lease',()=>isolated(async()=>{
+ await enableGroups();const app=await correctionApplication(),q=await createCorrection(app.id);
+ await db.query("update public.crm_leads set consent_email=false,status='UNSUBSCRIBED',unsubscribed_at=now() where id=$1",[app.lead_id]);
+ const claim=await documentAction('claim',{id:q.id});assert.equal(claim.sender.from_email,groupEmail('CAMPUS_INNOVATION_MLV'));assert.equal(claim.message.document_request_id,q.id);
+ assert.equal(await documentAction('authorized',{id:q.id,attempt_id:claim.message.attempt_id}),true);
+ await assert.rejects(documentAction('claim',{id:q.id}),{message:'document_request_already_sent'});
+ await routeSave('ADMISSIONS_COMMUN',{school_code:'MLV BTS'});
+ assert.equal(await documentAction('authorized',{id:q.id,attempt_id:claim.message.attempt_id}),false);
+ assert.equal((await db.query<any>('select status from public.mail_messages where id=$1',[claim.message.id])).rows[0].status,'CANCELED');
+}));
+
+test('correction email readiness, address suppression and the shared quota block before a send lease',()=>isolated(async()=>{
+ const app=await correctionApplication(),q=await createCorrection(app.id);
+ await assert.rejects(documentAction('claim',{id:q.id}),{message:'mail_route_missing'});
+ await enableGroups();await groupSave('CAMPUS_INNOVATION_MLV');
+ await assert.rejects(documentAction('claim',{id:q.id}),{message:'sender_not_ready'});
+ await groupSave('CAMPUS_INNOVATION_MLV',{enabled:true});await action('mail_limit_save',{daily_limit:3});
+ await assert.rejects(documentAction('claim',{id:q.id}),{message:'daily_limit_reached'});
+ await action('mail_limit_save',{daily_limit:100});await db.query('update public.crm_leads set email_suppressed_at=now() where id=$1',[app.lead_id]);
+ await assert.rejects(documentAction('claim',{id:q.id}),{message:'document_request_unavailable'});
+ assert.equal((await documentAction('context',{application_id:app.id})).requests[0].message_id,null);
+}));
+
+test('a correction request stays bound to its dossier and rejects invalid metadata or an excluded applicant',()=>isolated(async()=>{
+ const app=await correctionApplication(),q=await createCorrection(app.id),otherApp=await routingApplication();
+ await assert.rejects(documentAction('context',{application_id:otherApp.id,id:q.id}),{message:'record_not_found'});
+ await assert.rejects(invoke('mbn_correction_prepare',[q.id,JSON.stringify([{...correctionManifest[0],mime_type:null}]),'c'.repeat(64)]),{message:'invalid_document'});
+ await enableGroups();const claim=await documentAction('claim',{id:q.id});
+ await db.query("update public.crm_leads set status='DISQUALIFIED' where id=$1",[app.lead_id]);
+ await assert.rejects(invoke('mbn_correction_info',[q.id]),{message:'link_unavailable'});
+ await assert.rejects(documentAction('claim',{id:q.id}),{message:'document_request_unavailable'});
+ assert.equal(await documentAction('authorized',{id:q.id,attempt_id:claim.message.attempt_id}),false);
+ assert.equal((await db.query<any>('select status from public.mail_messages where id=$1',[claim.message.id])).rows[0].status,'CANCELED');
+}));

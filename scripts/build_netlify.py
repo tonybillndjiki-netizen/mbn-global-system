@@ -19,7 +19,7 @@ if publish.exists():
     shutil.rmtree(publish)
 publish.mkdir()
 
-selected = [root / name for name in ['index.html', 'MBN_GLOBAL_Admin_Supabase.html', 'apply.html', 'preferences.html']]
+selected = [root / name for name in ['index.html', 'MBN_GLOBAL_Admin_Supabase.html', 'apply.html', 'preferences.html', 'documents.html']]
 selected += sorted((root / 'assets').rglob('*.js'))
 selected += sorted((root / 'assets').rglob('*.css'))
 selected += sorted((root / 'assets' / 'brands').glob('*.png'))
