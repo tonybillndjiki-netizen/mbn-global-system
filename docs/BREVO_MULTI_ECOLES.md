@@ -39,7 +39,7 @@ sont conservées. Aucun expéditeur déjà configuré n’est remplacé.
 Ils utilisent une clé Brevo commune, un suivi de livraison commun et un plafond
 quotidien commun. L’adresse d’expédition est propre à chaque profil.
 Le nom affiché au destinataire est calculé automatiquement :
-**Service admissions — [nom de l’école]**. Le nom du groupe est un libellé
+**Service admissions - [nom de l’école]**. Le nom du groupe est un libellé
 d’administration ; il ne remplace pas ce nom visible. Les campagnes, les tests
 et les lettres appliquent la même règle depuis `assets/branding.js`.
 Les réponses restent dirigées vers l'adresse automatique d'expédition.
@@ -135,7 +135,7 @@ que les quatre écoles du profil commun gardent leur propre contact admissions,
 que les messages déjà envoyés conservent leur identité et que les campus restent
 inchangés. Un test suit deux écoles partageant une adresse jusqu’au JSON
 Brevo et vérifie leurs deux noms affichés distincts. Les lettres vérifient
-également le nom « Service admissions — école ». Les échanges Brevo sont simulés ; aucun e-mail réel n’a été envoyé.
+également le nom « Service admissions - école ». Les échanges Brevo sont simulés ; aucun e-mail réel n’a été envoyé.
 
 Une vérification du front dans un DOM simulé a contrôlé les trois profils,
 les 19 formulaires, le changement ESETH de MBN vers le profil commun et sa

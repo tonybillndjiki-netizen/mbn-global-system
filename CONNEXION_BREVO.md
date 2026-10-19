@@ -21,7 +21,7 @@ Version 0.8.0 · lot trois expéditeurs du 19 octobre 2026. Le serveur et les le
 
 ## Nom affiché au destinataire
 
-Les campagnes, les lettres et les tests utilisent automatiquement **Service admissions — [nom de l’école]**, par exemple **Service admissions — ESIIA**, **Service admissions — CESCOM** ou **Service admissions — Évry BTS**. Le nom provient du code de l’école enregistré côté serveur. Deux écoles peuvent partager la même adresse automatique tout en affichant chacune leur propre nom. Le nom du groupe saisi dans l’administration sert à identifier le profil ; il ne remplace pas le nom affiché au candidat.
+Les campagnes, les lettres et les tests utilisent automatiquement **Service admissions - [nom de l’école]**, par exemple **Service admissions - ESIIA**, **Service admissions - CESCOM** ou **Service admissions - Évry BTS**. Le nom provient du code de l’école enregistré côté serveur. Deux écoles peuvent partager la même adresse automatique tout en affichant chacune leur propre nom. Le nom du groupe saisi dans l’administration sert à identifier le profil ; il ne remplace pas le nom affiché au candidat.
 
 ## Changer le groupe d’expédition d’une école
 
