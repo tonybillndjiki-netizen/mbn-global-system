@@ -21,7 +21,7 @@ test('workspace authenticates before reading JSON and ignores spoofed actor iden
  assert.equal((await allowed.handler(req('bootstrap',{}, {p_actor:'spoof'}))).status,400);
 });
 test('missing SES credentials are explicit; a test is not queued or marked sent',async()=>{
- const {handler,calls}=api({reply:(name)=>name==='mbn_workspace_action'||name==='mbn_mail_transport_settings'?sender:null});
+ const {handler,calls}=api({reply:(name)=>name==='mbn_workspace_action'||name==='mbn_mail_profile_settings'||name==='mbn_mail_profile_checked'?sender:null});
  const response=await handler(req('test_send'));assert.equal(response.status,422);assert.equal((await response.json()).error,'aws_credentials_missing');
  assert.ok(!calls.some(c=>c.args.p_action==='test_prepare'||c.name==='mbn_mail_claim'));
 });

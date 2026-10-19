@@ -10,7 +10,7 @@ Le workflow GitHub Actions fourni effectue ces mêmes vérifications. Il sera ac
 
 ## Activer MBN Mail avec Brevo
 
-Suivre [CONNEXION_BREVO.md](CONNEXION_BREVO.md). Ajouter MBN_BREVO_API_KEY dans les secrets Supabase ; enregistrer l’adresse d’expédition, la réponse et le plafond quotidien ; vérifier Brevo ; configurer les retours ; envoyer le test administrateur et confirmer sa remise avant d’activer les envois.
+Suivre [CONNEXION_BREVO.md](CONNEXION_BREVO.md). Ajouter MBN_BREVO_API_KEY dans les secrets Supabase ; enregistrer les deux expéditeurs automatiques et le plafond quotidien commun ; renseigner le groupe et le contact admissions des 19 écoles ; vérifier chaque expéditeur ; configurer les retours communs ; confirmer la remise d’un test administrateur pour chaque expéditeur avant de l’activer.
 
 Le webhook mbn-brevo-events utilise un jeton Bearer dédié conservé côté serveur. Chaque événement est corrélé au destinataire et à l’identifiant Brevo, puis dédupliqué. Les erreurs temporaires renvoient 429 pour conserver les nouvelles tentatives Brevo. Les rejets permanents et plaintes entraînent l’exclusion globale de l’adresse ; une désinscription arrête les campagnes.
 

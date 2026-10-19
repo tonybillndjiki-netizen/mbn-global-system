@@ -48,3 +48,42 @@ test('Brevo handles single and batched callbacks, hashes deduplication keys and 
 test('Brevo receives retryable 429 for callbacks that race a send or encounter a temporary database failure',async()=>{
  for(const failure of ['pending','unavailable']){const handler=createHandler({secret:async()=>secret,rpc:async()=>{if(failure==='unavailable')throw Error('temporary');return {data:null,error:{code:'PT409',message:'message_pending'}};}});const response=await handler(new Request('https://example.invalid',{method:'POST',headers:{authorization:'Bearer '+secret},body:JSON.stringify(payload)}));assert.equal(response.status,429);}
 });
+
+test('automatic mail includes the school service contact in HTML and plain text without losing unsubscribe',async()=>{
+ const {renderMessage}=await import('../supabase/functions/mbn-workspace/handler.ts');
+ for(const school_code of ['EMSP','MLV BTS']){
+  const mail=renderMessage({school_code,subject:'Admission',body:'Bonjour {{prenom}}',lead:{full_name:'Fatoumata Test'},service_contact_email:'admissions-school@example.invalid'},'https://example.invalid/apply','https://example.invalid/preferences');
+  assert.ok(mail.text.includes('Merci de ne pas répondre'));assert.ok(mail.html.includes('Merci de ne pas répondre'));
+  assert.ok(mail.text.includes('admissions-school@example.invalid'));assert.ok(mail.html.includes('href="mailto:admissions-school@example.invalid"'));
+  assert.ok(mail.text.includes('https://example.invalid/preferences'));assert.ok(mail.html.includes('https://example.invalid/preferences'));
+ }
+ assert.throws(()=>renderMessage({school_code:'EMSP',subject:'Test',body:'Test',service_contact_email:'x@example.invalid\nBcc: other@example.invalid'}));
+});
+test('dispatch chooses both server-side sender snapshots and keeps replies on the automatic addresses',async()=>{
+ for(const firstReady of [false,true]){
+  const groups=['MBN_GLOBAL','CAMPUS_INNOVATION_MLV'],sent:any[]=[],claimed=new Set(),finished:string[]=[];
+  const profile=(group:string)=>({code:group,revision:id,from_name:group==='MBN_GLOBAL'?'MBN Global Éducation':'Campus Innovation Marne-la-Vallée',from_email:group==='MBN_GLOBAL'?'no-reply@mbn.example.invalid':'no-reply@campus.example.invalid',reply_to:'ignored@example.invalid',enabled:true});
+  const handler=workspace({authenticate:async()=>({id,session_id:other}),rpc:async(name,args)=>{
+   if(name==='mbn_workspace_action')return {data:{},error:null};
+   if(name==='mbn_mail_profile_settings'||name==='mbn_mail_profile_checked')return {data:profile(String(args.p_group)),error:null};
+   if(name==='mbn_mail_profile_claim'){
+    const group=String(args.p_group);if(claimed.has(group))return {data:null,error:null};claimed.add(group);
+    return {data:{id:group==='MBN_GLOBAL'?id:other,attempt_id:other,lead_id:id,school_code:group==='MBN_GLOBAL'?'EMSP':'MLV BTS',recipient:group.toLowerCase()+'-candidate@example.invalid',subject:'Admission',body:'Bienvenue {{prenom}}',service_contact_email:group.toLowerCase()+'-service@example.invalid',sender:profile(group),lead:{full_name:'Synthetic Test'}},error:null};
+   }
+   if(name==='mbn_mail_link')return {data:{id,revoked:false,expires_at:'2099-01-01'},error:null};
+   if(name==='mbn_runtime_key')return {data:secret,error:null};
+   if(name==='mbn_mail_profile_authorized')return {data:true,error:null};
+   if(name==='mbn_mail_finish'){finished.push(String(args.p_id));return {data:true,error:null};}
+   throw Error('Unexpected RPC '+name);
+  },transport:{configured:true,inspect:async s=>({sender_verified:firstReady||s.from_email.includes('campus'),production_access:true,account_sending_enabled:true,remaining:10,rate:1}),send:async(s,m)=>{sent.push({s,m});return {status:'ACCEPTED',provider_id:'<'+m.id+'>'};}},download:async()=>new Uint8Array(),sleep:async()=>{}});
+  const response=await handler(new Request('https://example.invalid',{method:'POST',headers:{authorization:'Bearer '+'t'.repeat(30)},body:JSON.stringify({action:'dispatch'})}));
+  assert.equal(response.status,200);const result=await response.json();assert.equal(result.processed,firstReady?2:1);assert.equal(sent.length,firstReady?2:1);assert.equal(finished.length,sent.length);
+  for(const {s,m} of sent){assert.equal(s.reply_to,s.from_email);assert.ok(m.text.includes(s.code.toLowerCase()+'-service@example.invalid'));assert.equal(m.recipient,s.code.toLowerCase()+'-candidate@example.invalid');}
+  assert.ok(sent.some(({s})=>s.code==='CAMPUS_INNOVATION_MLV'));assert.equal(result.skipped.length,firstReady?0:1);
+ }
+});
+test('mail administration checks owner authorization before inspecting or sending through Brevo',async()=>{
+ let external=0;const handler=workspace({authenticate:async()=>({id,session_id:other}),rpc:async()=>({data:null,error:{code:'PT403',message:'access_denied'}}),transport:{configured:true,inspect:async()=>{external++;throw Error('must not inspect');},send:async()=>{external++;throw Error('must not send');}},download:async()=>new Uint8Array(),sleep:async()=>{}});
+ const response=await handler(new Request('https://example.invalid',{method:'POST',headers:{authorization:'Bearer '+'t'.repeat(30)},body:JSON.stringify({action:'test_send',data:{sender_group:'CAMPUS_INNOVATION_MLV'}})}));
+ assert.equal(response.status,403);assert.equal(external,0);
+});
