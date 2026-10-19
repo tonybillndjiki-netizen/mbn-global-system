@@ -1,0 +1,323 @@
+[
+  {
+    "key": "logo_campus-innovation-mlv",
+    "label": "campus-innovation-mlv",
+    "filename": "campus-innovation-mlv.png",
+    "bucket": "mbn-school-branding",
+    "object_path": "campus-innovation-mlv.png",
+    "mime_type": "image/png",
+    "school_codes": null,
+    "sha256": "393fc45edcf22ca6ad3eb26181b130c6966bac90a923cfe858b6a6a69fcdb4b2",
+    "byte_size": 268809
+  },
+  {
+    "key": "logo_cescom",
+    "label": "cescom",
+    "filename": "cescom.png",
+    "bucket": "mbn-school-branding",
+    "object_path": "cescom.png",
+    "mime_type": "image/png",
+    "school_codes": null,
+    "sha256": "b424269e72c88af37739594e92b15b9a4eef6de28924dae57ca8f994b6973e07",
+    "byte_size": 40716
+  },
+  {
+    "key": "logo_dcg-formations",
+    "label": "dcg-formations",
+    "filename": "dcg-formations.png",
+    "bucket": "mbn-school-branding",
+    "object_path": "dcg-formations.png",
+    "mime_type": "image/png",
+    "school_codes": null,
+    "sha256": "b9eaefa7e1a1202a13420c89f495671153255b5d32b917ccbab669d31f1ec2ba",
+    "byte_size": 19649
+  },
+  {
+    "key": "logo_emsp",
+    "label": "emsp",
+    "filename": "emsp.png",
+    "bucket": "mbn-school-branding",
+    "object_path": "emsp.png",
+    "mime_type": "image/png",
+    "school_codes": null,
+    "sha256": "1605b9ac6b05de95a80d1bf19ea023af55505b1e17a9c15b499877237820387d",
+    "byte_size": 34378
+  },
+  {
+    "key": "logo_esart",
+    "label": "esart",
+    "filename": "esart.png",
+    "bucket": "mbn-school-branding",
+    "object_path": "esart.png",
+    "mime_type": "image/png",
+    "school_codes": null,
+    "sha256": "bd9b114a7034974180d0b4b1be6cf28e2d485f8e496a8837f2cad1de941c40e7",
+    "byte_size": 49929
+  },
+  {
+    "key": "logo_esea",
+    "label": "esea",
+    "filename": "esea.png",
+    "bucket": "mbn-school-branding",
+    "object_path": "esea.png",
+    "mime_type": "image/png",
+    "school_codes": null,
+    "sha256": "3c2d100df820bb83fb06065d0b03af150c8b9388d6abc08ea9ae167a232bc376",
+    "byte_size": 37007
+  },
+  {
+    "key": "logo_eseth",
+    "label": "eseth",
+    "filename": "eseth.png",
+    "bucket": "mbn-school-branding",
+    "object_path": "eseth.png",
+    "mime_type": "image/png",
+    "school_codes": null,
+    "sha256": "ac8137d2f34a36b2283a6036dbe917095028b4fd4b4fecfb55e6105a183eb773",
+    "byte_size": 40146
+  },
+  {
+    "key": "logo_esiia",
+    "label": "esiia",
+    "filename": "esiia.png",
+    "bucket": "mbn-school-branding",
+    "object_path": "esiia.png",
+    "mime_type": "image/png",
+    "school_codes": null,
+    "sha256": "21bd01c50f4a7ee11ef51dcf885a4b4b113d23969c39720086c729fd82059073",
+    "byte_size": 8770
+  },
+  {
+    "key": "logo_esjm",
+    "label": "esjm",
+    "filename": "esjm.png",
+    "bucket": "mbn-school-branding",
+    "object_path": "esjm.png",
+    "mime_type": "image/png",
+    "school_codes": null,
+    "sha256": "ca71d7538b49aff185ca54839c0d1661c98f64dab7bc94e68094dd16db72c82a",
+    "byte_size": 133121
+  },
+  {
+    "key": "logo_esmas",
+    "label": "esmas",
+    "filename": "esmas.png",
+    "bucket": "mbn-school-branding",
+    "object_path": "esmas.png",
+    "mime_type": "image/png",
+    "school_codes": null,
+    "sha256": "f519a4f9ed3ace9c8a02771da44cf3115d3989ebcfc48e0b1ff909cf8deff511",
+    "byte_size": 8125
+  },
+  {
+    "key": "logo_esmep",
+    "label": "esmep",
+    "filename": "esmep.png",
+    "bucket": "mbn-school-branding",
+    "object_path": "esmep.png",
+    "mime_type": "image/png",
+    "school_codes": null,
+    "sha256": "85728480989d6b93ab9d03cf9a9c962f9541c8e087aba28011644316f2bcc463",
+    "byte_size": 20748
+  },
+  {
+    "key": "logo_esmoss",
+    "label": "esmoss",
+    "filename": "esmoss.png",
+    "bucket": "mbn-school-branding",
+    "object_path": "esmoss.png",
+    "mime_type": "image/png",
+    "school_codes": null,
+    "sha256": "82ea7b80d9a89e0e277a6d79fe9686c1dc2261941eb637f3b53061cda0913a30",
+    "byte_size": 44167
+  },
+  {
+    "key": "logo_esuv",
+    "label": "esuv",
+    "filename": "esuv.png",
+    "bucket": "mbn-school-branding",
+    "object_path": "esuv.png",
+    "mime_type": "image/png",
+    "school_codes": null,
+    "sha256": "ddc8ef65cc02f9f1dd54df293d2a253ebba506b43f683f1ee78a09c9de1193ee",
+    "byte_size": 28727
+  },
+  {
+    "key": "logo_evry-bs",
+    "label": "evry-bs",
+    "filename": "evry-bs.png",
+    "bucket": "mbn-school-branding",
+    "object_path": "evry-bs.png",
+    "mime_type": "image/png",
+    "school_codes": null,
+    "sha256": "df6f91fba424312f845fc41e9764f74693d9e711024871b8ed6184bfe5bf7070",
+    "byte_size": 56492
+  },
+  {
+    "key": "logo_evry-bts",
+    "label": "evry-bts",
+    "filename": "evry-bts.png",
+    "bucket": "mbn-school-branding",
+    "object_path": "evry-bts.png",
+    "mime_type": "image/png",
+    "school_codes": null,
+    "sha256": "c6b50f5ba83c6dd163455532d6c4907d3af314beda4b85c2728525d888c6a15f",
+    "byte_size": 42438
+  },
+  {
+    "key": "logo_ilmis",
+    "label": "ilmis",
+    "filename": "ilmis.png",
+    "bucket": "mbn-school-branding",
+    "object_path": "ilmis.png",
+    "mime_type": "image/png",
+    "school_codes": null,
+    "sha256": "91b10dc029d986aaadd498680c1af14adcdf786af6877bcb2fcb79595f762bec",
+    "byte_size": 19966
+  },
+  {
+    "key": "logo_ismod",
+    "label": "ismod",
+    "filename": "ismod.png",
+    "bucket": "mbn-school-branding",
+    "object_path": "ismod.png",
+    "mime_type": "image/png",
+    "school_codes": null,
+    "sha256": "b59377f029d2a7456c31fa003fd4aae967f872f504a300cd5c9ffe27c154b321",
+    "byte_size": 97695
+  },
+  {
+    "key": "logo_lsb",
+    "label": "lsb",
+    "filename": "lsb.png",
+    "bucket": "mbn-school-branding",
+    "object_path": "lsb.png",
+    "mime_type": "image/png",
+    "school_codes": null,
+    "sha256": "612b5db670097773bb11bd3da2db99e1fd527451aa4c28483a8ffe29908ab2c6",
+    "byte_size": 131335
+  },
+  {
+    "key": "logo_mlv-bs",
+    "label": "mlv-bs",
+    "filename": "mlv-bs.png",
+    "bucket": "mbn-school-branding",
+    "object_path": "mlv-bs.png",
+    "mime_type": "image/png",
+    "school_codes": null,
+    "sha256": "570e44d5b15781dd5a30161931b3282142c8c7d21bb0c43b1df5dc56f7889386",
+    "byte_size": 99292
+  },
+  {
+    "key": "logo_mlv-bts",
+    "label": "mlv-bts",
+    "filename": "mlv-bts.png",
+    "bucket": "mbn-school-branding",
+    "object_path": "mlv-bts.png",
+    "mime_type": "image/png",
+    "school_codes": null,
+    "sha256": "17f643630357c780152da559dadca693c82f4931181a2b855f520ecf8daf4d16",
+    "byte_size": 20945
+  },
+  {
+    "key": "cgv_cescom",
+    "label": "CGV CESCOM",
+    "filename": "cgv_cescom.pdf",
+    "bucket": "mbn-mail-assets",
+    "object_path": "cgv_cescom.pdf",
+    "mime_type": "application/pdf",
+    "school_codes": [
+      "CESCOM"
+    ],
+    "sha256": "8a80c875e978c953f953a58bb209760acd9b5c1fffb87d4adfa1ea4304353213",
+    "byte_size": 271041
+  },
+  {
+    "key": "cgv_group",
+    "label": "CGV MBN Global Éducation",
+    "filename": "cgv_group.pdf",
+    "bucket": "mbn-mail-assets",
+    "object_path": "cgv_group.pdf",
+    "mime_type": "application/pdf",
+    "school_codes": null,
+    "sha256": "aa9222816a2e70b22e9305d1388dbbf97e8a56bf3c437252cf67d316579f32e8",
+    "byte_size": 359675
+  },
+  {
+    "key": "visa_refusal",
+    "label": "Refus de visa",
+    "filename": "visa_refusal.pdf",
+    "bucket": "mbn-mail-assets",
+    "object_path": "visa_refusal.pdf",
+    "mime_type": "application/pdf",
+    "school_codes": null,
+    "sha256": "48e3dd4fb8136ff2b0a8635d2f74f467b804554b46d8155dc44a4841d47d8197",
+    "byte_size": 4333564
+  },
+  {
+    "key": "bank_brochure",
+    "label": "Caisse d’Épargne · Offre étudiants",
+    "filename": "bank_brochure.pdf",
+    "bucket": "mbn-mail-assets",
+    "object_path": "bank_brochure.pdf",
+    "mime_type": "application/pdf",
+    "school_codes": null,
+    "sha256": "f24f9d4dcde85fa7a6e08b4a2c2e444d8c31a3784f91c32af895ce23b78d6dfe",
+    "byte_size": 1321767
+  },
+  {
+    "key": "avi_attestation",
+    "label": "Engagement AVI",
+    "filename": "avi_attestation.pdf",
+    "bucket": "mbn-mail-assets",
+    "object_path": "avi_attestation.pdf",
+    "mime_type": "application/pdf",
+    "school_codes": null,
+    "sha256": "eca7e21c9ba23a5ca4d0c59fb7664888a46f4dad96581502fd586fe72ae6b917",
+    "byte_size": 61180
+  },
+  {
+    "key": "rib_general",
+    "label": "RIB toutes nationalités · original à vérifier pour cette école",
+    "filename": "rib_general.jpg",
+    "bucket": "mbn-mail-assets",
+    "object_path": "rib_general.jpg",
+    "mime_type": "image/jpeg",
+    "school_codes": null,
+    "sha256": "5ddbaa2f7afd04bf77dbe1e4af62742b9f86afff06513d28a387145f2aaeafe4",
+    "byte_size": 43522
+  },
+  {
+    "key": "rib_cameroun",
+    "label": "RIB Cameroun · optionnel · original à vérifier pour cette école",
+    "filename": "rib_cameroun.jpg",
+    "bucket": "mbn-mail-assets",
+    "object_path": "rib_cameroun.jpg",
+    "mime_type": "image/jpeg",
+    "school_codes": null,
+    "sha256": "3f25e262f449497aa69d9a02aaa202a50a201c34f04e4e6a11a92d1ac9f9e8a7",
+    "byte_size": 40387
+  },
+  {
+    "key": "font_regular",
+    "label": "DejaVu Sans regular",
+    "filename": "regular.ttf",
+    "bucket": "mbn-mail-assets",
+    "object_path": "fonts/regular.ttf",
+    "mime_type": "font/ttf",
+    "school_codes": null,
+    "sha256": "ae7b7855e115a5966d8b1b3f80f254ccc117ec86f9965e202ee2940453837280",
+    "byte_size": 759720
+  },
+  {
+    "key": "font_bold",
+    "label": "DejaVu Sans bold",
+    "filename": "bold.ttf",
+    "bucket": "mbn-mail-assets",
+    "object_path": "fonts/bold.ttf",
+    "mime_type": "font/ttf",
+    "school_codes": null,
+    "sha256": "5c1247acef7f2b8522a31742c76d6adcb5569bacc0be7ceaa4dc39dd252ce895",
+    "byte_size": 708920
+  }
+]

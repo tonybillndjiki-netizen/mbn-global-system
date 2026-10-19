@@ -1,0 +1,22 @@
+{
+  "name": "mbn-global-native-admissions",
+  "version": "0.8.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --import tsx --test tests/database.test.ts tests/native-*.test.ts tests/pin-*.test.ts tests/workspace-*.test.ts tests/letters-*.test.ts",
+    "typecheck": "tsc -p supabase/functions/tsconfig.json",
+    "build:forms": "node scripts/build_native_forms.mjs",
+    "build": "python3 scripts/build_netlify.py",
+    "check": "npm test && npm run typecheck && npm run build",
+    "audit:forms": "node scripts/audit_forms.mjs"
+  },
+  "devDependencies": {
+    "@babel/parser": "8.0.7",
+    "@electric-sql/pglite": "0.5.10",
+    "@pdf-lib/fontkit": "1.1.1",
+    "pdf-lib": "1.17.1",
+    "tsx": "4.23.15",
+    "typescript": "7.0.2"
+  }
+}

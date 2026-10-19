@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admission | ESMAS</title>
+    
+    <!-- Intégration de Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Polices Google : Poppins correspond au design arrondi et moderne d'ESMAS -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Icônes FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Configuration Tailwind pour ESMAS -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        esmas: {
+                            teal: '#60c2c3',      // Turquoise/Teal du bouton principal
+                            tealDark: '#4aa8a9', // Turquoise foncé au survol
+                            purple: '#6b5aed',   // Violet/Indigo du survol des menus
+                            red: '#f0494f',      // Rouge des boutons réseaux sociaux
+                            dark: '#1f2937',     // Gris foncé/Noir de la barre supérieure
+                            overlay: '#111827'   // Overlay sombre pour l'image
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            background-color: #f3f4f6;
+        }
+
+        .step-container {
+            display: none;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.4s ease-out;
+        }
+        .step-container.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .input-esmas {
+            border: 1px solid #d1d5db;
+            background-color: #ffffff;
+            transition: all 0.3s ease;
+            border-radius: 6px;
+        }
+        .input-esmas:focus {
+            border-color: #60c2c3;
+            box-shadow: 0 0 0 3px rgba(96, 194, 195, 0.2);
+            outline: none;
+        }
+
+        select:disabled, input:disabled, textarea:disabled {
+            background-color: #f3f4f6;
+            color: #9ca3af;
+            cursor: not-allowed;
+            border-color: #e5e7eb;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f3f4f6; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+        
+        .btn-esmas {
+            background-color: #60c2c3;
+            color: white;
+            transition: background-color 0.3s ease;
+            border-radius: 9999px; /* Boutons très arrondis (pilule) typiques d'ESMAS */
+        }
+        .btn-esmas:hover {
+            background-color: #4aa8a9;
+        }
+    </style>
+<meta name="mbn-school" content="ESMAS"><meta name="referrer" content="no-referrer"></head>
+
+<body class="text-gray-800 font-sans min-h-screen flex flex-col"><style>
+#mbn-native-test{font:14px/1.5 Arial,sans-serif;background:#112747;color:#fff;padding:18px 24px;position:relative;z-index:100}
+#mbn-native-test p{margin:5px 0}#mbn-native-test a{color:#a6e4dd;text-decoration:underline}
+#mbn-native-test form{display:flex;gap:10px;align-items:end;flex-wrap:wrap;margin-top:12px}
+#mbn-native-test label{display:grid;gap:4px}#mbn-native-test input{padding:8px 10px;border-radius:5px;color:#152742;background:#fff;border:1px solid #bdd0e6}
+#mbn-native-test button{background:#fff;color:#112747;padding:8px 12px;border:1px solid #bdd0e6;border-radius:5px;font-weight:700;cursor:pointer}
+#mbn-native-test button:disabled{opacity:.5}#mbn-native-test [hidden]{display:none!important}
+#mbn-native-status{min-height:22px}#mbn-native-test .mbn-ref{font-size:11px;overflow-wrap:anywhere;color:#c8d5e8}
+</style><section id="mbn-native-test" aria-label="Validation administrateur">
+<p><img src="../assets/brands/campus-innovation-mlv.png" alt="ESMAS" style="display:inline-block;height:30px;max-width:130px;object-fit:contain;background:#fff;padding:3px;margin-right:10px"> <strong>MBN GLOBAL · Validation des formulaires</strong> — <a href="../MBN_GLOBAL_Admin_Supabase.html">Console administrateur</a></p>
+<p>Mode test : utilisez des données et des documents fictifs. Aucun e-mail n’est envoyé.</p>
+<p id="mbn-native-status" role="status">Chargement du catalogue…</p><p class="mbn-ref" id="mbn-native-reference"></p>
+<form id="mbn-native-login"><label>Nom d’utilisateur<input id="mbn-native-username" type="text" autocomplete="username" value="Tony Bill" required></label>
+<label>Mot de passe — six chiffres<input id="mbn-native-password" type="password" inputmode="numeric" maxlength="8" pattern="[0-9 ]{6,8}" autocomplete="current-password" required></label>
+<button type="submit">Se connecter</button></form>
+<div style="margin-top:10px"><button type="button" id="mbn-native-logout" hidden>Déconnexion</button> <button type="button" id="mbn-native-access">Mon accès</button> <button type="button" id="mbn-native-new">Nouvel essai</button></div></section>
+
+    <!-- En-tête -->
+    <header class="w-full z-50 relative bg-white shadow-sm">
+        <!-- Barre supérieure (Gris foncé, icônes rouges) -->
+        <div class="bg-esmas-dark text-gray-300 text-[11px] py-2 px-4 md:px-8 flex justify-between items-center font-medium">
+            <div class="flex flex-col sm:flex-row sm:gap-6 gap-2 items-start sm:items-center">
+                <span class="flex items-center hover:text-white transition-colors cursor-pointer"><i class="fa-solid fa-envelope mr-2 text-esmas-red"></i>contact@esmas.fr</span>
+                <span class="flex items-center"><i class="fa-solid fa-phone mr-2 text-esmas-red"></i>Fixe : (+33) 01 84 80 24 88 / Port : (+33) 07 81 12 01 66</span>
+            </div>
+            <div class="flex gap-2">
+                <div class="w-6 h-6 rounded-full bg-esmas-red text-white flex items-center justify-center cursor-pointer hover:bg-red-600 transition-colors text-[10px]">
+                    <i class="fa-brands fa-facebook-f"></i>
+                </div>
+                <div class="w-6 h-6 rounded-full bg-esmas-red text-white flex items-center justify-center cursor-pointer hover:bg-red-600 transition-colors text-[10px]">
+                    <i class="fa-brands fa-instagram"></i>
+                </div>
+                <div class="w-6 h-6 rounded-full bg-esmas-red text-white flex items-center justify-center cursor-pointer hover:bg-red-600 transition-colors text-[10px]">
+                    <i class="fa-brands fa-tiktok"></i>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Menu Principal Épuré (Uniquement Logo) -->
+        <div class="py-4 px-4 md:px-8 flex items-center justify-center md:justify-start">
+            <div class="flex items-center gap-3 cursor-pointer">
+                <!-- Logo ESMAS textuel recréé -->
+                <div class="flex items-center">
+                    <span class="text-esmas-dark font-black italic text-2xl tracking-tighter">ESM</span>
+                    <span class="text-esmas-dark font-black italic text-2xl tracking-tighter">AS</span>
+                </div>
+                <div class="h-8 w-px bg-gray-300 hidden md:block mx-2"></div>
+                <div class="hidden md:block">
+                    <p class="text-xs text-gray-500 font-semibold uppercase tracking-widest">Portail d'Admission Sécurisé</p> 
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Contenu Principal -->
+    <main class="flex-grow relative">
+        <!-- Background Banner avec Image style Paris/Étudiants -->
+        <div class="absolute inset-0 h-[400px] z-0 overflow-hidden">
+            <img src="https://images.unsplash.com/photo-1543348750-466bdf84e8ab?auto=format&fit=crop&q=80&w=2000" alt="Étudiants à Paris" class="w-full h-full object-cover object-center" />
+            <!-- Overlay sombre progressif -->
+            <div class="absolute inset-0 bg-gradient-to-b from-esmas-overlay/80 via-esmas-overlay/70 to-f3f4f6"></div>
+        </div>
+
+        <div class="max-w-4xl mx-auto pt-16 pb-12 px-4 sm:px-6 relative z-10">
+            
+            <div class="mb-14 text-center text-white">
+                <p class="text-esmas-teal font-semibold italic text-lg mb-2">Inscriptions en cours</p>
+                <h2 class="text-3xl md:text-5xl font-bold tracking-tight mb-4 leading-tight">
+                    École Supérieure De Management<br>Du Sport (ESMAS)
+                </h2>
+                <div class="inline-flex items-center justify-center px-6 py-2.5 bg-esmas-teal text-white font-semibold rounded-full text-sm mt-4 shadow-lg cursor-default">
+                    S'inscrire maintenant <i class="fa-solid fa-arrow-right ml-2"></i>
+                </div>
+            </div>
+
+            <!-- Stepper visuel -->
+            <div class="mb-8 px-2 sm:px-8 bg-white py-5 px-6 shadow-sm border border-gray-200 rounded-xl">
+                <div class="flex items-center justify-between relative">
+                    <div class="absolute left-0 top-5 transform -translate-y-1/2 w-full h-1 bg-gray-100 z-0 rounded-full"></div>
+                    <div class="absolute left-0 top-5 transform -translate-y-1/2 h-1 bg-esmas-purple z-0 transition-all duration-700 ease-out rounded-full" id="progress-line" style="width: 0%"></div>
+                    
+                    <div class="relative z-10 flex flex-col items-center step-dot w-1/5">
+                        <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm bg-white border-2 border-gray-200 transition-all duration-500 text-gray-400">1</div>
+                        <span class="text-[10px] font-bold uppercase tracking-wider mt-2 text-center transition-colors duration-300 hidden sm:block text-gray-400">Identité</span>
+                    </div>
+                    <div class="relative z-10 flex flex-col items-center step-dot w-1/5">
+                        <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm bg-white border-2 border-gray-200 transition-all duration-500 text-gray-400">2</div>
+                        <span class="text-[10px] font-bold uppercase tracking-wider mt-2 text-center transition-colors duration-300 hidden sm:block text-gray-400">Contact</span>
+                    </div>
+                    <div class="relative z-10 flex flex-col items-center step-dot w-1/5">
+                        <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm bg-white border-2 border-gray-200 transition-all duration-500 text-gray-400">3</div>
+                        <span class="text-[10px] font-bold uppercase tracking-wider mt-2 text-center transition-colors duration-300 hidden sm:block text-gray-400">Cursus</span>
+                    </div>
+                    <div class="relative z-10 flex flex-col items-center step-dot w-1/5">
+                        <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm bg-white border-2 border-gray-200 transition-all duration-500 text-gray-400">4</div>
+                        <span class="text-[10px] font-bold uppercase tracking-wider mt-2 text-center transition-colors duration-300 hidden sm:block text-gray-400">Frais</span>
+                    </div>
+                    <div class="relative z-10 flex flex-col items-center step-dot w-1/5">
+                        <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm bg-white border-2 border-gray-200 transition-all duration-500 text-gray-400">5</div>
+                        <span class="text-[10px] font-bold uppercase tracking-wider mt-2 text-center transition-colors duration-300 hidden sm:block text-gray-400">Pièces</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formulaire -->
+            <div class="bg-white shadow-xl border border-gray-100 overflow-hidden rounded-2xl">
+                <form id="admission-form" class="p-8 sm:p-10 relative z-10">
+                    
+                    <!-- Étape 1 : Identité -->
+                    <div class="step-container active" id="step-1">
+                        <div class="flex items-center gap-4 mb-8">
+                            <div class="w-12 h-12 rounded-xl bg-gray-50 flex items-center justify-center text-esmas-purple border border-gray-100">
+                                <i class="fa-solid fa-user text-xl"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-2xl font-bold text-esmas-dark">Information Personnelle</h2>
+                                <p class="text-sm text-gray-500">Veuillez renseigner votre état civil.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="col-span-1 md:col-span-2">
+                                <label class="block text-sm font-semibold text-esmas-dark mb-2">Nom de famille <span class="text-esmas-purple">*</span></label>
+                                <input type="text" id="nom" name="nom" required class="input-esmas w-full px-4 py-3 uppercase" placeholder="EX: DUPONT">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-esmas-dark mb-2">Prénom(s) <span class="text-esmas-purple">*</span></label>
+                                <input type="text" id="prenom" name="prenom" required class="input-esmas w-full px-4 py-3" placeholder="Jean">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-esmas-dark mb-2">Date de naissance <span class="text-esmas-purple">*</span></label>
+                                <input type="date" id="ddn" name="ddn" required class="input-esmas w-full px-4 py-3 text-gray-600">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-esmas-dark mb-2">Lieu de naissance <span class="text-esmas-purple">*</span></label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                        <i class="fa-solid fa-location-dot text-gray-400"></i>
+                                    </div>
+                                    <input type="text" id="ldn" name="ldn" required class="input-esmas w-full pl-11 px-4 py-3" placeholder="Ex: Paris">
+                                </div>
+                            </div>
+                            
+                            <!-- Pays de résidence -->
+                            <div>
+                                <label class="block text-sm font-semibold text-esmas-dark mb-2">Pays de résidence <span class="text-esmas-purple">*</span></label>
+                                <div class="relative" id="country-container">
+                                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                        <i class="fa-solid fa-earth-europe text-gray-400"></i>
+                                    </div>
+                                    <input type="text" id="pays_residence" name="pays_residence" required autocomplete="off"
+                                           class="input-esmas w-full pl-11 pr-10 px-4 py-3 cursor-text" 
+                                           placeholder="Rechercher...">
+                                    <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none transition-transform duration-200" id="country-chevron">
+                                        <i class="fa-solid fa-chevron-down text-gray-400"></i>
+                                    </div>
+                                    <div id="country-dropdown" class="absolute z-50 w-full mt-2 bg-white border border-gray-200 shadow-xl rounded-lg max-h-60 overflow-y-auto custom-scrollbar hidden">
+                                        <ul id="country-list" class="py-2 text-sm text-gray-700"></ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Handicap -->
+                            <div class="col-span-1 md:col-span-2 mt-2 p-5 bg-gray-50 border border-gray-100 rounded-xl">
+                                <label class="block text-sm font-semibold text-esmas-dark mb-3">Êtes-vous en situation de handicap ? <span class="text-esmas-purple">*</span></label>
+                                <div class="flex gap-6">
+                                    <label class="flex items-center cursor-pointer">
+                                        <input type="radio" name="handicap" value="Oui" required class="w-4 h-4 text-esmas-purple border-gray-300 focus:ring-esmas-purple accent-esmas-purple">
+                                        <span class="ml-2 text-sm text-gray-700 font-medium">Oui</span>
+                                    </label>
+                                    <label class="flex items-center cursor-pointer">
+                                        <input type="radio" name="handicap" value="Non" class="w-4 h-4 text-esmas-purple border-gray-300 focus:ring-esmas-purple accent-esmas-purple">
+                                        <span class="ml-2 text-sm text-gray-700 font-medium">Non</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Étape 2 : Contact -->
+                    <div class="step-container" id="step-2">
+                        <div class="flex items-center gap-4 mb-8">
+                            <div class="w-12 h-12 rounded-xl bg-gray-50 flex items-center justify-center text-esmas-purple border border-gray-100">
+                                <i class="fa-solid fa-envelope text-xl"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-2xl font-bold text-esmas-dark">Coordonnées</h2>
+                                <p class="text-sm text-gray-500">Moyens de contact pour le suivi de votre dossier.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-6">
+                            <div>
+                                <label class="block text-sm font-semibold text-esmas-dark mb-2">Adresse e-mail <span class="text-esmas-purple">*</span></label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                        <i class="fa-regular fa-envelope text-gray-400"></i>
+                                    </div>
+                                    <input type="email" id="email" name="email" required class="input-esmas w-full pl-11 px-4 py-3" placeholder="votre.email@exemple.com">
+                                </div>
+                            </div>
+
+                            <!-- Téléphone Candidat -->
+                            <div>
+                                <label class="block text-sm font-semibold text-esmas-dark mb-2">Numéro de téléphone <span class="text-esmas-purple">*</span></label>
+                                <div class="flex gap-2 relative">
+                                    <div class="relative w-[120px] sm:w-[140px]" id="indicatif-candidat-container">
+                                        <input type="text" id="indicatif_tel" name="indicatif_tel" required autocomplete="off"
+                                               class="input-esmas w-full px-3 py-3 cursor-text font-semibold text-gray-700 text-center" 
+                                               placeholder="+33" value="+33">
+                                        <div id="indicatif-candidat-dropdown" class="absolute left-0 z-50 w-64 mt-2 bg-white border border-gray-200 rounded-lg shadow-xl max-h-48 overflow-y-auto custom-scrollbar hidden">
+                                            <ul id="indicatif-candidat-list" class="py-2 text-sm text-gray-700 text-left"></ul>
+                                        </div>
+                                    </div>
+                                    <input type="tel" id="telephone" name="telephone" required class="input-esmas flex-1 px-4 py-3" placeholder="6 00 00 00 00">
+                                </div>
+                            </div>
+
+                            <!-- Téléphone Proche -->
+                            <div>
+                                <label class="block text-sm font-semibold text-esmas-dark mb-2">Numéro d'un proche (urgence) <span class="text-esmas-purple">*</span></label>
+                                <div class="flex gap-2 relative">
+                                    <div class="relative w-[120px] sm:w-[140px]" id="indicatif-proche-container">
+                                        <input type="text" id="indicatif_proche" name="indicatif_proche" required autocomplete="off"
+                                               class="input-esmas w-full px-3 py-3 cursor-text font-semibold text-gray-700 text-center" 
+                                               placeholder="+33" value="+33">
+                                        <div id="indicatif-proche-dropdown" class="absolute left-0 z-50 w-64 mt-2 bg-white border border-gray-200 rounded-lg shadow-xl max-h-48 overflow-y-auto custom-scrollbar hidden">
+                                            <ul id="indicatif-proche-list" class="py-2 text-sm text-gray-700 text-left"></ul>
+                                        </div>
+                                    </div>
+                                    <input type="tel" id="telephone_proche" name="telephone_proche" required class="input-esmas flex-1 px-4 py-3" placeholder="6 00 00 00 00">
+                                </div>
+                            </div>
+
+                            <!-- Adresse postale -->
+                            <div id="container-adresse">
+                                <label class="block text-sm font-semibold text-esmas-dark mb-2">Adresse postale <span class="text-esmas-purple">*</span></label>
+                                <textarea id="adresse" name="adresse" rows="3" class="input-esmas w-full px-4 py-3" placeholder="Numéro, rue, code postal, ville..."></textarea>
+                            </div>
+                            
+                            <!-- Ville (Masqué par défaut, affiché pour l'Afrique) -->
+                            <div id="container-ville" class="hidden">
+                                <label class="block text-sm font-semibold text-esmas-dark mb-2">Ville de résidence <span class="text-esmas-purple">*</span></label>
+                                <input type="text" id="ville" name="ville" class="input-esmas w-full px-4 py-3" placeholder="Ex: Dakar, Abidjan...">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Étape 3 : Formation (Cursus ESMAS) -->
+                    <div class="step-container" id="step-3">
+                        <div class="flex items-center gap-4 mb-8">
+                            <div class="w-12 h-12 rounded-xl bg-gray-50 flex items-center justify-center text-esmas-purple border border-gray-100">
+                                <i class="fa-solid fa-graduation-cap text-xl"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-2xl font-bold text-esmas-dark">Choix du Cursus</h2>
+                                <p class="text-sm text-gray-500">Sélectionnez votre parcours chez ESMAS.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-6">
+                            <div>
+                                <label class="block text-sm font-semibold text-esmas-dark mb-2">Campus <span class="text-esmas-purple">*</span></label>
+                                <select id="campus" name="campus" required class="input-esmas w-full px-4 py-3 font-medium text-gray-800">
+                                    <option value="" disabled selected>-- Sélectionnez le campus --</option>
+                                    <option value="Paris">Campus Innovation Marne-la-Vallée (Paris Ile-de-France)</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-esmas-dark mb-2">Cycle d'études <span class="text-esmas-purple">*</span></label>
+                                <select id="cycle" name="cycle" required onchange="updateNiveaux()" class="input-esmas w-full px-4 py-3 font-bold text-esmas-dark uppercase text-sm tracking-wide">
+                                    <option value="" disabled selected>-- SÉLECTIONNEZ LE CYCLE --</option>
+                                    <option value="BACHELOR">BACHELOR</option>
+                                    <option value="MASTÈRE">MASTÈRE</option>
+                                    <option value="MASTÈRES SPÉCIALISÉS">MASTÈRES SPÉCIALISÉS</option>
+                                    <option value="MBA">MBA</option>
+                                    <option value="ENGLISH TRACK">ENGLISH TRACK</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-esmas-dark mb-2">Domaine d'expertise <span class="text-esmas-purple">*</span></label>
+                                <select id="niveau" name="niveau" required disabled onchange="updateFormations()" class="input-esmas w-full px-4 py-3 font-bold uppercase text-sm tracking-wide text-gray-700">
+                                    <option value="" disabled selected>-- EN ATTENTE DU CYCLE --</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-esmas-dark mb-2">Formation <span class="text-esmas-purple">*</span></label>
+                                <select id="formation" name="formation" required disabled class="input-esmas w-full px-4 py-3 font-medium text-sm">
+                                    <option value="" disabled selected>-- EN ATTENTE DU DOMAINE --</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-esmas-dark mb-2">Rythme <span class="text-esmas-purple">*</span></label>
+                                <select id="rythme" name="rythme" required class="input-esmas w-full px-4 py-3 font-medium text-gray-800">
+                                    <option value="" disabled selected>-- Sélectionnez le rythme --</option>
+                                    <option value="Initiale">Formation Initiale</option>
+                                    <option value="Alternance" id="option-alternance">Alternance</option>
+                                    <option value="Continue">En ligne</option>
+                                </select>
+                                <p id="msg-rythme-etranger" class="text-xs text-orange-600 mt-2 font-medium hidden"><i class="fa-solid fa-circle-info"></i> Le rythme en alternance n'est pas accessible aux candidats résidant hors de France pour leur première année.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Étape 4 : Financement -->
+                    <div class="step-container" id="step-4">
+                        <div class="flex items-center gap-4 mb-6">
+                            <div class="w-12 h-12 rounded-xl bg-gray-50 flex items-center justify-center text-esmas-purple border border-gray-100">
+                                <i class="fa-solid fa-hand-holding-dollar text-xl"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-2xl font-bold text-esmas-dark" id="titre-financement">Projet de financement</h2>
+                                <p class="text-sm text-gray-500" id="desc-financement">Sélectionnez le mode de financement de vos études.</p>
+                            </div>
+                        </div>
+                        
+                        <div id="financement-france" class="w-full">
+                            <select id="financement_fr" name="financement_fr" class="input-esmas w-full px-4 py-3 font-medium text-gray-800" required>
+                                <option value="" disabled selected>-- Choisissez votre mode de financement --</option>
+                                <option value="CPF">Financement CPF (Compte Personnel de Formation)</option>
+                                <option value="Pole Emploi">Pôle Emploi / France Travail (AIF)</option>
+                                <option value="OPCO">Financement OPCO / Entreprise (Alternance)</option>
+                                <option value="Personnel">Financement Personnel (Règlement échelonné possible)</option>
+                            </select>
+                        </div>
+
+                        <div id="financement-hors-france" class="w-full hidden">
+                            <select id="financement_hors_fr" name="financement_hors_fr" class="input-esmas w-full px-4 py-3 font-medium text-gray-800" disabled>
+                                <option value="" disabled selected>-- Choisissez votre projet de financement --</option>
+                                <option value="Oui, entièrement par mes propres moyens">Oui, entièrement par mes propres moyens</option>
+                                <option value="Oui, avec l'aide de ma famille">Oui, avec l'aide de ma famille</option>
+                                <option value="Oui, grâce à un garant en France">Oui, grâce à un garant en France</option>
+                                <option value="Oui, grâce à une bourse d'études">Oui, grâce à une bourse d'études</option>
+                                <option value="Oui, plusieurs sources de financement combinées">Oui, plusieurs sources de financement combinées</option>
+                                <option value="Partiellement, je recherche des solutions complémentaires">Partiellement, je recherche des solutions complémentaires</option>
+                                <option value="Non, je recherche actuellement un financement global">Non, je recherche actuellement un financement global</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Étape 5 : Documents (Pièces) -->
+                    <div class="step-container" id="step-5">
+                        <div class="flex items-center gap-4 mb-8">
+                            <div class="w-12 h-12 rounded-xl bg-gray-50 flex items-center justify-center text-esmas-purple border border-gray-100">
+                                <i class="fa-solid fa-folder-open text-xl"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-2xl font-bold text-esmas-dark">Pièces justificatives</h2>
+                                <p class="text-sm text-gray-500">Transmettez les documents requis pour l'admission.</p>
+                            </div>
+                        </div>
+                        
+                        <div id="info-pieces" class="mb-6 p-4 bg-gray-50 text-esmas-dark rounded-lg text-sm font-medium border border-gray-200">
+                            <i class="fa-solid fa-circle-info mr-2 text-esmas-purple"></i> Veuillez fournir les documents requis selon votre pays de résidence.
+                        </div>
+
+                        <div class="space-y-4">
+                            <!-- ID -->
+                            <div class="p-4 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 hover:border-esmas-purple transition-colors group relative">
+                                <label id="label_identite" for="file_identite" class="block text-sm font-semibold text-esmas-dark mb-2 group-hover:text-esmas-purple transition-colors">Carte d'identité, Passeport ou Titre de séjour <span class="text-esmas-purple">*</span></label>
+                                <input type="file" id="file_identite" required accept=".pdf,.jpg,.jpeg,.png" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-white file:text-esmas-dark file:shadow-sm hover:file:bg-gray-100 cursor-pointer">
+                            </div>
+                            
+                            <!-- Diplôme -->
+                            <div class="p-4 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 hover:border-esmas-purple transition-colors group">
+                                <label for="file_diplome" class="block text-sm font-semibold text-esmas-dark mb-2 group-hover:text-esmas-purple transition-colors">Dernier diplôme ou Relevé de notes <span class="text-esmas-purple">*</span></label>
+                                <input type="file" id="file_diplome" required accept=".pdf,.jpg,.jpeg,.png" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-white file:text-esmas-dark file:shadow-sm hover:file:bg-gray-100 cursor-pointer">
+                            </div>
+                            
+                            <!-- CV -->
+                            <div class="p-4 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 hover:border-esmas-purple transition-colors group relative">
+                                <label for="file_cv" class="block text-sm font-semibold text-esmas-dark mb-2 group-hover:text-esmas-purple transition-colors">Curriculum Vitae (CV) <span class="text-esmas-purple">*</span></label>
+                                <input type="file" id="file_cv" required accept=".pdf,.jpg,.jpeg,.png" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-white file:text-esmas-dark file:shadow-sm hover:file:bg-gray-100 cursor-pointer">
+                            </div>
+                            
+                            <!-- Carte Vitale -->
+                            <div id="container-vitale" class="hidden p-4 border-2 border-dashed border-blue-200 rounded-lg bg-blue-50 transition-colors group">
+                                <label for="file_vitale" class="block text-sm font-semibold text-esmas-dark mb-2">Copie de la carte vitale <span class="text-esmas-purple">*</span></label>
+                                <input type="file" id="file_vitale" accept=".pdf,.jpg,.jpeg,.png" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-white file:text-esmas-dark file:shadow-sm hover:file:bg-gray-100 cursor-pointer">
+                            </div>
+
+                            <!-- RQTH -->
+                            <div id="container-rqth" class="hidden p-4 border-2 border-dashed border-purple-200 rounded-lg bg-purple-50 group">
+                                <label for="file_rqth" class="block text-sm font-semibold text-purple-900 mb-2">Justificatif de situation de handicap (RQTH ou autre) <span class="text-esmas-purple">*</span></label>
+                                <input type="file" id="file_rqth" accept=".pdf,.jpg,.jpeg,.png" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-white file:text-purple-900 file:shadow-sm hover:file:bg-purple-100 cursor-pointer">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Message d'erreur global -->
+                    <div id="error-message" class="hidden mt-6 p-4 bg-red-50 text-red-700 rounded-lg text-sm font-semibold border border-red-200">
+                        <i class="fa-solid fa-triangle-exclamation mr-2"></i> Une erreur est survenue. Veuillez vérifier tous les champs obligatoires.
+                    </div>
+
+                    <!-- Écran de succès -->
+                    <div id="success-screen" class="hidden text-center py-10 relative z-10">
+                        <div class="w-24 h-24 bg-gray-50 border-4 border-esmas-teal rounded-full flex items-center justify-center mx-auto mb-8 shadow-sm">
+                            <i class="fa-solid fa-check text-4xl text-esmas-teal"></i>
+                        </div>
+                        <h2 class="text-3xl font-bold text-esmas-dark mb-3">Dossier Transmis</h2>
+                        <p class="text-gray-600 mb-8 font-medium">L'équipe pédagogique d'ESMAS traitera votre demande dans les plus brefs délais.</p>
+                        
+                        <div class="bg-gray-50 rounded-xl p-6 mb-10 inline-block text-left border border-gray-200">
+                            <p class="text-xs text-gray-500 uppercase tracking-widest font-bold mb-2">Référence :</p>
+                            <p id="display-num-dossier" class="text-2xl font-mono font-bold text-esmas-purple tracking-wider">ESMAS-XXXXX</p>
+                        </div>
+                    </div>
+
+                    <!-- Boutons de navigation -->
+                    <div class="mt-12 flex justify-between items-center pt-6 border-t border-gray-200" id="form-navigation">
+                        <button type="button" id="btn-prev" class="hidden px-6 py-3 border border-gray-300 bg-white text-gray-600 font-semibold rounded-full hover:bg-gray-50 transition-colors uppercase text-xs tracking-wider" onclick="changeStep(-1)">
+                            <i class="fa-solid fa-arrow-left mr-2"></i> Précédent
+                        </button>
+                        
+                        <div id="spacer" class="block w-full"></div>
+
+                        <button type="button" id="btn-next" class="px-8 py-3 btn-esmas font-semibold shadow-md ml-auto uppercase text-xs tracking-wider" onclick="changeStep(1)">
+                            Suivant <i class="fa-solid fa-arrow-right ml-2"></i>
+                        </button>
+
+                        <button type="button" id="btn-submit" class="hidden px-8 py-3 btn-esmas font-semibold shadow-md ml-auto flex items-center gap-2 uppercase text-xs tracking-wider">
+                            <i class="fa-solid fa-paper-plane"></i> S'inscrire
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+            
+            <p class="text-center text-xs text-gray-400 mt-8 font-medium tracking-wide">
+                <i class="fa-solid fa-shield-halved mr-1"></i> PORTAIL SÉCURISÉ ESMAS.
+            </p>
+        </div>
+    </main>
+
+    <script>
+        let currentStep = 1;
+        const totalSteps = 5;
+
+
+        const listePays = [
+            "Afghanistan", "Afrique du Sud", "Albanie", "Algérie", "Allemagne", "Andorre", "Angola", "Anguilla", "Antigua-et-Barbuda",
+            "Arabie Saoudite", "Argentine", "Arménie", "Aruba", "Australie", "Autriche", "Azerbaïdjan", "Bahamas", "Bahreïn",
+            "Bangladesh", "Barbade", "Belgique", "Belize", "Bermudes", "Bhoutan", "Birmanie", "Biélorussie", "Bolivie", "Bonaire", "Bosnie-Herzégovine",
+            "Botswana", "Brunei", "Brésil", "Bulgarie", "Burkina Faso", "Burundi", "Bénin", "Cambodge", "Cameroun",
+            "Canada", "Cap-Vert", "Chili", "Chine", "Chypre", "Colombie", "Comores", "Congo", "Congo (RDC)",
+            "Corée du Nord", "Corée du Sud", "Costa Rica", "Croatie", "Cuba", "Curaçao", "Côte d'Ivoire", "Danemark", "Djibouti",
+            "Dominique", "Espagne", "Estonie", "Eswatini", "Fidji", "Finlande", "France", "Gabon", "Gambie", "Ghana",
+            "Gibraltar", "Grenade", "Groenland", "Grèce", "Guadeloupe", "Guam", "Guatemala", "Guernesey", "Guinée", "Guinée équatoriale", "Guinée-Bissau", "Guyana", "Guyane française", "Géorgie", "Haïti",
+            "Honduras", "Hong Kong", "Hongrie", "Inde", "Indonésie", "Irak", "Iran", "Irlande", "Islande", "Israël", "Italie", "Jamaïque",
+            "Japon", "Jersey", "Jordanie", "Kazakhstan", "Kenya", "Kirghizistan", "Kiribati", "Kosovo", "Koweït", "Laos", "Lesotho",
+            "Lettonie", "Liban", "Liberia", "Libye", "Liechtenstein", "Lituanie", "Luxembourg", "Macao", "Macédoine du Nord",
+            "Madagascar", "Malaisie", "Malawi", "Maldives", "Mali", "Malouines", "Malte", "Maroc", "Martinique", "Maurice", "Mauritanie", "Mayotte", "Mexique",
+            "Micronésie", "Moldavie", "Monaco", "Mongolie", "Monténégro", "Montserrat", "Mozambique", "Namibie", "Nauru", "Nicaragua",
+            "Niger", "Nigeria", "Nioue", "Norvège", "Nouvelle-Calédonie", "Nouvelle-Zélande", "Népal", "Oman", "Ouganda", "Ouzbékistan", "Pakistan",
+            "Palaos", "Palestine", "Panama", "Papouasie-Nouvelle-Guinée", "Paraguay", "Pays-Bas", "Philippines", "Pologne", "Polynésie française", "Porto Rico",
+            "Portugal", "Pérou", "Qatar", "Roumanie", "Royaume-Uni", "Russie", "Rwanda", "République centrafricaine",
+            "République dominicaine", "Saint-Barthélemy", "Saint-Kitts-et-Nevis", "Saint-Marin", "Saint-Martin", "Saint-Pierre-et-Miquelon", "Saint-Vincent-et-les-Grenadines", "Sainte-Hélène", "Sainte-Lucie",
+            "Salvador", "Samoa", "Samoa américaines", "Sao Tomé-et-Principe", "Serbie", "Seychelles", "Sierra Leone", "Singapour", "Slovaquie",
+            "Slovénie", "Somalie", "Soudan", "Soudan du Sud", "Sri Lanka", "Suisse", "Suriname", "Suède", "Svalbard", "Syrie", "Sénégal",
+            "Tadjikistan", "Tanzanie", "Taïwan", "Tchad", "Tchéquie", "Terres australes françaises", "Thaïlande", "Timor oriental", "Togo", "Tokelau", "Tonga", "Trinité-et-Tobago",
+            "Tunisie", "Turkménistan", "Turquie", "Tuvalu", "Ukraine", "Uruguay", "Vanuatu", "Vatican", "Viêt Nam", "Venezuela", "Wallis-et-Futuna", "Yémen",
+            "Zambie", "Zimbabwe", "Égypte", "Émirats arabes unis", "Équateur", "Érythrée", "États-Unis", "Éthiopie"
+        ];
+
+        const paysAfrique = [
+            "Algérie", "Angola", "Bénin", "Botswana", "Burkina Faso", "Burundi", "Cameroun", "Cap-Vert", 
+            "République centrafricaine", "Tchad", "Comores", "Congo", "Congo (RDC)", "Djibouti", "Égypte", 
+            "Guinée équatoriale", "Érythrée", "Eswatini", "Éthiopie", "Gabon", "Gambie", "Ghana", "Guinée", 
+            "Guinée-Bissau", "Côte d'Ivoire", "Kenya", "Lesotho", "Liberia", "Libye", "Madagascar", "Malawi", 
+            "Mali", "Mauritanie", "Maurice", "Maroc", "Mozambique", "Namibie", "Niger", "Nigeria", "Rwanda", 
+            "Sao Tomé-et-Principe", "Sénégal", "Seychelles", "Sierra Leone", "Somalie", "Afrique du Sud", 
+            "Soudan du Sud", "Soudan", "Tanzanie", "Togo", "Tunisie", "Ouganda", "Zambie", "Zimbabwe"
+        ];
+
+        const paysUE = [
+            "Allemagne", "Autriche", "Belgique", "Bulgarie", "Chypre", "Croatie", "Danemark", "Espagne", 
+            "Estonie", "Finlande", "France", "Grèce", "Hongrie", "Irlande", "Italie", "Lettonie", "Lituanie", 
+            "Luxembourg", "Malte", "Pays-Bas", "Pologne", "Portugal", "Roumanie", "Slovaquie", "Slovénie", "Suède", "Tchéquie"
+        ];
+
+        const indicatifs = [
+            {"nom": "Afghanistan", "code": "+93"}, {"nom": "Afrique du Sud", "code": "+27"}, {"nom": "Albanie", "code": "+355"},
+            {"nom": "Algérie", "code": "+213"}, {"nom": "Allemagne", "code": "+49"}, {"nom": "Andorre", "code": "+376"},
+            {"nom": "Angola", "code": "+244"}, {"nom": "Anguilla", "code": "+1"}, {"nom": "Antigua-et-Barbuda", "code": "+1"},
+            {"nom": "Arabie saoudite", "code": "+966"}, {"nom": "Argentine", "code": "+54"}, {"nom": "Arménie", "code": "+374"},
+            {"nom": "Aruba", "code": "+297"}, {"nom": "Australie", "code": "+61"}, {"nom": "Autriche", "code": "+43"},
+            {"nom": "Azerbaïdjan", "code": "+994"}, {"nom": "Bahamas", "code": "+1"}, {"nom": "Bahreïn", "code": "+973"},
+            {"nom": "Bangladesh", "code": "+880"}, {"nom": "Barbade", "code": "+1"}, {"nom": "Belgique", "code": "+32"},
+            {"nom": "Belize", "code": "+501"}, {"nom": "Bermudes", "code": "+1"}, {"nom": "Bhoutan", "code": "+975"},
+            {"nom": "Birmanie", "code": "+95"}, {"nom": "Biélorussie", "code": "+375"}, {"nom": "Bolivie", "code": "+591"},
+            {"nom": "Bonaire", "code": "+599"}, {"nom": "Bosnie-Herzégovine", "code": "+387"}, {"nom": "Botswana", "code": "+267"},
+            {"nom": "Brésil", "code": "+55"}, {"nom": "Brunei", "code": "+673"}, {"nom": "Bulgarie", "code": "+359"},
+            {"nom": "Burkina Faso", "code": "+226"}, {"nom": "Burundi", "code": "+257"}, {"nom": "Bénin", "code": "+229"},
+            {"nom": "Cambodge", "code": "+855"}, {"nom": "Cameroun", "code": "+237"}, {"nom": "Canada", "code": "+1"},
+            {"nom": "Cap-Vert", "code": "+238"}, {"nom": "Chili", "code": "+56"}, {"nom": "Chine", "code": "+86"},
+            {"nom": "Chypre", "code": "+357"}, {"nom": "Colombie", "code": "+57"}, {"nom": "Comores", "code": "+269"},
+            {"nom": "Congo", "code": "+242"}, {"nom": "Congo (RDC)", "code": "+243"}, {"nom": "Corée du Nord", "code": "+850"},
+            {"nom": "Corée du Sud", "code": "+82"}, {"nom": "Costa Rica", "code": "+506"}, {"nom": "Croatie", "code": "+385"},
+            {"nom": "Cuba", "code": "+53"}, {"nom": "Curaçao", "code": "+599"}, {"nom": "Côte d'Ivoire", "code": "+225"},
+            {"nom": "Danemark", "code": "+45"}, {"nom": "Djibouti", "code": "+253"}, {"nom": "Dominique", "code": "+1"},
+            {"nom": "Égypte", "code": "+20"}, {"nom": "Émirats arabes unis", "code": "+971"}, {"nom": "Équateur", "code": "+593"},
+            {"nom": "Érythrée", "code": "+291"}, {"nom": "Espagne", "code": "+34"}, {"nom": "Estonie", "code": "+372"},
+            {"nom": "Eswatini", "code": "+268"}, {"nom": "États-Unis", "code": "+1"}, {"nom": "Éthiopie", "code": "+251"},
+            {"nom": "Fidji", "code": "+679"}, {"nom": "Finlande", "code": "+358"}, {"nom": "France", "code": "+33"},
+            {"nom": "Gabon", "code": "+241"}, {"nom": "Gambie", "code": "+220"}, {"nom": "Géorgie", "code": "+995"},
+            {"nom": "Ghana", "code": "+233"}, {"nom": "Gibraltar", "code": "+350"}, {"nom": "Grèce", "code": "+30"},
+            {"nom": "Grenade", "code": "+1"}, {"nom": "Groenland", "code": "+299"}, {"nom": "Guadeloupe", "code": "+590"},
+            {"nom": "Guam", "code": "+1"}, {"nom": "Guatemala", "code": "+502"}, {"nom": "Guernesey", "code": "+44"},
+            {"nom": "Guinée", "code": "+224"}, {"nom": "Guinée équatoriale", "code": "+240"}, {"nom": "Guinée-Bissau", "code": "+245"},
+            {"nom": "Guyana", "code": "+592"}, {"nom": "Guyane française", "code": "+594"}, {"nom": "Haïti", "code": "+509"},
+            {"nom": "Honduras", "code": "+504"}, {"nom": "Hong Kong", "code": "+852"}, {"nom": "Hongrie", "code": "+36"},
+            {"nom": "Inde", "code": "+91"}, {"nom": "Indonésie", "code": "+62"}, {"nom": "Irak", "code": "+964"},
+            {"nom": "Iran", "code": "+98"}, {"nom": "Irlande", "code": "+353"}, {"nom": "Islande", "code": "+354"},
+            {"nom": "Israël", "code": "+972"}, {"nom": "Italie", "code": "+39"}, {"nom": "Jamaïque", "code": "+1"},
+            {"nom": "Japon", "code": "+81"}, {"nom": "Jersey", "code": "+44"}, {"nom": "Jordanie", "code": "+962"},
+            {"nom": "Kazakhstan", "code": "+7"}, {"nom": "Kenya", "code": "+254"}, {"nom": "Kirghizistan", "code": "+996"},
+            {"nom": "Kiribati", "code": "+686"}, {"nom": "Kosovo", "code": "+383"}, {"nom": "Koweït", "code": "+965"},
+            {"nom": "Laos", "code": "+856"}, {"nom": "Lesotho", "code": "+266"}, {"nom": "Lettonie", "code": "+371"},
+            {"nom": "Liban", "code": "+961"}, {"nom": "Liberia", "code": "+231"}, {"nom": "Libye", "code": "+218"},
+            {"nom": "Liechtenstein", "code": "+423"}, {"nom": "Lituanie", "code": "+370"}, {"nom": "Luxembourg", "code": "+352"},
+            {"nom": "Macao", "code": "+853"}, {"nom": "Macédoine du Nord", "code": "+389"}, {"nom": "Madagascar", "code": "+261"},
+            {"nom": "Malaisie", "code": "+60"}, {"nom": "Malawi", "code": "+265"}, {"nom": "Maldives", "code": "+960"},
+            {"nom": "Mali", "code": "+223"}, {"nom": "Malouines", "code": "+500"}, {"nom": "Malte", "code": "+356"},
+            {"nom": "Maroc", "code": "+212"}, {"nom": "Martinique", "code": "+596"}, {"nom": "Maurice", "code": "+230"},
+            {"nom": "Mauritanie", "code": "+222"}, {"nom": "Mayotte", "code": "+262"}, {"nom": "Mexique", "code": "+52"},
+            {"nom": "Micronésie", "code": "+691"}, {"nom": "Moldavie", "code": "+373"}, {"nom": "Monaco", "code": "+377"},
+            {"nom": "Mongolie", "code": "+976"}, {"nom": "Monténégro", "code": "+382"}, {"nom": "Montserrat", "code": "+1"},
+            {"nom": "Mozambique", "code": "+258"}, {"nom": "Namibie", "code": "+264"}, {"nom": "Nauru", "code": "+674"},
+            {"nom": "Nicaragua", "code": "+505"}, {"nom": "Niger", "code": "+227"}, {"nom": "Nigeria", "code": "+234"},
+            {"nom": "Nioue", "code": "+683"}, {"nom": "Norvège", "code": "+47"}, {"nom": "Nouvelle-Calédonie", "code": "+687"},
+            {"nom": "Nouvelle-Zélande", "code": "+64"}, {"nom": "Népal", "code": "+977"}, {"nom": "Oman", "code": "+968"},
+            {"nom": "Ouganda", "code": "+256"}, {"nom": "Ouzbékistan", "code": "+998"}, {"nom": "Pakistan", "code": "+92"},
+            {"nom": "Palaos", "code": "+680"}, {"nom": "Palestine", "code": "+970"}, {"nom": "Panama", "code": "+507"},
+            {"nom": "Papouasie-Nouvelle-Guinée", "code": "+675"}, {"nom": "Paraguay", "code": "+595"}, {"nom": "Pays-Bas", "code": "+31"},
+            {"nom": "Philippines", "code": "+63"}, {"nom": "Pologne", "code": "+48"}, {"nom": "Polynésie française", "code": "+689"},
+            {"nom": "Porto Rico", "code": "+1"}, {"nom": "Portugal", "code": "+351"}, {"nom": "Pérou", "code": "+51"},
+            {"nom": "Qatar", "code": "+974"}, {"nom": "Roumanie", "code": "+40"}, {"nom": "Royaume-Uni", "code": "+44"},
+            {"nom": "Russie", "code": "+7"}, {"nom": "Rwanda", "code": "+250"}, {"nom": "République centrafricaine", "code": "+236"},
+            {"nom": "République dominicaine", "code": "+1"}, {"nom": "Saint-Barthélemy", "code": "+590"}, {"nom": "Saint-Kitts-et-Nevis", "code": "+1"},
+            {"nom": "Saint-Marin", "code": "+378"}, {"nom": "Saint-Martin", "code": "+590"}, {"nom": "Saint-Pierre-et-Miquelon", "code": "+508"},
+            {"nom": "Saint-Vincent-et-les-Grenadines", "code": "+1"}, {"nom": "Sainte-Hélène", "code": "+290"}, {"nom": "Sainte-Lucie", "code": "+1"},
+            {"nom": "Salvador", "code": "+503"}, {"nom": "Samoa", "code": "+685"}, {"nom": "Samoa américaines", "code": "+1"},
+            {"nom": "Sao Tomé-et-Principe", "code": "+239"}, {"nom": "Serbie", "code": "+381"}, {"nom": "Seychelles", "code": "+248"},
+            {"nom": "Sierra Leone", "code": "+232"}, {"nom": "Singapour", "code": "+65"}, {"nom": "Slovaquie", "code": "+421"},
+            {"nom": "Slovénie", "code": "+386"}, {"nom": "Somalie", "code": "+252"}, {"nom": "Soudan", "code": "+249"},
+            {"nom": "Soudan du Sud", "code": "+211"}, {"nom": "Sri Lanka", "code": "+94"}, {"nom": "Suisse", "code": "+41"},
+            {"nom": "Suriname", "code": "+597"}, {"nom": "Suède", "code": "+46"}, {"nom": "Svalbard", "code": "+47"},
+            {"nom": "Syrie", "code": "+963"}, {"nom": "Sénégal", "code": "+221"}, {"nom": "Tadjikistan", "code": "+992"},
+            {"nom": "Tanzanie", "code": "+255"}, {"nom": "Taïwan", "code": "+886"}, {"nom": "Tchad", "code": "+235"},
+            {"nom": "Tchéquie", "code": "+420"}, {"nom": "Terres australes françaises", "code": "+262"}, {"nom": "Thaïlande", "code": "+66"},
+            {"nom": "Timor oriental", "code": "+670"}, {"nom": "Togo", "code": "+228"}, {"nom": "Tokelau", "code": "+690"},
+            {"nom": "Tonga", "code": "+676"}, {"nom": "Trinité-et-Tobago", "code": "+1"}, {"nom": "Tunisie", "code": "+216"},
+            {"nom": "Turkménistan", "code": "+993"}, {"nom": "Turquie", "code": "+90"}, {"nom": "Tuvalu", "code": "+688"},
+            {"nom": "Ukraine", "code": "+380"}, {"nom": "Uruguay", "code": "+598"}, {"nom": "Vanuatu", "code": "+678"},
+            {"nom": "Vatican", "code": "+39"}, {"nom": "Viêt Nam", "code": "+84"}, {"nom": "Venezuela", "code": "+58"},
+            {"nom": "Wallis-et-Futuna", "code": "+681"}, {"nom": "Yémen", "code": "+967"}, {"nom": "Zambie", "code": "+260"},
+            {"nom": "Zimbabwe", "code": "+263"}
+        ];
+
+        const cursusData = {
+            "BACHELOR": {
+                niveaux: [  "SPORT-BUSINESS", "MANAGEMENT-MARKETING", "FINANCE-GESTION"],
+                formations: {
+                    "SPORT-BUSINESS": [
+                        "BACHELOR CHARGÉ ÉVÈNEMENTIEL SPORTIF & SOLUTIONS DIGITALES (CES)",
+                        "BACHELOR SPORT BUSINESS & DIGITAL TRANSFORMATION (SBS)",
+                        "BACHELOR GESTION DU SPORT ET DIGITALISATION (GS)"
+                    ],
+                    "MANAGEMENT-MARKETING": [
+                        "BACHELOR GESTION DES ÉTABLISSEMENTS SPORTIFS ET TRANSFORMATION DIGITALE (RES)",
+                        "BACHELOR MARKETING ET COMMUNICATION DU SPORT (MCS)",
+                        "BACHELOR AGENT SPORTIF 2.0 (AS)"
+                    ],
+                    "FINANCE-GESTION": [
+                        "BACHELOR SMART SELLING & NÉGOCIATION (NÉGO-VENTE)"
+                    ]
+                }
+            },
+            "MASTÈRE": {
+                niveaux: ["MANAGEMENT-GESTION", "FINANCE", "TECHNOLOGIE ET DATA INNOVATION", "STRATÉGIE ET MANAGEMENT INTERNATIONAL"],
+                formations: {
+                    "MANAGEMENT-GESTION": [
+                        "MASTÈRE START-UP ET DÉVELOPPEMENT DE L'INDUSTRIE SPORTIVE CONNECTÉE (SIS)",
+                        "MASTÈRE ENTREPRENEURIAT ET BUSINESS DEVELOPMENT DIGITAL (EBD)"
+                    ],
+                    "FINANCE": [
+                        "Mastère Management Commercial et Sponsoring Sportif 4.0(MCS)",
+                        "Mastère Ingenieur d'Affaires et de Transitions(IA)"
+                    ],
+                    "TECHNOLOGIE ET DATA INNOVATION": [
+                        "Mastère Management et Digitalisation des Process QHSE (MD-QHSE)",
+                        "Mastère Management et Digitalisation des Processus Achats et Logistique (MD-AL)",
+                        "Mastère Management des Produits Digitaux (MPD)",
+                        "Mastère Management de Projet et de L'innovation (MPI)"
+                    ],
+                    "STRATÉGIE ET MANAGEMENT INTERNATIONAL": [
+                        "Mastère Management International du Sport & Business Digital (MIS)",
+                        "Mastère Management du Sport & Transformation Digitale (MS)",
+                        "Mastère Management des Structures de Sport et Stratégie Numérique (MS2)"
+                    ]
+                }
+            },
+            "MASTÈRES SPÉCIALISÉS": {
+                niveaux: ["MANAGEMENT-GESTION", "FINANCE", "TECHNOLOGIE ET DATA INNOVATION", "STRATÉGIE ET MANAGEMENT INTERNATIONAL"],
+                formations: {
+                    "MANAGEMENT-GESTION": [
+                        "Mastère Spécialisé Entrepreneuriat et Business Development Digital (EBD)",
+                        "Mastère Spécialisé Start-Up et Développement de L'industrie Sportive Connectée (SIS)"
+                    ],
+                    "FINANCE": [
+                        "MASTÈRE MANAGEMENT COMMERCIAL ET SPONSORING SPORTIF 4.0 (MCS)",
+                        "MASTÈRE INGÉNIEUR D'AFFAIRES ET DE TRANSITION (IA)"
+                    ],
+                    "TECHNOLOGIE ET DATA INNOVATION": [
+                        "Mastère Spécialisé Management et Digitalisation des Process QHSE (MD-QHSE)",
+                        "Mastère Spécialisé Management et Digitalisation des Processus Achats et Logistique (MD-AL)",
+                        "Mastère Spécialisé Management des Produits Digitaux (MPD)",
+                        "Mastère Spécialisé Management de Projet et de L'innovation (MPI)"
+                    ],
+                    "STRATÉGIE ET MANAGEMENT INTERNATIONAL": [
+                        "Mastère Spécialisé Management International du Sport (MIS)",
+                        "Mastère Spécialisé Management du Sport (MS)",
+                        "Mastère Spécialisé Management des Structures de Sport (MS2)"
+                    ]
+                }
+            },
+            "MBA": {
+                niveaux: ["MBA"],
+                formations: {
+                    "MBA": [
+                        "MASTER OF BUSINESS ADMINISTRATION (MBA)"
+                    ]
+                }
+            },
+            "ENGLISH TRACK": {
+                niveaux: ["BACHELOR'S DEGREE", "MASTER'S DEGREE"],
+                formations: {
+                    "BACHELOR'S DEGREE": [
+                        "Bachelor's Degree in Sports Management and Representation",
+                        "Bachelor's Degree in Sports Event Management",
+                        "Bachelor's Degree in Sports Management",
+                        "Bachelor's Degree in Sports Marketing and Communication",
+                        "Bachelor's Degree in Sports Facility Management",
+                        "Bachelor's Degree in Sports Start-Ups and Business",
+                        "Bachelor's Degree in Negotiation and Sales"
+                    ],
+                    "MASTER'S DEGREE": [
+                        "Master's Degree in Commercial Management and Sports Sponsorship",
+                        "Master's Degree in International Sports Management",
+                        "Master's Degree in Sports Management",
+                        "Master's Degree in Sports Organisation Management",
+                        "Master's Degree in Sports Industry Start-Ups and Development",
+                        "Master's Degree in Management and Digitalisation of Procurement and Logistics Processes",
+                        "Master's Degree in Business Engineering",
+                        "Master's Degree in Entrepreneurship and Business Development",
+                        "Master's Degree in Digital Product Management",
+                        "Master's Degree in Project and Innovation Management",
+                        "Master's Degree in Management and Digitalisation of QHSE Processes"
+                    ]
+                }
+            }
+        };
+
+        const MONO_CAMPUS_CONFIG = Object.freeze({
+            ecole: "ESMAS",
+            campus: "NOISIEL",
+            apiUrl: "https://ppqeuluykiknuujfaoid.supabase.co/functions/v1/mbn-form-ingest",
+            tailleMaxParFichier: 5 * 1024 * 1024,
+            tailleMaxTotale: 20 * 1024 * 1024
+        });
+
+
+        function gererLogiquePays(pays) {
+            const estFrance = (String(pays || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toUpperCase() === "FRANCE");
+            
+            // Alternance et financement
+            const divFrance = document.getElementById('financement-france');
+            const divHorsFrance = document.getElementById('financement-hors-france');
+            const selectFr = document.getElementById('financement_fr');
+            const selectHorsFr = document.getElementById('financement_hors_fr');
+            const optionAlternance = document.getElementById('option-alternance');
+            const msgRythme = document.getElementById('msg-rythme-etranger');
+            const selectRythme = document.getElementById('rythme');
+            
+            if (!estFrance) {
+                if (divFrance) divFrance.classList.add('hidden');
+                if (divHorsFrance) divHorsFrance.classList.remove('hidden');
+                if (selectFr) { selectFr.disabled = true; selectFr.required = false; }
+                if (selectHorsFr) { selectHorsFr.disabled = false; selectHorsFr.required = true; }
+                if (optionAlternance) optionAlternance.style.display = 'none';
+                if (msgRythme) msgRythme.classList.remove('hidden');
+                if (selectRythme && selectRythme.value === "Alternance") selectRythme.value = "";
+            } else {
+                if (divHorsFrance) divHorsFrance.classList.add('hidden');
+                if (divFrance) divFrance.classList.remove('hidden');
+                if (selectHorsFr) { selectHorsFr.disabled = true; selectHorsFr.required = false; }
+                if (selectFr) { selectFr.disabled = false; selectFr.required = true; }
+                if (optionAlternance) optionAlternance.style.display = 'block';
+                if (msgRythme) msgRythme.classList.add('hidden');
+            }
+
+            // Pièces et Vitale
+            const labelIdentite = document.getElementById('label_identite');
+            const containerVitale = document.getElementById('container-vitale');
+            const inputVitale = document.getElementById('file_vitale');
+            const msgInfoPieces = document.getElementById('info-pieces');
+
+            if (estFrance) {
+                if (labelIdentite) labelIdentite.innerHTML = `Carte d'identité, Passeport ou Titre de séjour <span class="text-esmas-purple">*</span>`;
+                if (containerVitale) containerVitale.classList.remove('hidden');
+                if (inputVitale) inputVitale.required = true;
+                if (msgInfoPieces) msgInfoPieces.innerHTML = `<i class="fa-solid fa-circle-check mr-2 text-esmas-purple"></i> Candidat résidant en France.`;
+            } else if (paysUE.includes(pays)) {
+                if (labelIdentite) labelIdentite.innerHTML = `Carte d'identité, Passeport ou Titre de séjour <span class="text-esmas-purple">*</span>`;
+                if (containerVitale) containerVitale.classList.add('hidden');
+                if (inputVitale) { inputVitale.required = false; inputVitale.value = ""; }
+                if (msgInfoPieces) msgInfoPieces.innerHTML = `<i class="fa-solid fa-circle-info mr-2 text-esmas-purple"></i> Candidat UE : Carte Vitale non requise.`;
+            } else {
+                if (labelIdentite) labelIdentite.innerHTML = `Passeport ou Carte d'identité <span class="text-esmas-purple">*</span>`;
+                if (containerVitale) containerVitale.classList.add('hidden');
+                if (inputVitale) { inputVitale.required = false; inputVitale.value = ""; }
+                if (msgInfoPieces) msgInfoPieces.innerHTML = `<i class="fa-solid fa-circle-info mr-2 text-esmas-purple"></i> Candidat International : Carte Vitale non requise.`;
+            }
+
+            // Adresse vs Ville
+            const adresseContainer = document.getElementById('container-adresse');
+            const adresseInput = document.getElementById('adresse');
+            const villeContainer = document.getElementById('container-ville');
+            const villeInput = document.getElementById('ville');
+
+            if (paysAfrique.includes(pays)) {
+                if (adresseContainer) adresseContainer.classList.add('hidden');
+                if (adresseInput) { adresseInput.required = false; adresseInput.value = ""; }
+                if (villeContainer) villeContainer.classList.remove('hidden');
+                if (villeInput) villeInput.required = true;
+            } else {
+                if (adresseContainer) adresseContainer.classList.remove('hidden');
+                if (adresseInput) adresseInput.required = true;
+                if (villeContainer) villeContainer.classList.add('hidden');
+                if (villeInput) { villeInput.required = false; villeInput.value = ""; }
+            }
+        }
+
+        function setupIndicatifDropdown(inputId, dropdownId, listId, containerId) {
+            const input = document.getElementById(inputId);
+            const dropdown = document.getElementById(dropdownId);
+            const listEl = document.getElementById(listId);
+            function render(filter = "") {
+                const filtered = indicatifs.filter(item => item.nom.toLowerCase().includes(filter.toLowerCase()) || item.code.includes(filter));
+                listEl.innerHTML = "";
+                if(filtered.length === 0) { listEl.innerHTML = '<li class="px-4 py-2 text-gray-500 italic text-xs">Non trouvé</li>'; return; }
+                filtered.forEach(item => {
+                    const li = document.createElement('li');
+                    li.className = "px-4 py-2 hover:bg-gray-50 hover:text-esmas-purple cursor-pointer transition-colors text-xs font-semibold flex justify-between";
+                    li.innerHTML = `<span>${item.nom}</span> <span class="font-extrabold text-esmas-dark">${item.code}</span>`;
+                    li.onclick = () => { input.value = item.code; input.setCustomValidity(""); dropdown.classList.add('hidden'); };
+                    listEl.appendChild(li);
+                });
+            }
+            input.addEventListener('focus', () => { dropdown.classList.remove('hidden'); render(input.value); });
+            input.addEventListener('input', (e) => { dropdown.classList.remove('hidden'); render(e.target.value); });
+            document.addEventListener('click', (e) => { if (!document.getElementById(containerId).contains(e.target)) dropdown.classList.add('hidden'); });
+        }
+
+        function renderCountries(filter = "") {
+            const countryListEl = document.getElementById('country-list');
+            const countryInput = document.getElementById('pays_residence');
+            const countryDropdown = document.getElementById('country-dropdown');
+            
+            const filtered = listePays.filter(pays => pays.toLowerCase().includes(filter.toLowerCase()));
+            countryListEl.innerHTML = "";
+            if(filtered.length === 0) {
+                countryListEl.innerHTML = '<li class="px-4 py-3 text-gray-500 italic">Aucun pays trouvé</li>'; return;
+            }
+            filtered.forEach(pays => {
+                const li = document.createElement('li');
+                li.className = "px-4 py-2 hover:bg-gray-50 hover:text-esmas-purple cursor-pointer font-semibold transition-colors";
+                if(filter) {
+                    const regex = new RegExp(`(${filter})`, "gi");
+                    li.innerHTML = pays.replace(regex, "<span class='font-extrabold text-esmas-dark'>$1</span>");
+                } else {
+                    li.textContent = pays;
+                }
+                li.onclick = () => {
+                    countryInput.value = pays;
+                    countryInput.setCustomValidity("");
+                    gererLogiquePays(pays);
+                    countryDropdown.classList.add('hidden');
+                };
+                countryListEl.appendChild(li);
+            });
+        }
+
+        function openCountryDropdown() { 
+            document.getElementById('country-dropdown').classList.remove('hidden'); 
+            renderCountries(document.getElementById('pays_residence').value); 
+        }
+        
+        function closeCountryDropdown() {
+            const countryInput = document.getElementById('pays_residence');
+            document.getElementById('country-dropdown').classList.add('hidden');
+            if (countryInput.value && !listePays.includes(countryInput.value)) {
+                countryInput.setCustomValidity("Veuillez sélectionner un pays valide.");
+            } else if (!countryInput.value) {
+                countryInput.setCustomValidity("Ce champ est obligatoire.");
+            } else {
+                countryInput.setCustomValidity("");
+                gererLogiquePays(countryInput.value); 
+            }
+        }
+
+
+        function updateNiveaux() {
+            const cycleSelect = document.getElementById('cycle');
+            const niveauSelect = document.getElementById('niveau');
+            const formationSelect = document.getElementById('formation');
+            const cycleChoisi = cycleSelect.value;
+            
+            niveauSelect.innerHTML = '<option value="" disabled selected>-- SÉLECTIONNEZ LE DOMAINE --</option>';
+            formationSelect.innerHTML = '<option value="" disabled selected>-- EN ATTENTE DU DOMAINE --</option>';
+            formationSelect.disabled = true;
+            
+            if (cursusData[cycleChoisi]) {
+                niveauSelect.disabled = false;
+                cursusData[cycleChoisi].niveaux.forEach(niv => {
+                    const option = document.createElement('option');
+                    option.value = niv;
+                    option.textContent = niv;
+                    niveauSelect.appendChild(option);
+                });
+            } else {
+                niveauSelect.disabled = true;
+            }
+        }
+
+        function updateFormations() {
+            const cycleSelect = document.getElementById('cycle');
+            const niveauSelect = document.getElementById('niveau');
+            const formationSelect = document.getElementById('formation');
+            const cycleChoisi = cycleSelect.value;
+            const niveauChoisi = niveauSelect.value;
+            
+            formationSelect.innerHTML = '<option value="" disabled selected>-- SÉLECTIONNEZ LA FORMATION --</option>';
+            
+            if (cursusData[cycleChoisi] && cursusData[cycleChoisi].formations[niveauChoisi]) {
+                formationSelect.disabled = false;
+                cursusData[cycleChoisi].formations[niveauChoisi].forEach(form => {
+                    const option = document.createElement('option');
+                    option.value = form;
+                    option.textContent = form;
+                    formationSelect.appendChild(option);
+                });
+            } else {
+                formationSelect.disabled = true;
+            }
+        }
+
+        function updateUI() {
+            const dots = document.querySelectorAll('.step-dot');
+            const progressLine = document.getElementById('progress-line');
+            
+            dots.forEach((dot, index) => {
+                const circle = dot.querySelector('div');
+                const label = dot.querySelector('span');
+                const stepNum = index + 1;
+
+                if (stepNum < currentStep) {
+                    circle.className = "w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm bg-esmas-dark text-white transition-all duration-500";
+                    label.className = "text-[10px] font-bold uppercase tracking-wider mt-2 text-center text-esmas-dark hidden sm:block transition-colors duration-300";
+                    circle.innerHTML = '<i class="fa-solid fa-check"></i>';
+                } else if (stepNum === currentStep) {
+                    circle.className = "w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm bg-esmas-purple text-white shadow-lg transition-all duration-500 scale-110 border-0";
+                    label.className = "text-[10px] font-bold uppercase tracking-wider mt-2 text-center text-esmas-purple hidden sm:block transition-colors duration-300";
+                    circle.innerHTML = stepNum;
+                } else {
+                    circle.className = "w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm bg-white border-2 border-gray-200 transition-all duration-500 text-gray-400";
+                    label.className = "text-[10px] font-bold uppercase tracking-wider mt-2 text-center text-gray-400 hidden sm:block transition-colors duration-300";
+                    circle.innerHTML = stepNum;
+                }
+            });
+
+            if(progressLine) progressLine.style.width = `${((currentStep - 1) / (totalSteps - 1)) * 100}%`;
+
+            const btnPrev = document.getElementById('btn-prev');
+            const spacer = document.getElementById('spacer');
+            const btnNext = document.getElementById('btn-next');
+            const btnSubmit = document.getElementById('btn-submit');
+
+            if (currentStep === 1) { if(btnPrev) btnPrev.classList.add('hidden'); if(spacer) spacer.style.display = "block"; } 
+            else { if(btnPrev) btnPrev.classList.remove('hidden'); if(spacer) spacer.style.display = "none"; }
+
+            if (currentStep === totalSteps) { if(btnNext) btnNext.classList.add('hidden'); if(btnSubmit) btnSubmit.classList.remove('hidden'); } 
+            else { if(btnNext) btnNext.classList.remove('hidden'); if(btnSubmit) btnSubmit.classList.add('hidden'); }
+        }
+
+        function validateCurrentStep() {
+            const currentStepDiv = document.getElementById(`step-${currentStep}`);
+            const inputs = currentStepDiv.querySelectorAll('input:not([type="radio"]):not([disabled])[required], select:not([disabled])[required], textarea:not([disabled])[required]');
+            let isValid = true;
+
+            if(currentStep === 1) closeCountryDropdown(); 
+
+            inputs.forEach(input => {
+                if (!input.checkValidity()) {
+                    input.reportValidity(); 
+                    input.classList.add('border-red-500', 'bg-red-50');
+                    setTimeout(() => input.classList.remove('border-red-500', 'bg-red-50'), 3000);
+                    isValid = false;
+                }
+            });
+
+            const radioGroups = {};
+            currentStepDiv.querySelectorAll('input[type="radio"]:not([disabled])[required]').forEach(radio => {
+                if (!radioGroups[radio.name]) radioGroups[radio.name] = [];
+                radioGroups[radio.name].push(radio);
+            });
+
+            for (const name in radioGroups) {
+                const radios = document.querySelectorAll(`input[name="${name}"]:not([disabled])`); 
+                let isChecked = false;
+                radios.forEach(r => { if (r.checked) isChecked = true; });
+                if (!isChecked && radios.length > 0) {
+                    radios[0].reportValidity();
+                    isValid = false;
+                }
+            }
+
+            return isValid;
+        }
+
+        function changeStep(direction) {
+            if (direction === 1 && !validateCurrentStep()) {
+                document.getElementById('error-message').classList.remove('hidden');
+                return;
+            }
+            
+            document.getElementById('error-message').classList.add('hidden');
+            const currentContainer = document.getElementById(`step-${currentStep}`);
+            currentContainer.classList.remove('active');
+            
+            setTimeout(() => {
+                currentStep += direction;
+                const nextContainer = document.getElementById(`step-${currentStep}`);
+                nextContainer.classList.add('active');
+                updateUI();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }, 300);
+        }
+
+
+        function valeurChamp(id) {
+            const element = document.getElementById(id);
+            return element ? String(element.value || "").trim() : "";
+        }
+
+        function handicapSelectionne() {
+            const element = document.querySelector('input[name="handicap"]:checked');
+            return element ? element.value : "";
+        }
+
+        
+
+        function construireDonnees() {
+            const cycle = valeurChamp("cycle");
+            const domaine = valeurChamp("niveau");
+            const rythme = valeurChamp("rythme");
+            return {
+                source: "PORTAIL_MONO_CAMPUS_V7",
+                ecole: MONO_CAMPUS_CONFIG.ecole,
+                campus: MONO_CAMPUS_CONFIG.campus,
+                date_soumission: new Date().toISOString(),
+                nom: valeurChamp("nom"),
+                prenom: valeurChamp("prenom"),
+                nom_prenoms: `${valeurChamp("nom")} ${valeurChamp("prenom")}`.trim(),
+                ddn: valeurChamp("ddn"),
+                ldn: valeurChamp("ldn"),
+                pays_residence: valeurChamp("pays_residence"),
+                email: valeurChamp("email"),
+                indicatif_tel: valeurChamp("indicatif_tel"),
+                telephone: valeurChamp("telephone"),
+                indicatif_proche: valeurChamp("indicatif_proche"),
+                telephone_proche: valeurChamp("telephone_proche"),
+                ville: valeurChamp("ville") || valeurChamp("adresse"),
+                adresse: valeurChamp("adresse") || valeurChamp("ville"),
+                handicap: handicapSelectionne(),
+                cycle: cycle,
+                niveau_academique: cycle,
+                domaine: domaine,
+                niveau: domaine,
+                formation: valeurChamp("formation"),
+                rythme_academique: rythme,
+                rythme: rythme,
+                financement_fr: valeurChamp("financement_fr"),
+                financement_hors_fr: valeurChamp("financement_hors_fr"),
+                financement: valeurChamp("financement_fr") || valeurChamp("financement_hors_fr")
+            };
+        }
+
+        async function submitForm() { return window.mbnSubmitNative(); }
+
+
+        function initialiser() {
+            // Setup events & init
+            updateUI();
+            
+            const countryInput = document.getElementById('pays_residence');
+            if(countryInput) {
+                countryInput.setCustomValidity('');
+                countryInput.addEventListener('focus', openCountryDropdown);
+                countryInput.addEventListener('click', openCountryDropdown);
+                countryInput.addEventListener('input', (e) => {
+                    openCountryDropdown();
+                    renderCountries(e.target.value);
+                    if(!listePays.includes(e.target.value)) countryInput.setCustomValidity("Invalide.");
+                    else countryInput.setCustomValidity("");
+                });
+                document.addEventListener('click', (e) => { if (!document.getElementById('country-container').contains(e.target)) closeCountryDropdown(); });
+            }
+
+            setupIndicatifDropdown('indicatif_tel', 'indicatif-candidat-dropdown', 'indicatif-candidat-list', 'indicatif-candidat-container');
+            setupIndicatifDropdown('indicatif_proche', 'indicatif-proche-dropdown', 'indicatif-proche-list', 'indicatif-proche-container');
+            
+            document.querySelectorAll('input[name="handicap"]').forEach(radio => {
+                radio.addEventListener('change', (e) => {
+                    const containerRqth = document.getElementById('container-rqth');
+                    const inputRqth = document.getElementById('file_rqth');
+                    if (e.target.value === "Oui") {
+                        containerRqth.classList.remove('hidden'); inputRqth.required = true;
+                    } else {
+                        containerRqth.classList.add('hidden'); inputRqth.required = false; inputRqth.value = ""; 
+                    }
+                });
+            });
+
+            // Forcer le campus à Noisiel comme l'indique la configuration
+            const campusSelect = document.getElementById('campus');
+            if(campusSelect) {
+                campusSelect.value = "Paris"; // "Paris" est la value dans l'HTML de base
+            }
+        }
+
+        if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", initialiser);
+        else initialiser();
+
+    </script>
+<script src="../assets/auth-client.js" defer></script><script src="../assets/native-client.js" defer></script></body>
+</html>

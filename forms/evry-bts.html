@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Candidature | Évry BTS</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Merriweather:wght@700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        school: {
+                            primary: '#c23c55',      // Bleu Canard / Sarcelle EVRY BTS
+                            primaryHover: '#a12f46', // Sarcelle foncé au survol
+                            primaryDark: '#751e30',  // Sarcelle très foncé
+                            accent: '#f8fafc',
+                            dark: '#1f2937',
+                            bgGray: '#f8fafc'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Montserrat', 'sans-serif'],
+                        serif: ['Merriweather', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body { background-color: #f8fafc; }
+
+        .step-container {
+            display: none;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.4s ease-out;
+        }
+        .step-container.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .input-school {
+            border: 1px solid #e2e8f0;
+            background-color: #ffffff;
+            transition: all 0.3s ease;
+            border-radius: 4px;
+        }
+        .input-school:focus {
+            border-color: #c23c55;
+            box-shadow: 0 0 0 3px rgba(194, 60, 85, 0.15);
+            outline: none;
+        }
+
+        select:disabled, input:disabled {
+            background-color: #f1f5f9;
+            color: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f8fafc; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #c23c55; border-radius: 3px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #a12f46; }
+        
+        .btn-school {
+            background-color: #c23c55;
+            color: white;
+            transition: all 0.3s ease;
+            border-radius: 4px;
+            font-family: 'Montserrat', sans-serif;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.05em;
+            font-weight: 700;
+        }
+        .btn-school:hover {
+            background-color: #a12f46;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(194, 60, 85, 0.3);
+        }
+    </style>
+<meta name="mbn-school" content="EVRY BTS"><meta name="referrer" content="no-referrer"></head>
+
+<body class="text-gray-800 font-sans min-h-screen flex flex-col"><style>
+#mbn-native-test{font:14px/1.5 Arial,sans-serif;background:#112747;color:#fff;padding:18px 24px;position:relative;z-index:100}
+#mbn-native-test p{margin:5px 0}#mbn-native-test a{color:#a6e4dd;text-decoration:underline}
+#mbn-native-test form{display:flex;gap:10px;align-items:end;flex-wrap:wrap;margin-top:12px}
+#mbn-native-test label{display:grid;gap:4px}#mbn-native-test input{padding:8px 10px;border-radius:5px;color:#152742;background:#fff;border:1px solid #bdd0e6}
+#mbn-native-test button{background:#fff;color:#112747;padding:8px 12px;border:1px solid #bdd0e6;border-radius:5px;font-weight:700;cursor:pointer}
+#mbn-native-test button:disabled{opacity:.5}#mbn-native-test [hidden]{display:none!important}
+#mbn-native-status{min-height:22px}#mbn-native-test .mbn-ref{font-size:11px;overflow-wrap:anywhere;color:#c8d5e8}
+</style><section id="mbn-native-test" aria-label="Validation administrateur">
+<p><img src="../assets/brands/evry-bts.png" alt="EVRY BTS" style="display:inline-block;height:30px;max-width:130px;object-fit:contain;background:#fff;padding:3px;margin-right:10px"> <strong>MBN GLOBAL · Validation des formulaires</strong> — <a href="../MBN_GLOBAL_Admin_Supabase.html">Console administrateur</a></p>
+<p>Mode test : utilisez des données et des documents fictifs. Aucun e-mail n’est envoyé.</p>
+<p id="mbn-native-status" role="status">Chargement du catalogue…</p><p class="mbn-ref" id="mbn-native-reference"></p>
+<form id="mbn-native-login"><label>Nom d’utilisateur<input id="mbn-native-username" type="text" autocomplete="username" value="Tony Bill" required></label>
+<label>Mot de passe — six chiffres<input id="mbn-native-password" type="password" inputmode="numeric" maxlength="8" pattern="[0-9 ]{6,8}" autocomplete="current-password" required></label>
+<button type="submit">Se connecter</button></form>
+<div style="margin-top:10px"><button type="button" id="mbn-native-logout" hidden>Déconnexion</button> <button type="button" id="mbn-native-access">Mon accès</button> <button type="button" id="mbn-native-new">Nouvel essai</button></div></section>
+
+    <header class="w-full z-50 relative bg-white shadow-sm border-t-[6px] border-school-primary">
+        <div class="bg-school-primary text-white text-[11px] py-2 px-4 md:px-8 flex justify-between items-center font-bold">
+            <div class="flex flex-col sm:flex-row sm:gap-6 gap-2 items-start sm:items-center">
+                <span class="flex items-center"><i class="fa-solid fa-phone mr-2"></i>(+33)01 84 80 24 88 / 07 81 12 01 66</span>
+                <span class="flex items-center cursor-pointer hover:opacity-80 transition-opacity"><i class="fa-solid fa-envelope mr-2"></i>Admissions Évry BTS</span>
+            </div>
+        </div>
+        
+        <div class="py-5 px-4 md:px-8 flex items-center justify-center md:justify-start border-b border-gray-100">
+            <div class="flex items-center gap-4 cursor-pointer">
+                <div class="bg-school-primary p-3 flex flex-col items-center justify-center rounded-sm">
+                    <i class="fa-solid fa-graduation-cap text-white text-xl mb-1"></i>
+                    <span class="text-white font-sans font-bold text-[8px] tracking-widest uppercase border-t border-white/50 pt-1 mt-1">Évry</span>
+                    <span class="text-white font-sans font-black text-sm tracking-widest uppercase">BTS</span>
+                </div>
+                <div class="flex flex-col">
+                    <span class="text-school-primaryDark font-serif font-black text-2xl tracking-tight leading-none uppercase">MARNE LA VALLÉE BTS</span>
+                    <span class="text-gray-600 font-sans font-bold text-xs tracking-wide leading-none uppercase mt-1">École Spécialisée En Business Et Management</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow relative">
+        <div class="absolute inset-0 h-[400px] z-0 overflow-hidden bg-school-dark">
+            <img src="https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&q=80&w=2000" alt="Bâtiment Évry BTS" class="w-full h-full object-cover object-center opacity-30 mix-blend-overlay" />
+            <div class="absolute inset-0 bg-gradient-to-b from-school-dark/90 via-school-dark/70 to-school-bgGray"></div>
+        </div>
+
+        <div class="max-w-4xl mx-auto pt-14 pb-12 px-4 sm:px-6 relative z-10">
+            
+            <div class="mb-12 text-center text-white">
+                <div class="inline-block bg-school-primary px-4 py-1 mb-4 uppercase tracking-[0.2em] text-[10px] font-bold text-white">
+                    Inscriptions En Cours Pour La Rentrée
+                </div>
+                <h2 class="text-3xl md:text-5xl font-black mb-4 leading-tight font-serif tracking-tight">
+                    PORTAIL DE CANDIDATURE
+                </h2>
+                <p class="text-gray-300 text-sm md:text-base font-medium max-w-2xl mx-auto">
+                    Formez-vous avec notre nouvelle génération de techniciens supérieurs compétents et immédiatement opérationnels.
+                </p>
+            </div>
+
+            <div class="mb-8 px-2 sm:px-8 bg-white py-5 shadow-sm border border-gray-100 rounded-lg">
+                <div class="flex items-center justify-between relative">
+                    <div class="absolute left-0 top-5 transform -translate-y-1/2 w-full h-1 bg-gray-100 z-0 rounded-full"></div>
+                    <div class="absolute left-0 top-5 transform -translate-y-1/2 h-1 bg-school-primary z-0 transition-all duration-700 ease-out rounded-full" id="progress-line" style="width: 0%"></div>
+                    
+                    <div class="relative z-10 flex flex-col items-center step-dot w-1/5">
+                        <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold bg-white border-2 border-gray-200 text-gray-400 transition-all">1</div>
+                        <span class="text-[9px] font-bold uppercase tracking-widest mt-2 text-center transition-colors duration-300 hidden sm:block text-gray-400">Identité</span>
+                    </div>
+                    <div class="relative z-10 flex flex-col items-center step-dot w-1/5">
+                        <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold bg-white border-2 border-gray-200 text-gray-400 transition-all">2</div>
+                        <span class="text-[9px] font-bold uppercase tracking-widest mt-2 text-center transition-colors duration-300 hidden sm:block text-gray-400">Contact</span>
+                    </div>
+                    <div class="relative z-10 flex flex-col items-center step-dot w-1/5">
+                        <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold bg-white border-2 border-gray-200 text-gray-400 transition-all">3</div>
+                        <span class="text-[9px] font-bold uppercase tracking-widest mt-2 text-center transition-colors duration-300 hidden sm:block text-gray-400">Cursus</span>
+                    </div>
+                    <div class="relative z-10 flex flex-col items-center step-dot w-1/5">
+                        <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold bg-white border-2 border-gray-200 text-gray-400 transition-all">4</div>
+                        <span class="text-[9px] font-bold uppercase tracking-widest mt-2 text-center transition-colors duration-300 hidden sm:block text-gray-400">Frais</span>
+                    </div>
+                    <div class="relative z-10 flex flex-col items-center step-dot w-1/5">
+                        <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold bg-white border-2 border-gray-200 text-gray-400 transition-all">5</div>
+                        <span class="text-[9px] font-bold uppercase tracking-widest mt-2 text-center transition-colors duration-300 hidden sm:block text-gray-400">Pièces</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white shadow-xl border border-gray-100 overflow-hidden rounded-lg">
+                <form id="admission-form" class="p-8 sm:p-10 relative z-10" onsubmit="event.preventDefault(); submitForm();">
+                    
+                    <!-- Étape 1 : Identité -->
+                    <div class="step-container active" id="step-1">
+                        <div class="mb-8 border-l-4 border-school-primary pl-4">
+                            <h2 class="text-xl font-black text-school-dark uppercase font-serif">État Civil</h2>
+                            <p class="text-xs text-gray-500 mt-1 font-medium">Vos informations d'identité officielles.</p>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="col-span-1 md:col-span-2">
+                                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-2">Nom de famille <span class="text-school-primary">*</span></label>
+                                <input type="text" id="nom" name="nom" required class="input-school w-full px-4 py-3 uppercase text-sm font-semibold" placeholder="DUPONT">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-2">Prénom(s) <span class="text-school-primary">*</span></label>
+                                <input type="text" id="prenom" name="prenom" required class="input-school w-full px-4 py-3 text-sm font-semibold" placeholder="Jean">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-2">Date de naissance <span class="text-school-primary">*</span></label>
+                                <input type="date" id="ddn" name="ddn" required class="input-school w-full px-4 py-3 text-sm font-semibold text-gray-600">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-2">Lieu de naissance <span class="text-school-primary">*</span></label>
+                                <input type="text" id="ldn" name="ldn" required class="input-school w-full px-4 py-3 text-sm font-semibold" placeholder="Ex: Paris">
+                            </div>
+                            
+                            <!-- Pays de résidence -->
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-2">Pays de résidence <span class="text-school-primary">*</span></label>
+                                <div class="relative" id="country-container">
+                                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                        <i class="fa-solid fa-earth-europe text-gray-400"></i>
+                                    </div>
+                                    <input type="text" id="pays_residence" name="pays_residence" required autocomplete="off" class="input-school w-full pl-11 pr-10 px-4 py-3 text-sm font-semibold cursor-text" placeholder="Rechercher...">
+                                    <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none transition-transform duration-200">
+                                        <i class="fa-solid fa-chevron-down text-gray-400"></i>
+                                    </div>
+                                    <div id="country-dropdown" class="absolute z-50 w-full mt-1 bg-white border border-gray-200 shadow-xl rounded max-h-60 overflow-y-auto custom-scrollbar hidden">
+                                        <ul id="country-list" class="py-2 text-sm text-gray-700"></ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Handicap -->
+                            <div class="col-span-1 md:col-span-2 mt-2 p-5 bg-school-bgGray border border-gray-100 rounded">
+                                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-3">Êtes-vous en situation de handicap ? <span class="text-school-primary">*</span></label>
+                                <div class="flex gap-6">
+                                    <label class="flex items-center cursor-pointer">
+                                        <input type="radio" name="handicap" value="Oui" required class="w-4 h-4 text-school-primary border-gray-300 focus:ring-school-primary accent-school-primary">
+                                        <span class="ml-2 text-sm text-gray-700 font-bold">Oui</span>
+                                    </label>
+                                    <label class="flex items-center cursor-pointer">
+                                        <input type="radio" name="handicap" value="Non" class="w-4 h-4 text-school-primary border-gray-300 focus:ring-school-primary accent-school-primary">
+                                        <span class="ml-2 text-sm text-gray-700 font-bold">Non</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Étape 2 : Contact -->
+                    <div class="step-container" id="step-2">
+                        <div class="mb-8 border-l-4 border-school-primary pl-4">
+                            <h2 class="text-xl font-black text-school-dark uppercase font-serif">Coordonnées</h2>
+                            <p class="text-xs text-gray-500 mt-1 font-medium">Vos moyens de contact.</p>
+                        </div>
+                        
+                        <div class="space-y-6">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-2">Adresse e-mail <span class="text-school-primary">*</span></label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                        <i class="fa-regular fa-envelope text-gray-400"></i>
+                                    </div>
+                                    <input type="email" id="email" name="email" required class="input-school w-full pl-11 px-4 py-3 text-sm font-semibold" placeholder="votre.email@exemple.com">
+                                </div>
+                            </div>
+
+                            <!-- Téléphone Candidat -->
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-2">Numéro de téléphone <span class="text-school-primary">*</span></label>
+                                <div class="flex gap-2 relative">
+                                    <div class="relative w-[120px] sm:w-[140px]" id="indicatif-candidat-container">
+                                        <input type="text" id="indicatif_tel" name="indicatif_tel" required autocomplete="off" class="input-school w-full px-3 py-3 text-sm cursor-text font-bold text-center" placeholder="+33" value="+33">
+                                        <div id="indicatif-candidat-dropdown" class="absolute left-0 z-50 w-64 mt-1 bg-white border border-gray-200 rounded shadow-xl max-h-48 overflow-y-auto custom-scrollbar hidden">
+                                            <ul id="indicatif-candidat-list" class="py-2 text-sm text-gray-700 text-left"></ul>
+                                        </div>
+                                    </div>
+                                    <input type="tel" id="telephone" name="telephone" required class="input-school flex-1 px-4 py-3 text-sm font-semibold" placeholder="6 00 00 00 00">
+                                </div>
+                            </div>
+
+                            <!-- Téléphone Proche -->
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-2">Numéro d'un proche (urgence) <span class="text-school-primary">*</span></label>
+                                <div class="flex gap-2 relative">
+                                    <div class="relative w-[120px] sm:w-[140px]" id="indicatif-proche-container">
+                                        <input type="text" id="indicatif_proche" name="indicatif_proche" required autocomplete="off" class="input-school w-full px-3 py-3 text-sm cursor-text font-bold text-center" placeholder="+33" value="+33">
+                                        <div id="indicatif-proche-dropdown" class="absolute left-0 z-50 w-64 mt-1 bg-white border border-gray-200 rounded shadow-xl max-h-48 overflow-y-auto custom-scrollbar hidden">
+                                            <ul id="indicatif-proche-list" class="py-2 text-sm text-gray-700 text-left"></ul>
+                                        </div>
+                                    </div>
+                                    <input type="tel" id="telephone_proche" name="telephone_proche" required class="input-school flex-1 px-4 py-3 text-sm font-semibold" placeholder="6 00 00 00 00">
+                                </div>
+                            </div>
+
+                            <!-- Adresse -->
+                            <div id="container-adresse" class="mt-6">
+                                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-2">Ville de résidence / Adresse <span class="text-school-primary">*</span></label>
+                                <input type="text" id="ville" name="ville" required class="input-school w-full px-4 py-3 text-sm font-semibold text-gray-800" placeholder="Ex: Paris, Dakar, Lyon...">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Étape 3 : Formation (Cursus) -->
+                    <div class="step-container" id="step-3">
+                        <div class="mb-8 border-l-4 border-school-primary pl-4">
+                            <h2 class="text-xl font-black text-school-dark uppercase font-serif">Choix du Cursus</h2>
+                            <p class="text-xs text-gray-500 mt-1 font-medium">Sélectionnez votre parcours académique.</p>
+                        </div>
+                        
+                        <div class="space-y-6 p-6 bg-school-bgGray border border-gray-100 rounded">
+                            <!-- Campus Integration -->
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-2">Campus visé <span class="text-school-primary">*</span></label>
+                                <select id="campus" name="campus" required class="input-school w-full px-4 py-3 text-sm font-bold text-gray-800 uppercase tracking-wide">
+                                    <option value="Évry" selected>Campus de Évry(Paris Ile-De-France)</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-2">Cycle d'études <span class="text-school-primary">*</span></label>
+                                <select id="cycle" name="cycle" required onchange="updateNiveaux()" class="input-school w-full px-4 py-3 font-bold text-school-primaryDark uppercase text-sm tracking-widest">
+                                    <option value="BTS (Brevet de Technicien Supérieur)" selected>BTS (Brevet de Technicien Supérieur)</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-2">Domaine d'expertise <span class="text-school-primary">*</span></label>
+                                <select id="niveau" name="niveau" required onchange="updateFormations()" class="input-school w-full px-4 py-3 font-bold uppercase text-xs tracking-wide">
+                                    <option value="" disabled selected>-- SÉLECTIONNEZ LE DOMAINE --</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-2">Formation exacte <span class="text-school-primary">*</span></label>
+                                <select id="formation" name="formation" required disabled class="input-school w-full px-4 py-3 font-bold text-sm text-school-primary">
+                                    <option value="" disabled selected>-- EN ATTENTE DU DOMAINE --</option>
+                                </select>
+                            </div>
+
+                            <div class="pt-4 border-t border-gray-200">
+                                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-2">Rythme souhaité <span class="text-school-primary">*</span></label>
+                                <select id="rythme" name="rythme" required class="input-school w-full px-4 py-3 font-bold text-sm">
+                                    <option value="" disabled selected>-- SÉLECTIONNEZ LE RYTHME --</option>
+                                    <option value="Initiale">Formation Initiale</option>
+                                    <option value="Alternance" id="option-alternance">Alternance (Contrat pro/apprentissage)</option>
+                                    <option value="En ligne">En ligne</option>
+                                </select>
+                                <p id="msg-rythme-etranger" class="text-xs text-orange-600 mt-2 font-bold hidden"><i class="fa-solid fa-triangle-exclamation mr-1"></i> L'alternance nécessite de résider en France pour la première année.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Étape 4 : Financement -->
+                    <div class="step-container" id="step-4">
+                        <div class="mb-6 border-l-4 border-school-primary pl-4">
+                            <h2 class="text-xl font-black text-school-dark uppercase font-serif" id="titre-financement">Projet de Financement</h2>
+                            <p class="text-xs text-gray-500 mt-1 font-medium" id="desc-financement">Déterminez le mode de financement de votre scolarité.</p>
+                        </div>
+                        
+                        <div id="financement-france" class="w-full">
+                            <select id="financement_fr" name="financement_fr" class="input-school w-full px-4 py-3 font-bold text-sm text-gray-800" required>
+                                <option value="" disabled selected>-- Choisissez votre solution --</option>
+                                <option value="CPF">Financement CPF (Compte Personnel de Formation)</option>
+                                <option value="Pole Emploi">Pôle Emploi / France Travail (AIF)</option>
+                                <option value="OPCO">Financement OPCO / Entreprise (Alternance)</option>
+                                <option value="Personnel">Financement Personnel (Règlement échelonné possible)</option>
+                            </select>
+                        </div>
+                        <div id="financement-hors-france" class="w-full hidden">
+                            <select id="financement_hors_fr" name="financement_hors_fr" class="input-school w-full px-4 py-3 font-bold text-sm text-gray-800" disabled>
+                                <option value="" disabled selected>-- Choisissez votre projet de financement --</option>
+                                <option value="Oui, entièrement par mes propres moyens">Oui, entièrement par mes propres moyens</option>
+                                <option value="Oui, avec l'aide de ma famille">Oui, avec l'aide de ma famille</option>
+                                <option value="Oui, grâce à un garant en France">Oui, grâce à un garant en France</option>
+                                <option value="Oui, grâce à une bourse d'études">Oui, grâce à une bourse d'études</option>
+                                <option value="Oui, plusieurs sources de financement combinées">Oui, plusieurs sources de financement combinées</option>
+                                <option value="Partiellement, je recherche des solutions complémentaires">Partiellement, je recherche des solutions complémentaires</option>
+                                <option value="Non, je recherche actuellement un financement global">Non, je recherche actuellement un financement global</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Étape 5 : Documents -->
+                    <div class="step-container" id="step-5">
+                        <div class="mb-8 border-l-4 border-school-primary pl-4">
+                            <h2 class="text-xl font-black text-school-dark uppercase font-serif">Pièces justificatives</h2>
+                            <p class="text-xs text-gray-500 mt-1 font-medium">Fournissez les documents au format PDF ou Image.</p>
+                        </div>
+                        
+                        <div id="info-pieces" class="mb-6 p-4 bg-school-primary/10 text-school-primaryDark rounded text-xs font-bold border border-school-primary/20">
+                            <i class="fa-solid fa-circle-info mr-2"></i> Adaptation des pièces requises selon votre profil géographique.
+                        </div>
+
+                        <div class="space-y-4">
+                            <div class="p-4 border border-gray-200 rounded bg-white hover:border-school-primary transition-all">
+                                <label id="label_identite" for="file_identite" class="block text-xs font-bold text-gray-800 uppercase tracking-wide mb-2">Pièce d'identité <span class="text-school-primary">*</span></label>
+                                <input type="file" id="file_identite" required accept=".pdf,.jpg,.jpeg,.png" class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-xs file:font-bold file:uppercase file:bg-school-bgGray file:text-school-primary cursor-pointer">
+                            </div>
+                            
+                            <div class="p-4 border border-gray-200 rounded bg-white hover:border-school-primary transition-all">
+                                <label for="file_diplome" class="block text-xs font-bold text-gray-800 uppercase tracking-wide mb-2">Dernier diplôme / Relevé <span class="text-school-primary">*</span></label>
+                                <input type="file" id="file_diplome" required accept=".pdf,.jpg,.jpeg,.png" class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-xs file:font-bold file:uppercase file:bg-school-bgGray file:text-school-primary cursor-pointer">
+                            </div>
+                            
+                            <div class="p-4 border border-gray-200 rounded bg-white hover:border-school-primary transition-all">
+                                <label for="file_cv" class="block text-xs font-bold text-gray-800 uppercase tracking-wide mb-2">CV mis à jour <span class="text-school-primary">*</span></label>
+                                <input type="file" id="file_cv" required accept=".pdf,.jpg,.jpeg,.png" class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-xs file:font-bold file:uppercase file:bg-school-bgGray file:text-school-primary cursor-pointer">
+                            </div>
+
+                            <div id="container-vitale" class="hidden p-4 border border-blue-200 rounded bg-blue-50 transition-all">
+                                <label for="file_vitale" class="block text-xs font-bold text-blue-900 uppercase tracking-wide mb-2">Attestation Vitale <span class="text-school-primary">*</span></label>
+                                <input type="file" id="file_vitale" accept=".pdf,.jpg,.jpeg,.png" class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-xs file:font-bold file:uppercase file:bg-white file:text-blue-900 cursor-pointer shadow-sm">
+                            </div>
+
+                            <div id="container-rqth" class="hidden p-4 border border-school-primary rounded bg-school-primary/5">
+                                <label for="file_rqth" class="block text-xs font-bold text-school-dark uppercase tracking-wide mb-2">Justificatif RQTH <span class="text-school-primary">*</span></label>
+                                <input type="file" id="file_rqth" accept=".pdf,.jpg,.jpeg,.png" class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-xs file:font-bold file:uppercase file:bg-white file:text-school-primary cursor-pointer shadow-sm">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Message d'erreur -->
+                    <div id="error-message" class="hidden mt-6 p-4 bg-red-50 text-red-700 rounded text-xs font-bold border border-red-200 uppercase tracking-wide">
+                        <i class="fa-solid fa-triangle-exclamation mr-2 text-lg"></i> Veuillez remplir tous les champs obligatoires.
+                    </div>
+
+                    <!-- Écran de succès -->
+                    <div id="success-screen" class="hidden text-center py-12 relative z-10">
+                        <div class="w-20 h-20 bg-school-bgGray border-4 border-school-primary rounded-full flex items-center justify-center mx-auto mb-6 shadow-md">
+                            <i class="fa-solid fa-check text-3xl text-school-primary"></i>
+                        </div>
+                        <h2 class="text-2xl font-black text-school-dark mb-2 font-serif tracking-wide uppercase">Candidature Transmise</h2>
+                        <p class="text-gray-600 mb-8 font-medium text-sm">Le service des admissions procédera à l'audit manuel de vos pièces dans les plus brefs délais.</p>
+                        
+                        <div class="bg-gray-50 rounded p-5 inline-block text-center border border-gray-200">
+                            <p class="text-xs text-school-primary font-bold mb-1"><i class="fa-solid fa-lock mr-2"></i>Dossier en cours de vérification</p>
+                            <p class="text-[11px] text-gray-500">Vous recevrez un e-mail de confirmation une fois vos documents validés.</p>
+                            <p class="text-xs text-gray-500 uppercase tracking-widest font-bold mt-4 mb-2">Référence :</p>
+                            <p id="display-num-dossier" class="text-xl font-mono font-black text-school-primaryDark tracking-widest">BTS-XXXXX</p>
+                        </div>
+                    </div>
+
+                    <!-- Navigation -->
+                    <div class="mt-10 flex justify-between items-center pt-6 border-t border-gray-100" id="form-navigation">
+                        <button type="button" id="btn-prev" class="hidden px-6 py-3 border border-gray-200 text-gray-600 font-bold rounded hover:bg-gray-50 text-xs tracking-widest uppercase" onclick="changeStep(-1)">
+                            <i class="fa-solid fa-angle-left mr-2"></i> Retour
+                        </button>
+                        <div id="spacer" class="block w-full"></div>
+                        <button type="button" id="btn-next" class="px-8 py-3 btn-school shadow-lg ml-auto flex items-center" onclick="changeStep(1)">
+                            Continuer <i class="fa-solid fa-angle-right ml-2"></i>
+                        </button>
+                        <button type="submit" id="btn-submit" class="hidden px-8 py-3 btn-school shadow-lg ml-auto flex items-center gap-2 bg-school-primaryDark hover:bg-school-primary">
+                            <i class="fa-solid fa-upload"></i> Transmettre le dossier
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <p class="text-center text-[10px] text-gray-400 mt-6 font-bold tracking-widest uppercase font-sans">
+                <i class="fa-solid fa-shield-halved mr-1"></i> Connexion sécurisée Évry BTS
+            </p>
+        </div>
+    </main>
+
+    <script>
+        let currentStep = 1;
+        const totalSteps = 5;
+
+        // --- GESTION DES PAYS & INDICATIFS ---
+        const listePays = [
+            "Afghanistan", "Afrique du Sud", "Albanie", "Algérie", "Allemagne", "Andorre", "Angola", "Antigua-et-Barbuda", "Arabie Saoudite", "Argentine", "Arménie", "Australie", "Autriche", "Azerbaïdjan", "Bahamas", "Bahreïn", "Bangladesh", "Barbade", "Belgique", "Belize", "Bhoutan", "Birmanie", "Biélorussie", "Bolivie", "Bosnie-Herzégovine", "Botswana", "Brunei", "Brésil", "Bulgarie", "Burkina Faso", "Burundi", "Bénin", "Cambodge", "Cameroun", "Canada", "Cap-Vert", "Chili", "Chine", "Chypre", "Colombie", "Comores", "Congo", "Congo (RDC)", "Corée du Nord", "Corée du Sud", "Costa Rica", "Croatie", "Cuba", "Côte d'Ivoire", "Danemark", "Djibouti", "Dominique", "Espagne", "Estonie", "Eswatini", "Fidji", "Finlande", "France", "Gabon", "Gambie", "Ghana", "Grenade", "Grèce", "Guatemala", "Guinée", "Guinée équatoriale", "Guinée-Bissau", "Guyana", "Géorgie", "Haïti", "Honduras", "Hongrie", "Inde", "Indonésie", "Irak", "Iran", "Irlande", "Islande", "Israël", "Italie", "Jamaïque", "Japon", "Jordanie", "Kazakhstan", "Kenya", "Kirghizistan", "Kiribati", "Kosovo", "Koweït", "Laos", "Lesotho", "Lettonie", "Liban", "Liberia", "Libye", "Liechtenstein", "Lituanie", "Luxembourg", "Macédoine du Nord", "Madagascar", "Malaisie", "Malawi", "Maldives", "Mali", "Malte", "Maroc", "Maurice", "Mauritanie", "Mexique", "Micronésie", "Moldavie", "Monaco", "Mongolie", "Monténégro", "Mozambique", "Namibie", "Nauru", "Nicaragua", "Niger", "Nigeria", "Norvège", "Nouvelle-Zélande", "Népal", "Oman", "Ouganda", "Ouzbékistan", "Pakistan", "Palaos", "Palestine", "Panama", "Papouasie-Nouvelle-Guinée", "Paraguay", "Pays-Bas", "Philippines", "Pologne", "Portugal", "Pérou", "Qatar", "Roumanie", "Royaume-Uni", "Russie", "Rwanda", "République centrafricaine", "République dominicaine", "Saint-Kitts-et-Nevis", "Saint-Marin", "Saint-Vincent-et-les-Grenadines", "Sainte-Lucie", "Salvador", "Samoa", "Serbie", "Seychelles", "Sierra Leone", "Singapour", "Slovaquie", "Slovénie", "Somalie", "Soudan", "Soudan du Sud", "Sri Lanka", "Suisse", "Suriname", "Suède", "Syrie", "São Tomé-et-Principe", "Sénégal", "Tadjikistan", "Tanzanie", "Taïwan", "Tchad", "Tchéquie", "Thaïlande", "Timor oriental", "Togo", "Tonga", "Trinité-et-Tobago", "Tunisie", "Turkménistan", "Turquie", "Tuvalu", "Ukraine", "Uruguay", "Vanuatu", "Vatican", "Venezuela", "Viêt Nam", "Yémen", "Zambie", "Zimbabwe", "Égypte", "Émirats arabes unis", "Équateur", "Érythrée", "États-Unis", "Éthiopie"
+        ];
+        
+        const paysAfrique = [
+            "Algérie", "Angola", "Bénin", "Botswana", "Burkina Faso", "Burundi", "Cameroun", "Cap-Vert", 
+            "République centrafricaine", "Tchad", "Comores", "Congo", "Congo (RDC)", "Djibouti", "Égypte", 
+            "Guinée équatoriale", "Érythrée", "Eswatini", "Éthiopie", "Gabon", "Gambie", "Ghana", "Guinée", 
+            "Guinée-Bissau", "Côte d'Ivoire", "Kenya", "Lesotho", "Liberia", "Libye", "Madagascar", "Malawi", 
+            "Mali", "Mauritanie", "Maurice", "Maroc", "Mozambique", "Namibie", "Niger", "Nigeria", "Rwanda", 
+            "São Tomé-et-Principe", "Sénégal", "Seychelles", "Sierra Leone", "Somalie", "Afrique du Sud", 
+            "Soudan du Sud", "Soudan", "Tanzanie", "Togo", "Tunisie", "Ouganda", "Zambie", "Zimbabwe"
+        ];
+
+        const paysUE = [
+            "Allemagne", "Autriche", "Belgique", "Bulgarie", "Chypre", "Croatie", "Danemark", "Espagne", 
+            "Estonie", "Finlande", "Grèce", "Hongrie", "Irlande", "Italie", "Lettonie", "Lituanie", 
+            "Luxembourg", "Malte", "Pays-Bas", "Pologne", "Portugal", "Tchéquie", "Roumanie", "Slovaquie", 
+            "Slovénie", "Suède"
+        ];
+        
+        const indicatifs = [
+            { "nom": "AC", "code": "+247" }, { "nom": "Afghanistan", "code": "+93" }, { "nom": "Afrique du Sud", "code": "+27" }, 
+            { "nom": "Albanie", "code": "+355" }, { "nom": "Algérie", "code": "+213" }, { "nom": "Allemagne", "code": "+49" }, 
+            { "nom": "Andorre", "code": "+376" }, { "nom": "Angola", "code": "+244" }, { "nom": "Anguilla", "code": "+1" }, 
+            { "nom": "Antigua-et-Barbuda", "code": "+1" }, { "nom": "Arabie saoudite", "code": "+966" }, { "nom": "Argentine", "code": "+54" }, 
+            { "nom": "Arménie", "code": "+374" }, { "nom": "Aruba", "code": "+297" }, { "nom": "Australie", "code": "+61" }, 
+            { "nom": "Autriche", "code": "+43" }, { "nom": "Azerbaïdjan", "code": "+994" }, { "nom": "Bahamas", "code": "+1" }, 
+            { "nom": "Bahreïn", "code": "+973" }, { "nom": "Bangladesh", "code": "+880" }, { "nom": "Barbade", "code": "+1" }, 
+            { "nom": "Belgique", "code": "+32" }, { "nom": "Belize", "code": "+501" }, { "nom": "Bermudes", "code": "+1" }, 
+            { "nom": "Bhoutan", "code": "+975" }, { "nom": "Birmanie", "code": "+95" }, { "nom": "Bolivie", "code": "+591" }, 
+            { "nom": "Bonaire", "code": "+599" }, { "nom": "Bosnie-Herzégovine", "code": "+387" }, { "nom": "Botswana", "code": "+267" }, 
+            { "nom": "Brunéi Darussalam", "code": "+673" }, { "nom": "Brésil", "code": "+55" }, { "nom": "Bulgarie", "code": "+359" }, 
+            { "nom": "Burkina Faso", "code": "+226" }, { "nom": "Burundi", "code": "+257" }, { "nom": "Bélarus", "code": "+375" }, 
+            { "nom": "Bénin", "code": "+229" }, { "nom": "Cambodge", "code": "+855" }, { "nom": "Cameroun", "code": "+237" }, 
+            { "nom": "Canada", "code": "+1" }, { "nom": "Cap-Vert", "code": "+238" }, { "nom": "Chili", "code": "+56" }, 
+            { "nom": "Chine", "code": "+86" }, { "nom": "Christmas", "code": "+61" }, { "nom": "Chypre", "code": "+357" }, 
+            { "nom": "Cocos", "code": "+61" }, { "nom": "Colombie", "code": "+57" }, { "nom": "Comores", "code": "+269" }, 
+            { "nom": "Corée du Sud", "code": "+82" }, { "nom": "Corée du Nord", "code": "+850" }, { "nom": "Costa Rica", "code": "+506" }, 
+            { "nom": "Croatie", "code": "+385" }, { "nom": "Cuba", "code": "+53" }, { "nom": "Curaçao", "code": "+599" }, 
+            { "nom": "Côte d'Ivoire", "code": "+225" }, { "nom": "Danemark", "code": "+45" }, { "nom": "Djibouti", "code": "+253" }, 
+            { "nom": "Dominique", "code": "+1" }, { "nom": "Espagne", "code": "+34" }, { "nom": "Estonie", "code": "+372" }, 
+            { "nom": "Eswatini", "code": "+268" }, { "nom": "Fidji", "code": "+679" }, { "nom": "Finlande", "code": "+358" }, 
+            { "nom": "France", "code": "+33" }, { "nom": "Gabon", "code": "+241" }, { "nom": "Gambie", "code": "+220" }, 
+            { "nom": "Ghana", "code": "+233" }, { "nom": "Gibraltar", "code": "+350" }, { "nom": "Grenade", "code": "+1" }, 
+            { "nom": "Groënland", "code": "+299" }, { "nom": "Grèce", "code": "+30" }, { "nom": "Guadeloupe", "code": "+590" }, 
+            { "nom": "Guam", "code": "+1" }, { "nom": "Guatemala", "code": "+502" }, { "nom": "Guernesey", "code": "+44" }, 
+            { "nom": "Guinée", "code": "+224" }, { "nom": "Guinée Équatoriale", "code": "+240" }, { "nom": "Guinée-Bissau", "code": "+245" }, 
+            { "nom": "Guyana", "code": "+592" }, { "nom": "Guyane française", "code": "+594" }, { "nom": "Géorgie", "code": "+995" }, 
+            { "nom": "Haïti", "code": "+509" }, { "nom": "Honduras", "code": "+504" }, { "nom": "Hong Kong", "code": "+852" }, 
+            { "nom": "Hongrie", "code": "+36" }, { "nom": "Inde", "code": "+91" }, { "nom": "Indonésie", "code": "+62" }, 
+            { "nom": "Irak", "code": "+964" }, { "nom": "Iran", "code": "+98" }, { "nom": "Irlande", "code": "+353" }, 
+            { "nom": "Islande", "code": "+354" }, { "nom": "Israël", "code": "+972" }, { "nom": "Italie", "code": "+39" }, 
+            { "nom": "Jamaïque", "code": "+1" }, { "nom": "Japon", "code": "+81" }, { "nom": "Jersey", "code": "+44" }, 
+            { "nom": "Jordanie", "code": "+962" }, { "nom": "Kazakhstan", "code": "+7" }, { "nom": "Kenya", "code": "+254" }, 
+            { "nom": "Kirghizistan", "code": "+996" }, { "nom": "Kiribati", "code": "+686" }, { "nom": "Kosovo", "code": "+383" }, 
+            { "nom": "Koweït", "code": "+965" }, { "nom": "Laos", "code": "+856" }, { "nom": "Lesotho", "code": "+266" }, 
+            { "nom": "Lettonie", "code": "+371" }, { "nom": "Liban", "code": "+961" }, { "nom": "Libye", "code": "+218" }, 
+            { "nom": "Libéria", "code": "+231" }, { "nom": "Liechtenstein", "code": "+423" }, { "nom": "Lituanie", "code": "+370" }, 
+            { "nom": "Luxembourg", "code": "+352" }, { "nom": "Macau", "code": "+853" }, { "nom": "Macédoine du Nord", "code": "+389" }, 
+            { "nom": "Madagascar", "code": "+261" }, { "nom": "Malaisie", "code": "+60" }, { "nom": "Malawi", "code": "+265" }, 
+            { "nom": "Maldives", "code": "+960" }, { "nom": "Mali", "code": "+223" }, { "nom": "Malte", "code": "+356" }, 
+            { "nom": "Maroc", "code": "+212" }, { "nom": "Martinique", "code": "+596" }, { "nom": "Maurice", "code": "+230" }, 
+            { "nom": "Mauritanie", "code": "+222" }, { "nom": "Mayotte", "code": "+262" }, { "nom": "Mexique", "code": "+52" }, 
+            { "nom": "Micronésie", "code": "+691" }, { "nom": "Moldavie", "code": "+373" }, { "nom": "Monaco", "code": "+377" }, 
+            { "nom": "Mongolie", "code": "+976" }, { "nom": "Montserrat", "code": "+1" }, { "nom": "Monténégro", "code": "+382" }, 
+            { "nom": "Mozambique", "code": "+258" }, { "nom": "Namibie", "code": "+264" }, { "nom": "Nauru", "code": "+674" }, 
+            { "nom": "Nicaragua", "code": "+505" }, { "nom": "Niger", "code": "+227" }, { "nom": "Nigeria", "code": "+234" }, 
+            { "nom": "Nioue", "code": "+683" }, { "nom": "Norvège", "code": "+47" }, { "nom": "Nouvelle-Calédonie", "code": "+687" }, 
+            { "nom": "Nouvelle-Zélande", "code": "+64" }, { "nom": "Népal", "code": "+977" }, { "nom": "Oman", "code": "+968" }, 
+            { "nom": "Ouganda", "code": "+256" }, { "nom": "Ouzbékistan", "code": "+998" }, { "nom": "Pakistan", "code": "+92" }, 
+            { "nom": "Palaos", "code": "+680" }, { "nom": "Palestine", "code": "+970" }, { "nom": "Panama", "code": "+507" }, 
+            { "nom": "Papouasie-Nouvelle-Guinée", "code": "+675" }, { "nom": "Paraguay", "code": "+595" }, { "nom": "Pays-Bas", "code": "+31" }, 
+            { "nom": "Philippines", "code": "+63" }, { "nom": "Pologne", "code": "+48" }, { "nom": "Polynésie française", "code": "+689" }, 
+            { "nom": "Porto Rico", "code": "+1" }, { "nom": "Portugal", "code": "+351" }, { "nom": "Pérou", "code": "+51" }, 
+            { "nom": "Qatar", "code": "+974" }, { "nom": "Roumanie", "code": "+40" }, { "nom": "Royaume-Uni", "code": "+44" }, 
+            { "nom": "Russie", "code": "+7" }, { "nom": "Rwanda", "code": "+250" }, { "nom": "République centrafricaine", "code": "+236" }, 
+            { "nom": "République dominicaine", "code": "+1" }, { "nom": "Congo", "code": "+242" }, { "nom": "Congo (RDC)", "code": "+243" }, 
+            { "nom": "Réunion", "code": "+262" }, { "nom": "Sahara occidental", "code": "+212" }, { "nom": "Saint-Barthélemy", "code": "+590" }, 
+            { "nom": "Saint-Kitts-et-Nevis", "code": "+1" }, { "nom": "Saint-Marin", "code": "+378" }, { "nom": "Saint-Martin", "code": "+590" }, 
+            { "nom": "Saint-Pierre-et-Miquelon", "code": "+508" }, { "nom": "Saint-Vincent-et-les-Grenadines", "code": "+1" }, 
+            { "nom": "Sainte-Hélène", "code": "+290" }, { "nom": "Sainte-Lucie", "code": "+1" }, { "nom": "Salomon", "code": "+677" }, 
+            { "nom": "Salvador", "code": "+503" }, { "nom": "Samoa", "code": "+685" }, { "nom": "Samoa américaines", "code": "+1" }, 
+            { "nom": "Sao Tomé-et-Principe", "code": "+239" }, { "nom": "Serbie", "code": "+381" }, { "nom": "Seychelles", "code": "+248" }, 
+            { "nom": "Sierra Leone", "code": "+232" }, { "nom": "Singapour", "code": "+65" }, { "nom": "Slovaquie", "code": "+421" }, 
+            { "nom": "Slovénie", "code": "+386" }, { "nom": "Somalie", "code": "+252" }, { "nom": "Soudan", "code": "+249" }, 
+            { "nom": "Soudan du Sud", "code": "+211" }, { "nom": "Sri Lanka", "code": "+94" }, { "nom": "Suisse", "code": "+41" }, 
+            { "nom": "Suriname", "code": "+597" }, { "nom": "Suède", "code": "+46" }, { "nom": "Syrie", "code": "+963" }, 
+            { "nom": "Sénégal", "code": "+221" }, { "nom": "Tadjikistan", "code": "+992" }, { "nom": "Tanzanie", "code": "+255" }, 
+            { "nom": "Taïwan", "code": "+886" }, { "nom": "Tchad", "code": "+235" }, { "nom": "Tchéquie", "code": "+420" }, 
+            { "nom": "Thaïlande", "code": "+66" }, { "nom": "Timor oriental", "code": "+670" }, { "nom": "Togo", "code": "+228" }, 
+            { "nom": "Tonga", "code": "+676" }, { "nom": "Trinité-et-Tobago", "code": "+1" }, { "nom": "Tunisie", "code": "+216" }, 
+            { "nom": "Turkménistan", "code": "+993" }, { "nom": "Turquie", "code": "+90" }, { "nom": "Tuvalu", "code": "+688" }, 
+            { "nom": "Ukraine", "code": "+380" }, { "nom": "Uruguay", "code": "+598" }, { "nom": "Vanuatu", "code": "+678" }, 
+            { "nom": "Viêt Nam", "code": "+84" }, { "nom": "Venezuela", "code": "+58" }, { "nom": "Yémen", "code": "+967" }, 
+            { "nom": "Zambie", "code": "+260" }, { "nom": "Zimbabwe", "code": "+263" }, { "nom": "Égypte", "code": "+20" }, 
+            { "nom": "Émirats arabes unis", "code": "+971" }, { "nom": "Équateur", "code": "+593" }, { "nom": "Érythrée", "code": "+291" }, 
+            { "nom": "États-Unis", "code": "+1" }, { "nom": "Éthiopie", "code": "+251" }
+        ];
+
+        function gererLogiquePays(pays) {
+            // Rythme
+            const optionAlternance = document.getElementById('option-alternance');
+            const msgRythme = document.getElementById('msg-rythme-etranger');
+            const selectRythme = document.getElementById('rythme');
+            if (pays !== "France") {
+                if(optionAlternance) optionAlternance.style.display = 'none';
+                if(msgRythme) msgRythme.classList.remove('hidden');
+                if(selectRythme && selectRythme.value === "Alternance") selectRythme.value = "";
+            } else {
+                if(optionAlternance) optionAlternance.style.display = 'block';
+                if(msgRythme) msgRythme.classList.add('hidden');
+            }
+
+            // Financement
+            const divFrance = document.getElementById('financement-france');
+            const divHorsFrance = document.getElementById('financement-hors-france');
+            const selectFr = document.getElementById('financement_fr');
+            const selectHorsFr = document.getElementById('financement_hors_fr');
+
+            if (pays !== "France") {
+                if(divFrance) divFrance.classList.add('hidden');
+                if(divHorsFrance) divHorsFrance.classList.remove('hidden');
+                if(selectFr) { selectFr.disabled = true; selectFr.required = false; }
+                if(selectHorsFr) { selectHorsFr.disabled = false; selectHorsFr.required = true; }
+            } else {
+                if(divHorsFrance) divHorsFrance.classList.add('hidden');
+                if(divFrance) divFrance.classList.remove('hidden');
+                if(selectHorsFr) { selectHorsFr.disabled = true; selectHorsFr.required = false; }
+                if(selectFr) { selectFr.disabled = false; selectFr.required = true; }
+            }
+
+            // Vitale & ID
+            const labelIdentite = document.getElementById('label_identite');
+            const containerVitale = document.getElementById('container-vitale');
+            const inputVitale = document.getElementById('file_vitale');
+            const msgInfoPieces = document.getElementById('info-pieces');
+
+            if (pays === "France") {
+                if(labelIdentite) labelIdentite.innerHTML = `Pièce d'identité (CNI, Passeport, Titre de séjour) <span class="text-school-primary">*</span>`;
+                if(containerVitale) containerVitale.classList.remove('hidden');
+                if(inputVitale) inputVitale.required = true;
+                if(msgInfoPieces) msgInfoPieces.innerHTML = `<i class="fa-solid fa-circle-check mr-2"></i> Mode France : Attestation Vitale requise.`;
+            } else if (paysUE.includes(pays)) {
+                if(labelIdentite) labelIdentite.innerHTML = `Pièce d'identité (CNI, Passeport, Titre de séjour) <span class="text-school-primary">*</span>`;
+                if(containerVitale) containerVitale.classList.add('hidden');
+                if(inputVitale) { inputVitale.required = false; inputVitale.value = ""; }
+                if(msgInfoPieces) msgInfoPieces.innerHTML = `<i class="fa-solid fa-circle-info mr-2"></i> Candidat UE : Attestation Vitale non requise.`;
+            } else {
+                if(labelIdentite) labelIdentite.innerHTML = `Passeport en cours de validité ou Carte d'identité <span class="text-school-primary">*</span>`;
+                if(containerVitale) containerVitale.classList.add('hidden');
+                if(inputVitale) { inputVitale.required = false; inputVitale.value = ""; }
+                if(msgInfoPieces) msgInfoPieces.innerHTML = `<i class="fa-solid fa-circle-info mr-2"></i> Candidat International : Attestation Vitale non requise.`;
+            }
+        }
+
+        // Setup Handicap
+        document.querySelectorAll('input[name="handicap"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                const containerRqth = document.getElementById('container-rqth');
+                const inputRqth = document.getElementById('file_rqth');
+                if (e.target.value === "Oui") { containerRqth.classList.remove('hidden'); inputRqth.required = true; } 
+                else { containerRqth.classList.add('hidden'); inputRqth.required = false; inputRqth.value = ""; }
+            });
+        });
+
+        // Setup Dropdowns Pays
+        const countryInput = document.getElementById('pays_residence');
+        const countryDropdown = document.getElementById('country-dropdown');
+        const countryListEl = document.getElementById('country-list');
+
+        function renderCountries(filter = "") {
+            const filtered = listePays.filter(pays => pays.toLowerCase().includes(filter.toLowerCase()));
+            countryListEl.innerHTML = "";
+            if(filtered.length === 0) { countryListEl.innerHTML = '<li class="px-4 py-3 text-gray-500 italic">Aucun pays trouvé</li>'; return; }
+            filtered.forEach(pays => {
+                const li = document.createElement('li');
+                li.className = "px-4 py-2 hover:bg-school-primary/10 hover:text-school-primaryDark cursor-pointer font-bold transition-colors";
+                if(filter) {
+                    const regex = new RegExp(`(${filter})`, "gi");
+                    li.innerHTML = pays.replace(regex, "<span class='font-black text-school-primaryDark bg-school-primary/20 px-1'>$1</span>");
+                } else {
+                    li.textContent = pays;
+                }
+                li.onclick = () => { 
+                    countryInput.value = pays; 
+                    countryInput.setCustomValidity(""); 
+                    gererLogiquePays(pays); 
+                    countryDropdown.classList.add('hidden'); 
+                };
+                countryListEl.appendChild(li);
+            });
+        }
+        countryInput.addEventListener('focus', () => { countryDropdown.classList.remove('hidden'); renderCountries(countryInput.value); });
+        countryInput.addEventListener('input', (e) => { 
+            countryDropdown.classList.remove('hidden'); 
+            renderCountries(e.target.value); 
+            if(!listePays.includes(e.target.value)) countryInput.setCustomValidity("Invalide.");
+            else countryInput.setCustomValidity("");
+        });
+        document.addEventListener('click', (e) => { if (!document.getElementById('country-container').contains(e.target)) countryDropdown.classList.add('hidden'); });
+
+        // Setup Dropdowns Indicatifs
+        function setupIndicatifDropdown(inputId, dropdownId, listId, containerId) {
+            const input = document.getElementById(inputId); const dropdown = document.getElementById(dropdownId); const listEl = document.getElementById(listId);
+            function render(filter = "") {
+                const filtered = indicatifs.filter(item => item.nom.toLowerCase().includes(filter.toLowerCase()) || item.code.includes(filter));
+                listEl.innerHTML = "";
+                if(filtered.length === 0) { listEl.innerHTML = '<li class="px-4 py-2 text-gray-500 italic text-xs">Non trouvé</li>'; return; }
+                filtered.forEach(item => {
+                    const li = document.createElement('li');
+                    li.className = "px-4 py-2 hover:bg-school-primary/10 hover:text-school-primaryDark cursor-pointer transition-colors text-xs font-bold flex justify-between";
+                    li.innerHTML = `<span>${item.nom}</span> <span class="font-black text-school-primaryDark">${item.code}</span>`;
+                    li.onclick = () => { input.value = item.code; input.setCustomValidity(""); dropdown.classList.add('hidden'); };
+                    listEl.appendChild(li);
+                });
+            }
+            input.addEventListener('focus', () => { dropdown.classList.remove('hidden'); render(input.value); });
+            input.addEventListener('input', (e) => { dropdown.classList.remove('hidden'); render(e.target.value); });
+            document.addEventListener('click', (e) => { if (!document.getElementById(containerId).contains(e.target)) dropdown.classList.add('hidden'); });
+        }
+        setupIndicatifDropdown('indicatif_tel', 'indicatif-candidat-dropdown', 'indicatif-candidat-list', 'indicatif-candidat-container');
+        setupIndicatifDropdown('indicatif_proche', 'indicatif-proche-dropdown', 'indicatif-proche-list', 'indicatif-proche-container');
+
+        // --- BASE DE DONNÉES DU CURSUS EVRY BTS ---
+        const cursusData = {
+            "BTS (Brevet de Technicien Supérieur)": {
+                niveaux: [
+                    "COMMERCE - VENTE",
+                    "FINANCE",
+                    "TOURISME ET HÔTELLERIE",
+                    "TECHNOLOGIE ET DATA INNOVATION",
+                    "MANAGEMENT ET GESTION",
+                    "MODE ET LUXE"
+                ],
+                formations: {
+                    "COMMERCE - VENTE": [
+                        "BTS NDRC (NÉGOCIATION ET DIGITALISATION DE LA RELATION CLIENT)",
+                        "BTS MCO (MANAGEMENT COMMERCIAL ET OPÉRATIONNEL)",
+                        "BTS COMMERCE INTERNATIONAL"
+                    ],
+                    "FINANCE": [
+                        "BTS COMPTABILITÉ ET GESTION (CG)",
+                        "BTS BANQUE",
+                        "BTS ASSURANCE"
+                    ],
+                    "TOURISME ET HÔTELLERIE": [
+                        "BTS MANAGEMENT D'UNITÉ D'HÉBERGEMENT",
+                        "BTS MANAGEMENT D'UNITÉ DE RESTAURATION",
+                        "BTS TOURISME",
+                        "BTS MANAGEMENT D'UNITÉ DE PRODUCTION CULINAIRE"
+                    ],
+                    "TECHNOLOGIE ET DATA INNOVATION": [
+                        "BTS SERVICES INFORMATIQUES AUX ORGANISATIONS",
+                        "BTS CYBERSÉCURITÉ"
+                    ],
+                    "MANAGEMENT ET GESTION": [
+                        "BTS CGPME",
+                        "BTS SAM"
+                    ],
+                    "MODE ET LUXE": [
+                        "BTS - MÉTIERS DE LA MODE : VÊTEMENTS",
+                        "BTS MCO (MANAGEMENT COMMERCIAL ET OPÉRATIONNEL) OPTION LUXE"
+                    ]
+                }
+            }
+        };
+
+        function updateNiveaux() {
+            const cycleChoisi = document.getElementById('cycle').value;
+            const niveauSelect = document.getElementById('niveau');
+            const formationSelect = document.getElementById('formation');
+            
+            niveauSelect.innerHTML = '<option value="" disabled selected>-- SÉLECTIONNEZ LE DOMAINE --</option>';
+            formationSelect.innerHTML = '<option value="" disabled selected>-- EN ATTENTE --</option>';
+            formationSelect.disabled = true;
+            
+            if (cursusData[cycleChoisi]) {
+                niveauSelect.disabled = false;
+                cursusData[cycleChoisi].niveaux.forEach(niv => {
+                    const opt = document.createElement('option'); opt.value = niv; opt.textContent = niv;
+                    niveauSelect.appendChild(opt);
+                });
+            } else { niveauSelect.disabled = true; }
+        }
+
+        function updateFormations() {
+            const cycleChoisi = document.getElementById('cycle').value;
+            const niveauChoisi = document.getElementById('niveau').value;
+            const formationSelect = document.getElementById('formation');
+            
+            formationSelect.innerHTML = '<option value="" disabled selected>-- SÉLECTIONNEZ LA FORMATION --</option>';
+            if (cursusData[cycleChoisi] && cursusData[cycleChoisi].formations[niveauChoisi]) {
+                formationSelect.disabled = false;
+                cursusData[cycleChoisi].formations[niveauChoisi].forEach(form => {
+                    const opt = document.createElement('option'); opt.value = form; opt.textContent = form;
+                    formationSelect.appendChild(opt);
+                });
+            } else { formationSelect.disabled = true; }
+        }
+
+        // --- NAVIGATION & VALIDATION ---
+        function updateUI() {
+            const dots = document.querySelectorAll('.step-dot');
+            document.getElementById('progress-line').style.width = `${((currentStep - 1) / (totalSteps - 1)) * 100}%`;
+            
+            dots.forEach((dot, index) => {
+                const circle = dot.querySelector('div');
+                const label = dot.querySelector('span');
+                if (index + 1 < currentStep) {
+                    circle.className = "w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold bg-school-primaryDark text-white border border-school-primaryDark transition-all";
+                    label.className = "text-[9px] font-bold uppercase tracking-widest mt-2 text-center text-school-primaryDark hidden sm:block";
+                    circle.innerHTML = '<i class="fa-solid fa-check"></i>';
+                } else if (index + 1 === currentStep) {
+                    circle.className = "w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold bg-school-primary text-white shadow-md scale-110 transition-all";
+                    label.className = "text-[9px] font-bold uppercase tracking-widest mt-2 text-center text-school-primary hidden sm:block";
+                    circle.innerHTML = index + 1;
+                } else {
+                    circle.className = "w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold bg-white border-2 border-gray-200 text-gray-400 transition-all";
+                    label.className = "text-[9px] font-bold uppercase tracking-widest mt-2 text-center text-gray-400 hidden sm:block";
+                    circle.innerHTML = index + 1;
+                }
+            });
+
+            document.getElementById('btn-prev').classList.toggle('hidden', currentStep === 1);
+            document.getElementById('spacer').style.display = currentStep === 1 ? "block" : "none";
+            document.getElementById('btn-next').classList.toggle('hidden', currentStep === totalSteps);
+            document.getElementById('btn-submit').classList.toggle('hidden', currentStep !== totalSteps);
+        }
+
+        function validateCurrentStep() {
+            const currentStepDiv = document.getElementById(`step-${currentStep}`);
+            const inputs = currentStepDiv.querySelectorAll('input:not([type="radio"]):not([disabled])[required], select:not([disabled])[required]');
+            let isValid = true;
+            inputs.forEach(input => {
+                if (!input.checkValidity()) {
+                    input.reportValidity(); input.classList.add('border-red-500', 'bg-red-50');
+                    setTimeout(() => input.classList.remove('border-red-500', 'bg-red-50'), 3000);
+                    isValid = false;
+                }
+            });
+            return isValid;
+        }
+
+        function changeStep(direction) {
+            if (direction === 1 && !validateCurrentStep()) { document.getElementById('error-message').classList.remove('hidden'); return; }
+            document.getElementById('error-message').classList.add('hidden');
+            
+            document.getElementById(`step-${currentStep}`).classList.remove('active');
+            setTimeout(() => {
+                currentStep += direction;
+                document.getElementById(`step-${currentStep}`).classList.add('active');
+                updateUI();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }, 300);
+        }
+
+        // --- SOUMISSION API (Fusion V7) ---
+        const MONO_CAMPUS_CONFIG = Object.freeze({
+            ecole: "EVRY BTS",
+            campus: "EVRY",
+            apiUrl: "https://ppqeuluykiknuujfaoid.supabase.co/functions/v1/mbn-form-ingest",
+            tailleMaxParFichier: 5 * 1024 * 1024,
+            tailleMaxTotale: 20 * 1024 * 1024
+        });
+
+        function valeurChamp(id) {
+            const element = document.getElementById(id);
+            return element ? String(element.value || "").trim() : "";
+        }
+
+        function handicapSelectionne() {
+            const element = document.querySelector('input[name="handicap"]:checked');
+            return element ? element.value : "";
+        }
+
+        
+
+        function construireDonnees() {
+            return {
+                source: "PORTAIL_MONO_CAMPUS_V7",
+                ecole: MONO_CAMPUS_CONFIG.ecole,
+                campus: MONO_CAMPUS_CONFIG.campus,
+                date_soumission: new Date().toISOString(),
+                nom: valeurChamp("nom"),
+                prenom: valeurChamp("prenom"),
+                nom_prenoms: `${valeurChamp("nom")} ${valeurChamp("prenom")}`.trim(),
+                ddn: valeurChamp("ddn"),
+                ldn: valeurChamp("ldn"),
+                pays_residence: valeurChamp("pays_residence"),
+                email: valeurChamp("email"),
+                indicatif_tel: valeurChamp("indicatif_tel"),
+                telephone: valeurChamp("telephone"),
+                indicatif_proche: valeurChamp("indicatif_proche"),
+                telephone_proche: valeurChamp("telephone_proche"),
+                ville: valeurChamp("ville"),
+                adresse: valeurChamp("ville"),
+                handicap: handicapSelectionne(),
+                cycle: valeurChamp("cycle"),
+                niveau_academique: valeurChamp("cycle"),
+                domaine: valeurChamp("niveau"),
+                niveau: valeurChamp("niveau"),
+                formation: valeurChamp("formation"),
+                rythme_academique: valeurChamp("rythme"),
+                rythme: valeurChamp("rythme"),
+                financement_fr: valeurChamp("financement_fr"),
+                financement_hors_fr: valeurChamp("financement_hors_fr"),
+                financement: valeurChamp("financement_fr") || valeurChamp("financement_hors_fr")
+            };
+        }
+
+        async function submitForm() { return window.mbnSubmitNative(); }
+
+        window.onload = () => { 
+            updateUI(); 
+            updateNiveaux(); 
+            if (document.getElementById('pays_residence').value === '') {
+                document.getElementById('pays_residence').setCustomValidity('');
+            }
+        };
+    </script>
+<script src="../assets/auth-client.js" defer></script><script src="../assets/native-client.js" defer></script></body>
+</html>

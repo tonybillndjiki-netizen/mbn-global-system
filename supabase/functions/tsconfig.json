@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "allowJs": true,
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "types": [],
+    "allowImportingTsExtensions": true
+  },
+  "include": [
+    "mbn-form-ingest/handler.ts",
+    "mbn-auth/handler.ts",
+    "mbn-workspace/handler.ts",
+    "mbn-workspace/ses.ts",
+    "mbn-admissions/handler.ts",
+    "mbn-mail-events/handler.ts",
+    "mbn-letters/handler.ts",
+    "mbn-workspace/brevo.ts",
+    "mbn-brevo-events/handler.ts"
+  ]
+}

@@ -1,0 +1,29 @@
+MBN GLOBAL — MAIL & CRM — VERSION 0.8.0
+
+OUVRIR L’APPLICATION
+https://mbn-global.netlify.app/mbn_global_admin_supabase
+
+Utiliser le nom d’utilisateur et le code à six chiffres choisis dans l’interface sécurisée. Aucun code n’est installé depuis une conversation.
+
+MBN MAIL
+Ajouter un prospect ou importer un CSV UTF-8 depuis Excel. Le consentement n’est jamais coché par défaut. Un contact n’est pas automatiquement une candidature. Préparer un modèle ou une campagne, vérifier son aperçu et les destinataires, puis planifier. Les quatre échéances Meta sont J0/J+2/J+4/J+6. Les contacts Messenger, sans consentement, désinscrits, exclus, déjà engagés ou candidats ne reçoivent pas cette séquence.
+
+La première campagne « Bienvenue · Marne-la-Vallée BTS » a été enregistrée comme brouillon lors de la validation en ligne. Aucun destinataire n’y a été inscrit et aucun e-mail n’a été envoyé.
+
+CRM
+Les candidatures déposées par les liens personnels arrivent dans MBN CRM. Vérifier les pièces, attribuer un responsable admissions et faire avancer le statut. Les droits de lecture, de vérification, de décision et de campagne sont distincts. Les dossiers de test restent séparés des données réelles. L’affichage explicite des tests dans Mail et CRM est inclus dans le dernier paquet fourni.
+
+CONNEXION BREVO
+Préparer un compte Brevo transactionnel actif, une adresse d’expédition vérifiée et une clé API. Installer la clé dans les secrets Supabase sous MBN_BREVO_API_KEY. Suivre CONNEXION_BREVO.md : enregistrer l’expéditeur, vérifier Brevo, configurer les retours et envoyer le test administrateur. La remise du test doit être confirmée avant l’activation des campagnes réelles.
+
+DOCUMENTS OFFICIELS
+Les lettres internationales sont générées en PDF, puis validées humainement avant envoi. Les sept annexes originales ont été transférées dans le stockage privé après accord explicite le 19 octobre 2026 ; leur intégrité et le refus des téléchargements publics ont été vérifiés. La configuration du compte Brevo reste à terminer. Les sources fournies divergent sur le caractère obligatoire ou facultatif de l’AVI et contiennent des CGV de portées différentes. Aucun document officiel ni aucune coordonnée de paiement d’exemple n’est envoyé automatiquement.
+
+LIVRAISON NETLIFY
+MBN_GLOBAL_NETLIFY.zip contient seulement les fichiers publics. Ne pas déposer l’archive complète de développement sur Netlify : elle contient des sources privées. La version 0.8 Mail/CRM avec Brevo est publiée sur Netlify, avec Campus Innovation, les liens de partage, l’éditeur de lettres, l’affichage des tests et health.json. La publication et les fichiers publics ont été vérifiés. La connexion du compte Brevo et le test réel restent à terminer.
+
+DÉVELOPPEMENT
+Voir README.md, OPERATIONS.md et VALIDATION.json. Les contrôles automatisés passent. Un workflow GitHub Actions est fourni mais le dépôt Git et le déploiement continu ne sont pas encore connectés.
+
+FORMULAIRES À PARTAGER
+MBN_LIENS_FORMULAIRES_19_ECOLES.md contient les 19 liens hébergés, utilisables sans compte administrateur. FORMULAIRES_VERIFICATION.json documente la conformité des formations aux formulaires reçus. Le campus est identifié Campus Innovation Marne-la-Vallée pour les huit écoles concernées.

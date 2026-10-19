@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admission | Evry Business School</title>
+    
+    <!-- Intégration de Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Polices Google -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <!-- Icônes FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Configuration Tailwind pour Evry BS -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            400: '#2dd4bf',
+                            500: '#14b8a6',
+                            600: '#1abc9c', // Teal Boutons Evry BS
+                            800: '#0f766e',
+                            900: '#064e3b', // Vert très foncé
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Montserrat', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            background-color: #f8fafc;
+        }
+
+        .step-container {
+            display: none;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.4s ease-out;
+        }
+        .step-container.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .input-ebs {
+            border: 1px solid #cbd5e1;
+            background-color: #ffffff;
+            transition: all 0.3s ease;
+        }
+        .input-ebs:focus {
+            border-color: #1abc9c;
+            box-shadow: 0 0 0 3px rgba(26, 188, 156, 0.2);
+            outline: none;
+        }
+
+        select:disabled, input:disabled {
+            background-color: #f1f5f9;
+            color: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+<meta name="mbn-school" content="EVRY BS"><meta name="referrer" content="no-referrer"></head>
+
+<body class="text-gray-800 font-sans min-h-screen flex flex-col"><style>
+#mbn-native-test{font:14px/1.5 Arial,sans-serif;background:#112747;color:#fff;padding:18px 24px;position:relative;z-index:100}
+#mbn-native-test p{margin:5px 0}#mbn-native-test a{color:#a6e4dd;text-decoration:underline}
+#mbn-native-test form{display:flex;gap:10px;align-items:end;flex-wrap:wrap;margin-top:12px}
+#mbn-native-test label{display:grid;gap:4px}#mbn-native-test input{padding:8px 10px;border-radius:5px;color:#152742;background:#fff;border:1px solid #bdd0e6}
+#mbn-native-test button{background:#fff;color:#112747;padding:8px 12px;border:1px solid #bdd0e6;border-radius:5px;font-weight:700;cursor:pointer}
+#mbn-native-test button:disabled{opacity:.5}#mbn-native-test [hidden]{display:none!important}
+#mbn-native-status{min-height:22px}#mbn-native-test .mbn-ref{font-size:11px;overflow-wrap:anywhere;color:#c8d5e8}
+</style><section id="mbn-native-test" aria-label="Validation administrateur">
+<p><img src="../assets/brands/evry-bs.png" alt="EVRY BS" style="display:inline-block;height:30px;max-width:130px;object-fit:contain;background:#fff;padding:3px;margin-right:10px"> <strong>MBN GLOBAL · Validation des formulaires</strong> — <a href="../MBN_GLOBAL_Admin_Supabase.html">Console administrateur</a></p>
+<p>Mode test : utilisez des données et des documents fictifs. Aucun e-mail n’est envoyé.</p>
+<p id="mbn-native-status" role="status">Chargement du catalogue…</p><p class="mbn-ref" id="mbn-native-reference"></p>
+<form id="mbn-native-login"><label>Nom d’utilisateur<input id="mbn-native-username" type="text" autocomplete="username" value="Tony Bill" required></label>
+<label>Mot de passe — six chiffres<input id="mbn-native-password" type="password" inputmode="numeric" maxlength="8" pattern="[0-9 ]{6,8}" autocomplete="current-password" required></label>
+<button type="submit">Se connecter</button></form>
+<div style="margin-top:10px"><button type="button" id="mbn-native-logout" hidden>Déconnexion</button> <button type="button" id="mbn-native-access">Mon accès</button> <button type="button" id="mbn-native-new">Nouvel essai</button></div></section>
+
+    <!-- En-tête -->
+    <header class="w-full shadow-md z-50 relative bg-white">
+        <div class="bg-brand-900 text-white text-xs py-2 px-6 flex justify-between items-center hidden sm:flex">
+            <div class="flex gap-6 items-center">
+                <span><i class="fa-solid fa-phone mr-2"></i>(+33) 01 60 05 58 30</span>
+                <span><i class="fa-solid fa-envelope mr-2"></i>contact@evry-bs.fr</span>
+            </div>
+            <div class="flex gap-3 text-lg">
+                <i class="fa-brands fa-facebook hover:text-brand-400 cursor-pointer transition-colors"></i>
+                <i class="fa-brands fa-instagram hover:text-brand-400 cursor-pointer transition-colors"></i>
+                <i class="fa-brands fa-linkedin hover:text-brand-400 cursor-pointer transition-colors"></i>
+            </div>
+        </div>
+        
+        <div class="py-4 px-6 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-brand-600 text-white flex items-center justify-center font-bold text-xl rounded-lg">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-brand-900 leading-tight font-serif">Evry Business School</h1>
+                    <p class="text-[9px] text-gray-500 uppercase tracking-widest font-semibold">Admission 2026</p>
+                </div>
+            </div>
+          
+        </div>
+    </header>
+
+    <!-- Contenu Principal -->
+    <main class="flex-grow py-12 px-4 sm:px-6 relative">
+        <div class="absolute inset-0 bg-brand-900 h-[250px] -z-10 rounded-b-[40px]"></div>
+
+        <div class="max-w-4xl mx-auto">
+            
+            <div class="text-center mb-10 text-white">
+                <h2 class="font-serif font-bold text-4xl md:text-5xl tracking-wide mb-2 text-shadow-md">PORTAIL D'ADMISSION</h2>
+                <p class="font-medium text-brand-100">Rejoignez l'excellence académique</p>
+            </div>
+
+            <!-- Stepper visuel -->
+            <div class="mb-10 px-2 sm:px-8 bg-white p-6 rounded-2xl shadow-md border border-gray-100">
+                <div class="flex items-center justify-between relative">
+                    <div class="absolute left-0 top-5 transform -translate-y-1/2 w-full h-[3px] bg-gray-200 z-0"></div>
+                    <div class="absolute left-0 top-5 transform -translate-y-1/2 h-[3px] bg-brand-600 z-0 transition-all duration-700 ease-out" id="progress-line" style="width: 0%"></div>
+                    
+                    <div class="relative z-10 flex flex-col items-center step-dot w-1/5">
+                        <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm bg-white border-2 border-gray-300 transition-all duration-500 text-gray-400">1</div>
+                        <span class="text-[10px] font-bold uppercase tracking-wider mt-2 text-center transition-colors duration-300 hidden sm:block text-gray-400">Identité</span>
+                    </div>
+                    <div class="relative z-10 flex flex-col items-center step-dot w-1/5">
+                        <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm bg-white border-2 border-gray-300 transition-all duration-500 text-gray-400">2</div>
+                        <span class="text-[10px] font-bold uppercase tracking-wider mt-2 text-center transition-colors duration-300 hidden sm:block text-gray-400">Contact</span>
+                    </div>
+                    <div class="relative z-10 flex flex-col items-center step-dot w-1/5">
+                        <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm bg-white border-2 border-gray-300 transition-all duration-500 text-gray-400">3</div>
+                        <span class="text-[10px] font-bold uppercase tracking-wider mt-2 text-center transition-colors duration-300 hidden sm:block text-gray-400">Cursus</span>
+                    </div>
+                    <div class="relative z-10 flex flex-col items-center step-dot w-1/5">
+                        <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm bg-white border-2 border-gray-300 transition-all duration-500 text-gray-400">4</div>
+                        <span class="text-[10px] font-bold uppercase tracking-wider mt-2 text-center transition-colors duration-300 hidden sm:block text-gray-400">Frais</span>
+                    </div>
+                    <div class="relative z-10 flex flex-col items-center step-dot w-1/5">
+                        <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm bg-white border-2 border-gray-300 transition-all duration-500 text-gray-400">5</div>
+                        <span class="text-[10px] font-bold uppercase tracking-wider mt-2 text-center transition-colors duration-300 hidden sm:block text-gray-400">Pièces</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formulaire -->
+            <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+                <form id="admission-form" class="p-8 sm:p-12 relative z-10" onsubmit="event.preventDefault(); submitForm();">
+                    
+                    <!-- Étape 1 : Identité -->
+                    <div class="step-container active" id="step-1">
+                        <div class="flex items-center gap-3 mb-8 pb-4 border-b border-gray-100">
+                            <div class="w-10 h-10 rounded-full bg-brand-50 flex items-center justify-center text-brand-600">
+                                <i class="fa-solid fa-user text-lg"></i>
+                            </div>
+                            <h2 class="text-2xl font-bold text-brand-900 font-serif">Information Personnelle</h2>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="col-span-1 md:col-span-2">
+                                <label class="block text-sm font-semibold text-brand-900 mb-2">Nom de famille <span class="text-brand-600">*</span></label>
+                                <input type="text" id="nom" name="nom" required class="input-ebs w-full px-4 py-3 rounded-xl uppercase" placeholder="EX: DUPONT">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-brand-900 mb-2">Prénom(s) <span class="text-brand-600">*</span></label>
+                                <input type="text" id="prenom" name="prenom" required class="input-ebs w-full px-4 py-3 rounded-xl" placeholder="Jean">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-brand-900 mb-2">Date de naissance <span class="text-brand-600">*</span></label>
+                                <input type="date" id="ddn" name="ddn" required class="input-ebs w-full px-4 py-3 rounded-xl text-gray-600">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-brand-900 mb-2">Lieu de naissance <span class="text-brand-600">*</span></label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                        <i class="fa-solid fa-location-dot text-gray-400"></i>
+                                    </div>
+                                    <input type="text" id="ldn" name="ldn" required class="input-ebs w-full pl-11 px-4 py-3 rounded-xl" placeholder="Ex: Paris">
+                                </div>
+                            </div>
+                            
+                            <!-- Pays de résidence avec recherche -->
+                            <div>
+                                <label class="block text-sm font-semibold text-brand-900 mb-2">Pays de résidence actuel <span class="text-brand-600">*</span></label>
+                                <div class="relative" id="country-container">
+                                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                        <i class="fa-solid fa-earth-europe text-gray-400"></i>
+                                    </div>
+                                    <input type="text" id="pays_residence" name="pays_residence" required autocomplete="off"
+                                           class="input-ebs w-full pl-11 pr-10 px-4 py-3 rounded-xl cursor-text" 
+                                           placeholder="Rechercher...">
+                                    <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none transition-transform duration-200" id="country-chevron">
+                                        <i class="fa-solid fa-chevron-down text-gray-400"></i>
+                                    </div>
+                                    <div id="country-dropdown" class="absolute z-50 w-full mt-2 bg-white border border-gray-200 rounded-xl shadow-xl max-h-60 overflow-y-auto custom-scrollbar hidden">
+                                        <ul id="country-list" class="py-2 text-sm text-gray-700"></ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Handicap -->
+                            <div class="col-span-1 md:col-span-2 mt-4 p-4 bg-gray-50 rounded-xl border border-gray-200">
+                                <label class="block text-sm font-semibold text-brand-900 mb-3">Êtes-vous en situation de handicap ? <span class="text-brand-600">*</span></label>
+                                <div class="flex gap-6">
+                                    <label class="flex items-center cursor-pointer">
+                                        <input type="radio" name="handicap" value="Oui" required class="w-4 h-4 text-brand-600 border-gray-300 focus:ring-brand-500">
+                                        <span class="ml-2 text-sm text-gray-700 font-medium">Oui</span>
+                                    </label>
+                                    <label class="flex items-center cursor-pointer">
+                                        <input type="radio" name="handicap" value="Non" class="w-4 h-4 text-brand-600 border-gray-300 focus:ring-brand-500">
+                                        <span class="ml-2 text-sm text-gray-700 font-medium">Non</span>
+                                    </label>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-2">Cette information nous permet de préparer au mieux votre accueil (aménagement d'épreuves, accessibilité).</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Étape 2 : Contact -->
+                    <div class="step-container" id="step-2">
+                        <div class="flex items-center gap-3 mb-8 pb-4 border-b border-gray-100">
+                            <div class="w-10 h-10 rounded-full bg-brand-50 flex items-center justify-center text-brand-600">
+                                <i class="fa-solid fa-envelope text-lg"></i>
+                            </div>
+                            <h2 class="text-2xl font-bold text-brand-900 font-serif">Coordonnées</h2>
+                        </div>
+                        
+                        <div class="space-y-6">
+                            <div>
+                                <label class="block text-sm font-semibold text-brand-900 mb-2">Adresse e-mail <span class="text-brand-600">*</span></label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                        <i class="fa-regular fa-envelope text-gray-400"></i>
+                                    </div>
+                                    <input type="email" id="email" name="email" required class="input-ebs w-full pl-11 px-4 py-3 rounded-xl" placeholder="votre.email@exemple.com">
+                                </div>
+                            </div>
+
+                            <!-- Téléphone Candidat -->
+                            <div>
+                                <label class="block text-sm font-semibold text-brand-900 mb-2">Numéro de téléphone <span class="text-brand-600">*</span></label>
+                                <div class="flex gap-2 relative">
+                                    <div class="relative w-[120px] sm:w-[140px]" id="indicatif-candidat-container">
+                                        <input type="text" id="indicatif_tel" name="indicatif_tel" required autocomplete="off"
+                                               class="input-ebs w-full px-3 py-3 rounded-xl cursor-text font-medium text-gray-700 text-center" 
+                                               placeholder="+33" value="+33">
+                                        <div id="indicatif-candidat-dropdown" class="absolute left-0 z-50 w-64 mt-2 bg-white border border-gray-200 rounded-xl shadow-xl max-h-48 overflow-y-auto custom-scrollbar hidden">
+                                            <ul id="indicatif-candidat-list" class="py-2 text-sm text-gray-700 text-left"></ul>
+                                        </div>
+                                    </div>
+                                    <input type="tel" id="telephone" name="telephone" required class="input-ebs flex-1 px-4 py-3 rounded-xl" placeholder="6 00 00 00 00">
+                                </div>
+                            </div>
+
+                            <!-- Téléphone Proche -->
+                            <div>
+                                <label class="block text-sm font-semibold text-brand-900 mb-2">Numéro d'un proche (urgence) <span class="text-brand-600">*</span></label>
+                                <div class="flex gap-2 relative">
+                                    <div class="relative w-[120px] sm:w-[140px]" id="indicatif-proche-container">
+                                        <input type="text" id="indicatif_proche" name="indicatif_proche" required autocomplete="off"
+                                               class="input-ebs w-full px-3 py-3 rounded-xl cursor-text font-medium text-gray-700 text-center" 
+                                               placeholder="+33" value="+33">
+                                        <div id="indicatif-proche-dropdown" class="absolute left-0 z-50 w-64 mt-2 bg-white border border-gray-200 rounded-xl shadow-xl max-h-48 overflow-y-auto custom-scrollbar hidden">
+                                            <ul id="indicatif-proche-list" class="py-2 text-sm text-gray-700 text-left"></ul>
+                                        </div>
+                                    </div>
+                                    <input type="tel" id="telephone_proche" name="telephone_proche" required class="input-ebs flex-1 px-4 py-3 rounded-xl" placeholder="6 00 00 00 00">
+                                </div>
+                                <p class="text-xs text-gray-500 mt-1">Sera utilisé uniquement si le vôtre ne passe pas.</p>
+                            </div>
+
+                            <!-- Adresse postale -->
+                            <div id="container-adresse">
+                                <label class="block text-sm font-semibold text-brand-900 mb-2">Adresse postale <span class="text-brand-600">*</span></label>
+                                <textarea id="adresse" name="adresse" rows="3" class="input-ebs w-full px-4 py-3 rounded-xl" placeholder="Numéro, rue, code postal, ville..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Étape 3 : Formation (Cursus) -->
+                    <div class="step-container" id="step-3">
+                        <div class="flex items-center gap-3 mb-8 pb-4 border-b border-gray-100">
+                            <div class="w-10 h-10 rounded-full bg-brand-50 flex items-center justify-center text-brand-600">
+                                <i class="fa-solid fa-graduation-cap text-lg"></i>
+                            </div>
+                            <h2 class="text-2xl font-bold text-brand-900 font-serif">Cursus</h2>
+                        </div>
+                        
+                        <div class="space-y-6">
+                            <div>
+                                <label class="block text-sm font-semibold text-brand-900 mb-2">Campus <span class="text-brand-600">*</span></label>
+                                <select id="campus" name="campus" required class="input-ebs w-full px-4 py-3 rounded-xl font-medium text-gray-800">
+                                    <option value="" disabled selected>-- Sélectionnez le campus --</option>
+                                    <option value="Evry">Campus Evry</option>
+                                    
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-brand-900 mb-2">Cycle <span class="text-brand-600">*</span></label>
+                                <select id="cycle" name="cycle" required onchange="updateNiveaux()" class="input-ebs w-full px-4 py-3 rounded-xl font-medium text-gray-800">
+                                    <option value="" disabled selected>-- Sélectionnez le cycle --</option>
+                                    <option value="Bachelor">Bachelor</option>
+                                    <option value="Masteres">Mastères</option>
+                                    <option value="Masteres Specialises">Mastères Spécialisés</option>
+                                    <option value="MBA">MBA</option>
+                                    <option value="English Track">English Track</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-brand-900 mb-2">Domaine / Niveau <span class="text-brand-600">*</span></label>
+                                <select id="niveau" name="niveau" required disabled onchange="updateFormations()" class="input-ebs w-full px-4 py-3 rounded-xl font-medium">
+                                    <option value="" disabled selected>-- En attente du cycle --</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-brand-900 mb-2">Formation <span class="text-brand-600">*</span></label>
+                                <select id="formation" name="formation" required disabled class="input-ebs w-full px-4 py-3 rounded-xl font-medium text-sm">
+                                    <option value="" disabled selected>-- En attente du domaine --</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-brand-900 mb-2">Rythme <span class="text-brand-600">*</span></label>
+                                <select id="rythme" name="rythme" required class="input-ebs w-full px-4 py-3 rounded-xl font-medium">
+                                    <option value="" disabled selected>-- Sélectionnez le rythme --</option>
+                                    <option value="Initial">Initial (Présentiel)</option>
+                                    <option value="Alternance" id="option-alternance">Alternance</option>
+                                    <option value="En ligne">Cours en ligne</option>
+                                </select>
+                                <p id="msg-rythme-etranger" class="text-xs text-orange-600 mt-2 font-medium hidden"><i class="fa-solid fa-circle-info"></i> Le rythme en alternance n'est pas accessible aux candidats résidant hors de France pour leur première année.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Étape 4 : Financement -->
+                    <div class="step-container" id="step-4">
+                        <div class="flex items-center gap-3 mb-4 pb-2 border-b border-gray-100">
+                            <div class="w-10 h-10 rounded-full bg-brand-50 flex items-center justify-center text-brand-600">
+                                <i class="fa-solid fa-hand-holding-dollar text-lg"></i>
+                            </div>
+                            <h2 class="text-2xl font-bold text-brand-900 font-serif" id="titre-financement">Projet de financement</h2>
+                        </div>
+                        <p class="text-sm text-gray-500 mb-6 font-medium" id="desc-financement">Sélectionnez le mode de financement de vos frais.</p>
+                        
+                        <!-- CONTENEUR FINANCEMENT FRANCE -->
+                        <div id="financement-france" class="w-full">
+                            <select id="financement_fr" name="financement_fr" class="input-ebs w-full px-4 py-3 rounded-xl font-medium text-gray-800" required>
+                                <option value="" disabled selected>-- Choisissez votre mode de financement --</option>
+                                <option value="CPF">Financement CPF (Compte Personnel de Formation)</option>
+                                <option value="Pole Emploi">Pôle Emploi / France Travail (AIF)</option>
+                                <option value="OPCO">Financement OPCO / Entreprise (Alternance)</option>
+                                <option value="Personnel">Financement Personnel (Règlement échelonné possible)</option>
+                            </select>
+                        </div>
+
+                        <!-- CONTENEUR FINANCEMENT HORS FRANCE -->
+                        <div id="financement-hors-france" class="w-full hidden">
+                            <select id="financement_hors_fr" name="financement_hors_fr" class="input-ebs w-full px-4 py-3 rounded-xl font-medium text-gray-800" disabled>
+                                <option value="" disabled selected>-- Choisissez votre projet de financement --</option>
+                                <option value="Oui, entièrement par mes propres moyens">Oui, entièrement par mes propres moyens</option>
+                                <option value="Oui, avec l'aide de ma famille">Oui, avec l'aide de ma famille</option>
+                                <option value="Oui, grâce à un garant en France">Oui, grâce à un garant en France</option>
+                                <option value="Oui, grâce à une bourse d'études">Oui, grâce à une bourse d'études</option>
+                                <option value="Oui, plusieurs sources de financement">Oui, plusieurs sources de financement combinées</option>
+                                <option value="Partiellement, je recherche des solutions">Partiellement, je recherche des solutions complémentaires</option>
+                                <option value="Non, je recherche un financement global">Non, je recherche actuellement un financement global</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Étape 5 : Documents -->
+                    <div class="step-container" id="step-5">
+                        <div class="flex items-center gap-3 mb-8 pb-4 border-b border-gray-100">
+                            <div class="w-10 h-10 rounded-full bg-brand-50 flex items-center justify-center text-brand-600">
+                                <i class="fa-solid fa-folder-open text-lg"></i>
+                            </div>
+                            <h2 class="text-2xl font-bold text-brand-900 font-serif">Pièces justificatives</h2>
+                        </div>
+                        
+                        <div id="info-pieces" class="mb-6 p-4 bg-brand-50 text-brand-800 rounded-xl text-sm font-medium border border-brand-100">
+                            <i class="fa-solid fa-circle-info mr-2"></i> Veuillez fournir les documents requis selon votre pays de résidence.
+                        </div>
+
+                        <div class="space-y-4">
+                            <!-- ID -->
+                            <div class="p-4 border-2 border-dashed border-gray-300 rounded-xl bg-gray-50 hover:border-brand-600 hover:bg-brand-50 transition-colors group relative">
+                                <label id="label_identite" for="file_identite" class="block text-sm font-bold text-gray-800 mb-2 group-hover:text-brand-900 transition-colors">Carte d'identité, Passeport ou Titre de séjour <span class="text-brand-600">*</span></label>
+                                <input type="file" id="file_identite" required accept=".pdf,.jpg,.jpeg,.png" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-white file:text-brand-900 file:shadow-sm hover:file:bg-gray-100 cursor-pointer">
+                            </div>
+                            
+                            <!-- Diplôme -->
+                            <div class="p-4 border-2 border-dashed border-gray-300 rounded-xl bg-gray-50 hover:border-brand-600 hover:bg-brand-50 transition-colors group">
+                                <label for="file_diplome" class="block text-sm font-bold text-gray-800 mb-2 group-hover:text-brand-900 transition-colors">Dernier diplôme ou Relevé de notes <span class="text-brand-600">*</span></label>
+                                <input type="file" id="file_diplome" required accept=".pdf,.jpg,.jpeg,.png" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-white file:text-brand-900 file:shadow-sm hover:file:bg-gray-100 cursor-pointer">
+                            </div>
+                            
+                            <!-- CV -->
+                            <div class="p-4 border-2 border-dashed border-gray-300 rounded-xl bg-gray-50 hover:border-brand-600 hover:bg-brand-50 transition-colors group relative">
+                                <label for="file_cv" class="block text-sm font-bold text-gray-800 mb-2 group-hover:text-brand-900 transition-colors">Curriculum Vitae (CV) <span class="text-brand-600">*</span></label>
+                                <input type="file" id="file_cv" required accept=".pdf,.jpg,.jpeg,.png" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-white file:text-brand-900 file:shadow-sm hover:file:bg-gray-100 cursor-pointer">
+                            </div>
+                            
+                            <!-- Carte Vitale -->
+                            <div id="container-vitale" class="hidden p-4 border-2 border-dashed border-blue-200 rounded-xl bg-blue-50 transition-colors group">
+                                <label for="file_vitale" class="block text-sm font-bold text-brand-900 mb-2">Copie de la carte vitale <span class="text-brand-600">*</span></label>
+                                <input type="file" id="file_vitale" accept=".pdf,.jpg,.jpeg,.png" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-white file:text-brand-900 file:shadow-sm hover:file:bg-gray-100 cursor-pointer">
+                            </div>
+
+                            <!-- RQTH -->
+                            <div id="container-rqth" class="hidden p-4 border-2 border-dashed border-brand-200 rounded-xl bg-brand-50 group">
+                                <label for="file_rqth" class="block text-sm font-bold text-brand-900 mb-2">Justificatif de situation de handicap (RQTH ou autre) <span class="text-brand-600">*</span></label>
+                                <p class="text-xs text-brand-800 mb-2">Vous avez indiqué être en situation de handicap à l'étape 1.</p>
+                                <input type="file" id="file_rqth" accept=".pdf,.jpg,.jpeg,.png" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-white file:text-brand-900 file:shadow-sm hover:file:bg-brand-100 cursor-pointer">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Message d'erreur global -->
+                    <div id="error-message" class="hidden mt-4 p-4 bg-red-50 text-brand-600 rounded-xl text-sm font-semibold border border-red-200">
+                        <i class="fa-solid fa-triangle-exclamation mr-2"></i> Une erreur est survenue. Veuillez vérifier tous les champs obligatoires (en rouge).
+                    </div>
+
+                    <!-- Écran de succès -->
+                    <div id="success-screen" class="hidden text-center py-10 relative z-10">
+                        <div class="w-24 h-24 bg-brand-50 border border-brand-200 rounded-full flex items-center justify-center mx-auto mb-8">
+                            <i class="fa-solid fa-check text-4xl text-brand-600"></i>
+                        </div>
+                        <h2 class="text-3xl font-bold text-brand-900 mb-3 font-serif">Dossier Transmis !</h2>
+                        <p class="text-gray-600 mb-8 font-medium">L'équipe pédagogique d'Evry Business School traitera votre demande dans les plus brefs délais.</p>
+                        
+                        <div class="bg-gray-50 rounded-xl p-6 mb-10 inline-block text-left border border-gray-200 shadow-inner">
+                            <p class="text-xs text-gray-500 uppercase tracking-widest font-bold mb-2">Référence de dossier :</p>
+                            <p id="display-num-dossier" class="text-2xl font-mono font-bold text-brand-900 tracking-wider">EBS-XXXXX</p>
+                        </div>
+                    </div>
+
+                    <!-- Boutons de navigation -->
+                    <div class="mt-12 flex justify-between items-center pt-6 border-t border-gray-200" id="form-navigation">
+                        <button type="button" id="btn-prev" class="hidden px-6 py-3 border-2 border-gray-200 bg-white text-gray-600 font-bold rounded-full hover:bg-gray-50 hover:border-gray-300 transition-colors" onclick="changeStep(-1)">
+                            <i class="fa-solid fa-arrow-left mr-2"></i> Précédent
+                        </button>
+                        
+                        <div id="spacer" class="block w-full"></div>
+
+                        <button type="button" id="btn-next" class="px-8 py-3 bg-brand-600 text-white font-bold rounded-full hover:bg-brand-800 transition-colors shadow-md ml-auto" onclick="changeStep(1)">
+                            Suivant <i class="fa-solid fa-arrow-right ml-2"></i>
+                        </button>
+
+                        <button type="submit" id="btn-submit" class="hidden px-8 py-3 bg-brand-600 text-white font-bold rounded-full hover:bg-brand-800 transition-colors shadow-md ml-auto flex items-center gap-2">
+                            <i class="fa-solid fa-paper-plane"></i> Soumettre le dossier
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+            
+            <p class="text-center text-xs text-gray-400 mt-8 font-medium">
+                <i class="fa-solid fa-shield-halved mr-1"></i> Connexion chiffrée. Données transmises au service admission d'Evry Business School.
+            </p>
+        </div>
+    </main>
+
+    <!-- Scripts JavaScript -->
+    <script>
+        let currentStep = 1;
+        const totalSteps = 5;
+
+        // Configuration pour la soumission à l'API
+        const MONO_CAMPUS_CONFIG = Object.freeze({
+            ecole: "EVRY BS",
+            campus: "EVRY",
+            apiUrl: "https://ppqeuluykiknuujfaoid.supabase.co/functions/v1/mbn-form-ingest",
+            tailleMaxParFichier: 5 * 1024 * 1024,
+            tailleMaxTotale: 20 * 1024 * 1024
+        });
+
+        // --- 1. GESTION DES LISTES ET REGIONS ---
+        const listePays = [
+            "Afghanistan", "Afrique du Sud", "Albanie", "Algérie", "Allemagne", "Andorre", "Angola", "Antigua-et-Barbuda",
+            "Arabie Saoudite", "Argentine", "Arménie", "Australie", "Autriche", "Azerbaïdjan", "Bahamas", "Bahreïn",
+            "Bangladesh", "Barbade", "Belgique", "Belize", "Bermudes", "Bhoutan", "Birmanie", "Biélorussie", "Bolivie",
+            "Bosnie-Herzégovine", "Botswana", "Brunei", "Brésil", "Bulgarie", "Burkina Faso", "Burundi", "Bénin",
+            "Cambodge", "Cameroun", "Canada", "Cap-Vert", "Chili", "Chine", "Chypre", "Colombie", "Comores",
+            "Congo", "Congo (RDC)", "Corée du Nord", "Corée du Sud", "Costa Rica", "Croatie", "Cuba", "Côte d'Ivoire",
+            "Danemark", "Djibouti", "Dominique", "Espagne", "Estonie", "Eswatini", "Fidji", "Finlande", "France",
+            "Gabon", "Gambie", "Ghana", "Grenade", "Grèce", "Guatemala", "Guinée", "Guinée équatoriale", "Guinée-Bissau",
+            "Guyana", "Géorgie", "Haïti", "Honduras", "Hongrie", "Inde", "Indonésie", "Irak", "Iran", "Irlande",
+            "Islande", "Israël", "Italie", "Jamaïque", "Japon", "Jordanie", "Kazakhstan", "Kenya", "Kirghizistan",
+            "Kiribati", "Kosovo", "Koweït", "Laos", "Lesotho", "Lettonie", "Liban", "Liberia", "Libye", "Liechtenstein",
+            "Lituanie", "Luxembourg", "Macédoine du Nord", "Madagascar", "Malaisie", "Malawi", "Maldives", "Mali",
+            "Malte", "Maroc", "Maurice", "Mauritanie", "Mexique", "Micronésie", "Moldavie", "Monaco", "Mongolie",
+            "Monténégro", "Mozambique", "Namibie", "Nauru", "Nicaragua", "Niger", "Nigeria", "Norvège", "Nouvelle-Zélande",
+            "Népal", "Oman", "Ouganda", "Ouzbékistan", "Pakistan", "Palaos", "Palestine", "Panama", "Papouasie-Nouvelle-Guinée",
+            "Paraguay", "Pays-Bas", "Philippines", "Pologne", "Portugal", "Pérou", "Qatar", "Roumanie", "Royaume-Uni",
+            "Russie", "Rwanda", "République centrafricaine", "République dominicaine", "Saint-Kitts-et-Nevis", "Saint-Marin",
+            "Saint-Vincent-et-les-Grenadines", "Sainte-Lucie", "Salvador", "Samoa", "Serbie", "Seychelles", "Sierra Leone",
+            "Singapour", "Slovaquie", "Slovénie", "Somalie", "Soudan", "Soudan du Sud", "Sri Lanka", "Suisse", "Suriname",
+            "Suède", "Syrie", "São Tomé-et-Principe", "Sénégal", "Tadjikistan", "Tanzanie", "Taïwan", "Tchad", "Tchéquie",
+            "Thaïlande", "Timor oriental", "Togo", "Tonga", "Trinité-et-Tobago", "Tunisie", "Turkménistan", "Turquie",
+            "Tuvalu", "Ukraine", "Uruguay", "Vanuatu", "Vatican", "Venezuela", "Viêt Nam", "Yémen", "Zambie", "Zimbabwe",
+            "Égypte", "Émirats arabes unis", "Équateur", "Érythrée", "États-Unis", "Éthiopie"
+        ];
+
+        const paysAfrique = [
+            "Algérie", "Angola", "Bénin", "Botswana", "Burkina Faso", "Burundi", "Cameroun", "Cap-Vert", 
+            "République centrafricaine", "Tchad", "Comores", "Congo", "Congo (RDC)", "Djibouti", "Égypte", 
+            "Guinée équatoriale", "Érythrée", "Eswatini", "Éthiopie", "Gabon", "Gambie", "Ghana", "Guinée", 
+            "Guinée-Bissau", "Côte d'Ivoire", "Kenya", "Lesotho", "Liberia", "Libye", "Madagascar", "Malawi", 
+            "Mali", "Mauritanie", "Maurice", "Maroc", "Mozambique", "Namibie", "Niger", "Nigeria", "Rwanda", 
+            "São Tomé-et-Principe", "Sénégal", "Seychelles", "Sierra Leone", "Somalie", "Afrique du Sud", 
+            "Soudan du Sud", "Soudan", "Tanzanie", "Togo", "Tunisie", "Ouganda", "Zambie", "Zimbabwe"
+        ];
+
+        const paysUE = [
+            "Allemagne", "Autriche", "Belgique", "Bulgarie", "Chypre", "Croatie", "Danemark", "Espagne", 
+            "Estonie", "Finlande", "Grèce", "Hongrie", "Irlande", "Italie", "Lettonie", "Lituanie", 
+            "Luxembourg", "Malte", "Pays-Bas", "Pologne", "Portugal", "Tchéquie", "Roumanie", "Slovaquie", 
+            "Slovénie", "Suède"
+        ];
+
+        const indicatifs = [
+            { "nom": "AC", "code": "+247" }, { "nom": "Afghanistan", "code": "+93" }, { "nom": "Afrique du Sud", "code": "+27" }, 
+            { "nom": "Albanie", "code": "+355" }, { "nom": "Algérie", "code": "+213" }, { "nom": "Allemagne", "code": "+49" }, 
+            { "nom": "Andorre", "code": "+376" }, { "nom": "Angola", "code": "+244" }, { "nom": "Anguilla", "code": "+1" }, 
+            { "nom": "Antigua-et-Barbuda", "code": "+1" }, { "nom": "Arabie saoudite", "code": "+966" }, { "nom": "Argentine", "code": "+54" }, 
+            { "nom": "Arménie", "code": "+374" }, { "nom": "Aruba", "code": "+297" }, { "nom": "Australie", "code": "+61" }, 
+            { "nom": "Autriche", "code": "+43" }, { "nom": "Azerbaïdjan", "code": "+994" }, { "nom": "Bahamas", "code": "+1" }, 
+            { "nom": "Bahreïn", "code": "+973" }, { "nom": "Bangladesh", "code": "+880" }, { "nom": "Barbade", "code": "+1" }, 
+            { "nom": "Belgique", "code": "+32" }, { "nom": "Belize", "code": "+501" }, { "nom": "Bermudes", "code": "+1" }, 
+            { "nom": "Bhoutan", "code": "+975" }, { "nom": "Birmanie", "code": "+95" }, { "nom": "Bolivie", "code": "+591" }, 
+            { "nom": "Bonaire", "code": "+599" }, { "nom": "Bosnie-Herzégovine", "code": "+387" }, 
+            { "nom": "Botswana", "code": "+267" }, { "nom": "Brunéi Darussalam", "code": "+673" }, { "nom": "Brésil", "code": "+55" }, 
+            { "nom": "Bulgarie", "code": "+359" }, { "nom": "Burkina Faso", "code": "+226" }, { "nom": "Burundi", "code": "+257" }, 
+            { "nom": "Bélarus", "code": "+375" }, { "nom": "Bénin", "code": "+229" }, { "nom": "Cambodge", "code": "+855" }, 
+            { "nom": "Cameroun", "code": "+237" }, { "nom": "Canada", "code": "+1" }, { "nom": "Cap-Vert", "code": "+238" }, 
+            { "nom": "Chili", "code": "+56" }, { "nom": "Chine", "code": "+86" }, { "nom": "Christmas, Île", "code": "+61" }, 
+            { "nom": "Chypre", "code": "+357" }, { "nom": "Cocos (Keeling), Îles", "code": "+61" }, { "nom": "Colombie", "code": "+57" }, 
+            { "nom": "Comores", "code": "+269" }, { "nom": "Corée du Sud", "code": "+82" }, { "nom": "Corée du Nord", "code": "+850" }, 
+            { "nom": "Costa Rica", "code": "+506" }, { "nom": "Croatie", "code": "+385" }, { "nom": "Cuba", "code": "+53" }, 
+            { "nom": "Curaçao", "code": "+599" }, { "nom": "Côte d'Ivoire", "code": "+225" }, { "nom": "Danemark", "code": "+45" }, 
+            { "nom": "Djibouti", "code": "+253" }, { "nom": "Dominique", "code": "+1" }, { "nom": "Espagne", "code": "+34" }, 
+            { "nom": "Estonie", "code": "+372" }, { "nom": "Eswatini", "code": "+268" }, { "nom": "Fidji", "code": "+679" }, 
+            { "nom": "Finlande", "code": "+358" }, { "nom": "France", "code": "+33" }, { "nom": "Gabon", "code": "+241" }, 
+            { "nom": "Gambie", "code": "+220" }, { "nom": "Ghana", "code": "+233" }, { "nom": "Gibraltar", "code": "+350" }, 
+            { "nom": "Grenade", "code": "+1" }, { "nom": "Groënland", "code": "+299" }, { "nom": "Grèce", "code": "+30" }, 
+            { "nom": "Guadeloupe", "code": "+590" }, { "nom": "Guam", "code": "+1" }, { "nom": "Guatemala", "code": "+502" }, 
+            { "nom": "Guernesey", "code": "+44" }, { "nom": "Guinée", "code": "+224" }, { "nom": "Guinée Équatoriale", "code": "+240" }, 
+            { "nom": "Guinée-Bissau", "code": "+245" }, { "nom": "Guyana", "code": "+592" }, { "nom": "Guyane française", "code": "+594" }, 
+            { "nom": "Géorgie", "code": "+995" }, { "nom": "Haïti", "code": "+509" }, { "nom": "Honduras", "code": "+504" }, 
+            { "nom": "Hong Kong", "code": "+852" }, { "nom": "Hongrie", "code": "+36" }, { "nom": "Inde", "code": "+91" }, 
+            { "nom": "Indonésie", "code": "+62" }, { "nom": "Irak", "code": "+964" }, { "nom": "Iran", "code": "+98" }, 
+            { "nom": "Irlande", "code": "+353" }, { "nom": "Islande", "code": "+354" }, { "nom": "Israël", "code": "+972" }, 
+            { "nom": "Italie", "code": "+39" }, { "nom": "Jamaïque", "code": "+1" }, { "nom": "Japon", "code": "+81" }, 
+            { "nom": "Jersey", "code": "+44" }, { "nom": "Jordanie", "code": "+962" }, { "nom": "Kazakhstan", "code": "+7" }, 
+            { "nom": "Kenya", "code": "+254" }, { "nom": "Kirghizistan", "code": "+996" }, { "nom": "Kiribati", "code": "+686" }, 
+            { "nom": "Kosovo", "code": "+383" }, { "nom": "Koweït", "code": "+965" }, { "nom": "Laos", "code": "+856" }, 
+            { "nom": "Lesotho", "code": "+266" }, { "nom": "Lettonie", "code": "+371" }, { "nom": "Liban", "code": "+961" }, 
+            { "nom": "Libye", "code": "+218" }, { "nom": "Libéria", "code": "+231" }, { "nom": "Liechtenstein", "code": "+423" }, 
+            { "nom": "Lituanie", "code": "+370" }, { "nom": "Luxembourg", "code": "+352" }, { "nom": "Macau", "code": "+853" }, 
+            { "nom": "Macédoine du Nord", "code": "+389" }, { "nom": "Madagascar", "code": "+261" }, { "nom": "Malaisie", "code": "+60" }, 
+            { "nom": "Malawi", "code": "+265" }, { "nom": "Maldives", "code": "+960" }, { "nom": "Mali", "code": "+223" }, 
+            { "nom": "Malouines", "code": "+500" }, { "nom": "Malte", "code": "+356" }, { "nom": "Maroc", "code": "+212" }, 
+            { "nom": "Martinique", "code": "+596" }, { "nom": "Maurice", "code": "+230" }, { "nom": "Mauritanie", "code": "+222" }, 
+            { "nom": "Mayotte", "code": "+262" }, { "nom": "Mexique", "code": "+52" }, { "nom": "Micronésie", "code": "+691" }, 
+            { "nom": "Moldavie", "code": "+373" }, { "nom": "Monaco", "code": "+377" }, { "nom": "Mongolie", "code": "+976" }, 
+            { "nom": "Montserrat", "code": "+1" }, { "nom": "Monténégro", "code": "+382" }, { "nom": "Mozambique", "code": "+258" }, 
+            { "nom": "Namibie", "code": "+264" }, { "nom": "Nauru", "code": "+674" }, { "nom": "Nicaragua", "code": "+505" }, 
+            { "nom": "Niger", "code": "+227" }, { "nom": "Nigeria", "code": "+234" }, { "nom": "Nioue", "code": "+683" }, 
+            { "nom": "Norvège", "code": "+47" }, { "nom": "Nouvelle-Calédonie", "code": "+687" }, { "nom": "Nouvelle-Zélande", "code": "+64" }, 
+            { "nom": "Népal", "code": "+977" }, { "nom": "Oman", "code": "+968" }, { "nom": "Ouganda", "code": "+256" }, 
+            { "nom": "Ouzbékistan", "code": "+998" }, { "nom": "Pakistan", "code": "+92" }, { "nom": "Palaos", "code": "+680" }, 
+            { "nom": "Palestine", "code": "+970" }, { "nom": "Panama", "code": "+507" }, { "nom": "Papouasie-Nouvelle-Guinée", "code": "+675" }, 
+            { "nom": "Paraguay", "code": "+595" }, { "nom": "Pays-Bas", "code": "+31" }, { "nom": "Philippines", "code": "+63" }, 
+            { "nom": "Pologne", "code": "+48" }, { "nom": "Polynésie française", "code": "+689" }, { "nom": "Porto Rico", "code": "+1" }, 
+            { "nom": "Portugal", "code": "+351" }, { "nom": "Pérou", "code": "+51" }, { "nom": "Qatar", "code": "+974" }, 
+            { "nom": "Roumanie", "code": "+40" }, { "nom": "Royaume-Uni", "code": "+44" }, { "nom": "Russie", "code": "+7" }, 
+            { "nom": "Rwanda", "code": "+250" }, { "nom": "République centrafricaine", "code": "+236" }, { "nom": "République dominicaine", "code": "+1" }, 
+            { "nom": "Congo", "code": "+242" }, { "nom": "Congo (RDC)", "code": "+243" }, { "nom": "Réunion", "code": "+262" }, 
+            { "nom": "Sahara occidental", "code": "+212" }, { "nom": "Saint-Barthélemy", "code": "+590" }, { "nom": "Saint-Christophe-et-Niévès", "code": "+1" }, 
+            { "nom": "Saint-Marin", "code": "+378" }, { "nom": "Saint-Martin", "code": "+590" }, { "nom": "Saint-Pierre-et-Miquelon", "code": "+508" }, 
+            { "nom": "Saint-Siège", "code": "+39" }, { "nom": "Saint-Vincent-et-les-Grenadines", "code": "+1" }, { "nom": "Sainte-Hélène", "code": "+290" }, 
+            { "nom": "Sainte-Lucie", "code": "+1" }, { "nom": "Salomon", "code": "+677" }, { "nom": "Salvador", "code": "+503" }, 
+            { "nom": "Samoa", "code": "+685" }, { "nom": "Samoa américaines", "code": "+1" }, { "nom": "Sao Tomé-et-Principe", "code": "+239" }, 
+            { "nom": "Serbie", "code": "+381" }, { "nom": "Seychelles", "code": "+248" }, { "nom": "Sierra Leone", "code": "+232" }, 
+            { "nom": "Singapour", "code": "+65" }, { "nom": "Slovaquie", "code": "+421" }, { "nom": "Slovénie", "code": "+386" }, 
+            { "nom": "Somalie", "code": "+252" }, { "nom": "Soudan", "code": "+249" }, { "nom": "Soudan du Sud", "code": "+211" }, 
+            { "nom": "Sri Lanka", "code": "+94" }, { "nom": "Suisse", "code": "+41" }, { "nom": "Suriname", "code": "+597" }, 
+            { "nom": "Suède", "code": "+46" }, { "nom": "Svalbard", "code": "+47" }, { "nom": "Syrie", "code": "+963" }, 
+            { "nom": "Sénégal", "code": "+221" }, { "nom": "Tadjikistan", "code": "+992" }, { "nom": "Tanzanie", "code": "+255" }, 
+            { "nom": "Taïwan", "code": "+886" }, { "nom": "Tchad", "code": "+235" }, { "nom": "Tchéquie", "code": "+420" }, 
+            { "nom": "Thaïlande", "code": "+66" }, { "nom": "Timor oriental", "code": "+670" }, { "nom": "Togo", "code": "+228" }, 
+            { "nom": "Tokelau", "code": "+690" }, { "nom": "Tonga", "code": "+676" }, { "nom": "Trinité-et-Tobago", "code": "+1" }, 
+            { "nom": "Tunisie", "code": "+216" }, { "nom": "Turkménistan", "code": "+993" }, { "nom": "Turquie", "code": "+90" }, 
+            { "nom": "Tuvalu", "code": "+688" }, { "nom": "Ukraine", "code": "+380" }, { "nom": "Uruguay", "code": "+598" }, 
+            { "nom": "Vanuatu", "code": "+678" }, { "nom": "Viêt Nam", "code": "+84" }, { "nom": "Venezuela", "code": "+58" }, 
+            { "nom": "Wallis et Futuna", "code": "+681" }, { "nom": "Yémen", "code": "+967" }, { "nom": "Zambie", "code": "+260" }, 
+            { "nom": "Zimbabwe", "code": "+263" }, { "nom": "Égypte", "code": "+20" }, { "nom": "Émirats arabes unis", "code": "+971" }, 
+            { "nom": "Équateur", "code": "+593" }, { "nom": "Érythrée", "code": "+291" }, { "nom": "États-Unis", "code": "+1" }, 
+            { "nom": "Éthiopie", "code": "+251" }
+        ];
+
+        // --- STREAMING_CHUNK:Javascript Logique et Domaines d'études ---
+        function normaliserFrance(valeur) {
+            return String(valeur || "")
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .trim()
+                .toUpperCase() === "FRANCE";
+        }
+
+        function gererLogiquePays(pays) {
+            const adresseContainer = document.getElementById('container-adresse');
+            const adresseInput = document.getElementById('adresse');
+            
+            if (adresseContainer && adresseInput) {
+                if (paysAfrique.includes(pays)) {
+                    adresseContainer.classList.add('hidden');
+                    adresseInput.required = false;
+                    adresseInput.value = "";
+                } else {
+                    adresseContainer.classList.remove('hidden');
+                    adresseInput.required = true;
+                }
+            }
+
+            const optionAlternance = document.getElementById('option-alternance');
+            const msgRythme = document.getElementById('msg-rythme-etranger');
+            const selectRythme = document.getElementById('rythme');
+            
+            if (pays !== "France") {
+                if (optionAlternance) optionAlternance.style.display = 'none';
+                if (msgRythme) msgRythme.classList.remove('hidden');
+                if (selectRythme && selectRythme.value === "Alternance") {
+                    selectRythme.value = "";
+                }
+            } else {
+                if (optionAlternance) optionAlternance.style.display = 'block';
+                if (msgRythme) msgRythme.classList.add('hidden');
+            }
+
+            const divFrance = document.getElementById('financement-france');
+            const divHorsFrance = document.getElementById('financement-hors-france');
+            const selectFr = document.getElementById('financement_fr');
+            const selectHorsFr = document.getElementById('financement_hors_fr');
+            const titreFinancement = document.getElementById('titre-financement');
+            const descFinancement = document.getElementById('desc-financement');
+
+            if (pays !== "France") {
+                if (divFrance) divFrance.classList.add('hidden');
+                if (divHorsFrance) divHorsFrance.classList.remove('hidden');
+                if (titreFinancement) titreFinancement.innerText = "Projet de financement";
+                if (descFinancement) descFinancement.innerText = "Disposez-vous actuellement de moyens suffisants pour financer vos études et votre séjour ?";
+                
+                if (selectFr) { selectFr.disabled = true; selectFr.required = false; }
+                if (selectHorsFr) { selectHorsFr.disabled = false; selectHorsFr.required = true; }
+            } else {
+                if (divHorsFrance) divHorsFrance.classList.add('hidden');
+                if (divFrance) divFrance.classList.remove('hidden');
+                if (titreFinancement) titreFinancement.innerText = "Projet de financement"; 
+                if (descFinancement) descFinancement.innerText = "Sélectionnez le mode de financement de vos frais.";
+                
+                if (selectHorsFr) { selectHorsFr.disabled = true; selectHorsFr.required = false; }
+                if (selectFr) { selectFr.disabled = false; selectFr.required = true; }
+            }
+
+            const labelIdentite = document.getElementById('label_identite');
+            const containerVitale = document.getElementById('container-vitale');
+            const inputVitale = document.getElementById('file_vitale');
+            const msgInfoPieces = document.getElementById('info-pieces');
+
+            if (pays === "France") {
+                if (labelIdentite) labelIdentite.innerHTML = `Carte d'identité, Passeport ou Titre de séjour <span class="text-brand-600">*</span>`;
+                if (containerVitale) containerVitale.classList.remove('hidden');
+                if (inputVitale) inputVitale.required = true;
+                if (msgInfoPieces) msgInfoPieces.innerHTML = `<i class="fa-solid fa-circle-check mr-2"></i> Candidat résidant en France.`;
+            } else if (paysUE.includes(pays)) {
+                if (labelIdentite) labelIdentite.innerHTML = `Carte d'identité, Passeport ou Titre de séjour <span class="text-brand-600">*</span>`;
+                if (containerVitale) containerVitale.classList.add('hidden');
+                if (inputVitale) { inputVitale.required = false; inputVitale.value = ""; }
+                if (msgInfoPieces) msgInfoPieces.innerHTML = `<i class="fa-solid fa-circle-info mr-2"></i> Candidat UE. Carte Vitale non requise.`;
+            } else {
+                if (labelIdentite) labelIdentite.innerHTML = `Passeport ou Carte d'identité <span class="text-brand-600">*</span>`;
+                if (containerVitale) containerVitale.classList.add('hidden');
+                if (inputVitale) { inputVitale.required = false; inputVitale.value = ""; }
+                if (msgInfoPieces) msgInfoPieces.innerHTML = `<i class="fa-solid fa-circle-info mr-2"></i> Candidat International. Carte Vitale non requise.`;
+            }
+        }
+
+        document.querySelectorAll('input[name="handicap"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                const containerRqth = document.getElementById('container-rqth');
+                const inputRqth = document.getElementById('file_rqth');
+                if (e.target.value === "Oui") {
+                    containerRqth.classList.remove('hidden');
+                    inputRqth.required = true;
+                } else {
+                    containerRqth.classList.add('hidden');
+                    inputRqth.required = false;
+                    inputRqth.value = ""; 
+                }
+            });
+        });
+
+        const countryInput = document.getElementById('pays_residence');
+        const countryDropdown = document.getElementById('country-dropdown');
+        const countryListEl = document.getElementById('country-list');
+
+        function renderCountries(filter = "") {
+            const filtered = listePays.filter(pays => pays.toLowerCase().includes(filter.toLowerCase()));
+            countryListEl.innerHTML = "";
+            if(filtered.length === 0) {
+                countryListEl.innerHTML = '<li class="px-4 py-3 text-gray-500 italic">Aucun pays trouvé</li>'; return;
+            }
+            filtered.forEach(pays => {
+                const li = document.createElement('li');
+                li.className = "px-4 py-2 hover:bg-brand-50 hover:text-brand-600 cursor-pointer font-semibold transition-colors";
+                if(filter) {
+                    const regex = new RegExp(`(${filter})`, "gi");
+                    li.innerHTML = pays.replace(regex, "<span class='font-extrabold text-brand-900'>$1</span>");
+                } else {
+                    li.textContent = pays;
+                }
+                li.onclick = () => {
+                    countryInput.value = pays;
+                    countryInput.setCustomValidity("");
+                    gererLogiquePays(pays);
+                    closeCountryDropdown();
+                };
+                countryListEl.appendChild(li);
+            });
+        }
+
+        function openCountryDropdown() { countryDropdown.classList.remove('hidden'); renderCountries(countryInput.value); }
+        function closeCountryDropdown() {
+            countryDropdown.classList.add('hidden');
+            if (countryInput.value && !listePays.includes(countryInput.value)) {
+                countryInput.setCustomValidity("Veuillez sélectionner un pays valide.");
+            } else if (!countryInput.value) {
+                countryInput.setCustomValidity("Ce champ est obligatoire.");
+            } else {
+                countryInput.setCustomValidity("");
+                gererLogiquePays(countryInput.value); 
+            }
+        }
+
+        countryInput.addEventListener('focus', openCountryDropdown);
+        countryInput.addEventListener('click', openCountryDropdown);
+        countryInput.addEventListener('input', (e) => {
+            openCountryDropdown();
+            renderCountries(e.target.value);
+            if(!listePays.includes(e.target.value)) countryInput.setCustomValidity("Invalide.");
+            else countryInput.setCustomValidity("");
+        });
+
+        function setupIndicatifDropdown(inputId, dropdownId, listId, containerId) {
+            const input = document.getElementById(inputId);
+            const dropdown = document.getElementById(dropdownId);
+            const listEl = document.getElementById(listId);
+            function render(filter = "") {
+                const filtered = indicatifs.filter(item => item.nom.toLowerCase().includes(filter.toLowerCase()) || item.code.includes(filter));
+                listEl.innerHTML = "";
+                if(filtered.length === 0) { listEl.innerHTML = '<li class="px-4 py-2 text-gray-500 italic text-xs">Non trouvé</li>'; return; }
+                filtered.forEach(item => {
+                    const li = document.createElement('li');
+                    li.className = "px-4 py-2 hover:bg-brand-50 hover:text-brand-600 cursor-pointer transition-colors text-xs font-semibold flex justify-between";
+                    li.innerHTML = `<span>${item.nom}</span> <span class="font-extrabold text-brand-900">${item.code}</span>`;
+                    li.onclick = () => { input.value = item.code; input.setCustomValidity(""); dropdown.classList.add('hidden'); };
+                    listEl.appendChild(li);
+                });
+            }
+            input.addEventListener('focus', () => { dropdown.classList.remove('hidden'); render(input.value); });
+            input.addEventListener('input', (e) => { dropdown.classList.remove('hidden'); render(e.target.value); });
+            document.addEventListener('click', (e) => { if (!document.getElementById(containerId).contains(e.target)) dropdown.classList.add('hidden'); });
+        }
+
+        setupIndicatifDropdown('indicatif_tel', 'indicatif-candidat-dropdown', 'indicatif-candidat-list', 'indicatif-candidat-container');
+        setupIndicatifDropdown('indicatif_proche', 'indicatif-proche-dropdown', 'indicatif-proche-list', 'indicatif-proche-container');
+
+        // Cursus Data tel que fourni par l'utilisateur
+        const cursusData = {
+             "NIVEAU BAC": {
+                 niveaux: ["niveau bac"],
+                 formations: {
+                     "niveau bac": ["TP animation et gestion de l'espace commercial", "TP assistant manager d'unité marchande (AMUM)", "TP conseiller commercial","TP conseiller relation client a distance ", "TP conseiller en vente", " TP prospection clientele et valorisation de l'offre commerciale", " TP manager d'equipe relation client a distance", " TP manager d'unité marchande", "TP negociateur technico-commercial"],
+                 }
+             },
+             "BTS": {
+                 niveaux: ["Commerce - Vente", "Management et Gestion"],
+                 formations: {
+                     "Commerce - Vente": ["BTS Négociation et Digitalisation de la Relation Client (NDRC)", "BTS Management Commercial Opérationnel (MCO)", "BTS Commerce International"],
+                     "Management et Gestion": ["BTS Support à l'Action Managériale (SAM)", "BTS Technico Commercial"],
+                 }
+             },
+             "Bachelor": {
+                 niveaux: ["Commerce - Vente", "Technologie et Data Innovation", "Management et Gestion"],
+                 formations: {
+                     "Commerce - Vente": ["Bachelor start-up & business development", "Bachelor Marketing et communication(MC)", "Bachelor e-commerce", "Bachelor en Commerce International(CI)","Bachelor Nego Vente"],
+                     "Technologie et Data Innovation": ["Bachelor Chargé de Communication Digitale, Evenementielle et IA impavct (CDE)"],
+                     "Management et Gestion": ["Bachelor Gestionde Marque et Branding(GM)", "Bachelor Achat et Logistique(AL)", "Bachelor Gestion Commerciale(GC)", "Bachelor Gestion de L'Innovation(GIN)", "Bachelor Responsable des Etablissements Marchands(REM)"]
+                 }
+             },
+             "Mastères": {
+                 niveaux: ["Commerce - Vente", "Technologie et Data Innovation", "Management et Gestion"],
+                 formations: {
+                     "Commerce - Vente": ["Mastère Entrepreneuriat et Business Development(EBD)", "Mastère Responsable CommunicationDigitale(MCD)", "Mastère Responsable Communication Digitale Evenementielle et IA Impact(CDE)"],
+                     "Technologie et Data Innovation": ["Mastère Management des Produits Digitaux(MPD)", "Mastère Management et Digitalisation des Processus Achat et Logistique(MD-AL)", "Mastère UX Design (UX)"],
+                     "Management et Gestion": ["Mastère Management et Stratégie et Intelligence Economique(SIE)", "Mastère Creation de Marque et Identité Produit(MIP)", "Mastère management de project et de l'innovation (MPI)", "mastere ingenieur(e) d'affaires (IA)"]
+                 }
+             },
+             "Mastères Spécialisés": {
+                 niveaux: ["Commerce - Vente", "Technologie et Data Innovation", "Management et Gestion"],
+                 formations: {
+                     "Commerce - Vente": ["Mastère Spécialisé entrepreneuriat & business development (EBD)", "Master spécialisé marketing communication digitales (MCD)", " mastere spécialisé responsable communication digitale evenementielle et ia impact (CDE)", " technologie et data innovation", "magement et gestion"],
+                     "Technologie et Data Innovation": ["Mastère Spécialisé management et des produits digitaux (MPD)", " mastere spécialisé ux design (UX)", "mastere spécialisé management et digitalisation des processus achats et logistique (MD-AL)" ],
+                     "Management et Gestion": ["Mastère Spécialisé ingenieur (e) d'affaires (IA)", " mastere spécialise creation de marque et identité-produit (MIP)", "mastere spécialisé management strategique et intelligence économique (SIE)"] 
+                 }
+             },
+             "English Track": {
+                 niveaux: ["Bachelor's Degree", "Master's Degree"],
+                 formations: {
+                     "Bachelor's Degree": ["Bachelor's Degree in start-up and business development", "Bachelor degree in retail management", "Bachelor's Degree in  sale and negotiation", "Bachelor's Degree in brand management and branding", "Bachelor's Degree in marketing and communication", "Bachelor's Degree in business management", "Bachelor's Degree in E-COMMERCE", "Bachelor's Degree in international trade", "Bachelor's Degree in digital and event communication with ai impact", "Bachelor's Degree in purchasing and logistics"],
+                     "Master's Degree": ["Master degree in gital project and innovation management (MPI)", "Master degree in entrepreneurship and business development (EBD)", "Master's Degree  in brand creation and product identity ", "master's degree in business engineering", "master's in digital marketing and communication (MCD)", "master's degree in strategic management and business intelligence (SIE)", " master's degree in purchasing and supply chain process management and digitalisation (MD-AL)", "Master's degree in digital event and ai-driven communication (CDE)", "master's degree in UX design (UX)"]
+                 }
+             }
+        };
+
+        function updateNiveaux() {
+            const cycleSelect = document.getElementById('cycle');
+            const niveauSelect = document.getElementById('niveau');
+            const formationSelect = document.getElementById('formation');
+            const cycleChoisi = cycleSelect.value;
+            
+            niveauSelect.innerHTML = '<option value="" disabled selected>-- Sélectionnez le domaine/niveau --</option>';
+            formationSelect.innerHTML = '<option value="" disabled selected>-- En attente du domaine --</option>';
+            formationSelect.disabled = true;
+            
+            if (cursusData[cycleChoisi]) {
+                niveauSelect.disabled = false;
+                cursusData[cycleChoisi].niveaux.forEach(niv => {
+                    const option = document.createElement('option');
+                    option.value = niv;
+                    option.textContent = niv;
+                    niveauSelect.appendChild(option);
+                });
+            } else {
+                niveauSelect.disabled = true;
+            }
+        }
+
+        function updateFormations() {
+            const cycleSelect = document.getElementById('cycle');
+            const niveauSelect = document.getElementById('niveau');
+            const formationSelect = document.getElementById('formation');
+            const cycleChoisi = cycleSelect.value;
+            const niveauChoisi = niveauSelect.value;
+            
+            formationSelect.innerHTML = '<option value="" disabled selected>-- Sélectionnez la formation --</option>';
+            
+            if (cursusData[cycleChoisi] && cursusData[cycleChoisi].formations[niveauChoisi]) {
+                formationSelect.disabled = false;
+                cursusData[cycleChoisi].formations[niveauChoisi].forEach(form => {
+                    const option = document.createElement('option');
+                    option.value = form;
+                    option.textContent = form;
+                    formationSelect.appendChild(option);
+                });
+            } else {
+                formationSelect.disabled = true;
+            }
+        }
+
+        // --- STREAMING_CHUNK:Javascript Validation et Envoi (API) ---
+        function updateUI() {
+            const dots = document.querySelectorAll('.step-dot');
+            const progressLine = document.getElementById('progress-line');
+            
+            dots.forEach((dot, index) => {
+                const circle = dot.querySelector('div');
+                const label = dot.querySelector('span');
+                const stepNum = index + 1;
+
+                if (stepNum < currentStep) {
+                    circle.className = "w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm bg-brand-900 text-white shadow-md transition-all duration-500";
+                    label.className = "text-[10px] font-bold uppercase tracking-wider mt-2 text-center text-brand-900 hidden sm:block transition-colors duration-300";
+                    circle.innerHTML = '<i class="fa-solid fa-check"></i>';
+                } else if (stepNum === currentStep) {
+                    circle.className = "w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm bg-brand-600 text-white shadow-lg transition-all duration-500 scale-110";
+                    label.className = "text-[10px] font-bold uppercase tracking-wider mt-2 text-center text-brand-600 hidden sm:block transition-colors duration-300";
+                    circle.innerHTML = stepNum;
+                } else {
+                    circle.className = "w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm bg-white border-2 border-gray-300 transition-all duration-500 text-gray-400";
+                    label.className = "text-[10px] font-bold uppercase tracking-wider mt-2 text-center text-gray-400 hidden sm:block transition-colors duration-300";
+                    circle.innerHTML = stepNum;
+                }
+            });
+
+            if (progressLine) {
+                progressLine.style.width = `${((currentStep - 1) / (totalSteps - 1)) * 100}%`;
+            }
+
+            const btnPrev = document.getElementById('btn-prev');
+            const spacer = document.getElementById('spacer');
+            const btnNext = document.getElementById('btn-next');
+            const btnSubmit = document.getElementById('btn-submit');
+
+            if (btnPrev && spacer) {
+                if (currentStep === 1) { btnPrev.classList.add('hidden'); spacer.style.display = "block"; } 
+                else { btnPrev.classList.remove('hidden'); spacer.style.display = "none"; }
+            }
+
+            if (btnNext && btnSubmit) {
+                if (currentStep === totalSteps) { btnNext.classList.add('hidden'); btnSubmit.classList.remove('hidden'); } 
+                else { btnNext.classList.remove('hidden'); btnSubmit.classList.add('hidden'); }
+            }
+        }
+
+        function validateCurrentStep() {
+            const currentStepDiv = document.getElementById(`step-${currentStep}`);
+            if (!currentStepDiv) return true;
+            
+            const inputs = currentStepDiv.querySelectorAll('input:not([type="radio"]):not([disabled])[required], select:not([disabled])[required], textarea:not([disabled])[required]');
+            let isValid = true;
+
+            if(currentStep === 1) closeCountryDropdown(); 
+
+            inputs.forEach(input => {
+                if (!input.checkValidity()) {
+                    input.reportValidity(); 
+                    input.classList.add('border-red-500');
+                    setTimeout(() => input.classList.remove('border-red-500'), 3000);
+                    isValid = false;
+                }
+            });
+
+            const radioGroups = {};
+            currentStepDiv.querySelectorAll('input[type="radio"]:not([disabled])[required]').forEach(radio => {
+                if (!radioGroups[radio.name]) radioGroups[radio.name] = [];
+                radioGroups[radio.name].push(radio);
+            });
+
+            for (const name in radioGroups) {
+                const radios = document.querySelectorAll(`input[name="${name}"]:not([disabled])`); 
+                let isChecked = false;
+                radios.forEach(r => { if (r.checked) isChecked = true; });
+                if (!isChecked && radios.length > 0) {
+                    radios[0].reportValidity();
+                    isValid = false;
+                }
+            }
+
+            return isValid;
+        }
+
+        function changeStep(direction) {
+            if (direction === 1 && !validateCurrentStep()) {
+                const errorMsg = document.getElementById('error-message');
+                if(errorMsg) errorMsg.classList.remove('hidden');
+                return;
+            }
+            
+            const errorMsg = document.getElementById('error-message');
+            if(errorMsg) errorMsg.classList.add('hidden');
+
+            const currentContainer = document.getElementById(`step-${currentStep}`);
+            if(currentContainer) currentContainer.classList.remove('active');
+            
+            setTimeout(() => {
+                currentStep += direction;
+                const nextContainer = document.getElementById(`step-${currentStep}`);
+                if(nextContainer) nextContainer.classList.add('active');
+                updateUI();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }, 300);
+        }
+
+        function valeurChamp(id) {
+            const element = document.getElementById(id);
+            return element ? String(element.value || "").trim() : "";
+        }
+
+        function handicapSelectionne() {
+            const element = document.querySelector('input[name="handicap"]:checked');
+            return element ? element.value : "";
+        }
+
+        
+
+        function construireDonnees() {
+            const cycle = valeurChamp("cycle");
+            const domaine = valeurChamp("niveau");
+            const rythme = valeurChamp("rythme");
+            
+            return {
+                source: "PORTAIL_MONO_CAMPUS_V7",
+                ecole: MONO_CAMPUS_CONFIG.ecole,
+                campus: MONO_CAMPUS_CONFIG.campus,
+                date_soumission: new Date().toISOString(),
+                nom: valeurChamp("nom"),
+                prenom: valeurChamp("prenom"),
+                nom_prenoms: `${valeurChamp("nom")} ${valeurChamp("prenom")}`.trim(),
+                ddn: valeurChamp("ddn"),
+                ldn: valeurChamp("ldn"),
+                pays_residence: valeurChamp("pays_residence"),
+                email: valeurChamp("email"),
+                indicatif_tel: valeurChamp("indicatif_tel"),
+                telephone: valeurChamp("telephone"),
+                indicatif_proche: valeurChamp("indicatif_proche"),
+                telephone_proche: valeurChamp("telephone_proche"),
+                ville: valeurChamp("ville") || valeurChamp("adresse"),
+                adresse: valeurChamp("adresse") || valeurChamp("ville"),
+                handicap: handicapSelectionne(),
+                cycle: cycle,
+                niveau_academique: cycle,
+                domaine: domaine,
+                niveau: domaine,
+                formation: valeurChamp("formation"),
+                rythme_academique: rythme,
+                rythme: rythme,
+                financement_fr: valeurChamp("financement_fr"),
+                financement_hors_fr: valeurChamp("financement_hors_fr"),
+                financement: valeurChamp("financement_fr") || valeurChamp("financement_hors_fr")
+            };
+        }
+
+        async function submitForm() { return window.mbnSubmitNative(); }
+
+        window.onload = () => {
+            updateUI();
+            const paysInput = document.getElementById('pays_residence');
+            if(paysInput) paysInput.setCustomValidity('');
+            
+            // Initialisation forcée des états disabled
+            const finHorsFr = document.getElementById('financement_hors_fr');
+            const finFr = document.getElementById('financement_fr');
+            
+            if(finHorsFr) {
+                finHorsFr.disabled = true;
+                finHorsFr.required = false;
+            }
+            if(finFr) {
+                finFr.disabled = false;
+                finFr.required = true;
+            }
+        };
+    </script>
+<script src="../assets/auth-client.js" defer></script><script src="../assets/native-client.js" defer></script></body>
+</html>

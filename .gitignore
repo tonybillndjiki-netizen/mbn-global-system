@@ -1,0 +1,28 @@
+node_modules/
+.netlify/
+dist/
+*.zip
+*.log
+__pycache__/
+.env
+.env.*
+!.env.example
+source/backend de base.js
+source/mail-type.docx
+VALIDATION.local.json
+VALIDATION.json
+# Private originals and retired integrations are not part of the public repository.
+source/forms/
+source/mail-assets/*
+!source/mail-assets/manifest.json
+source/*.docx
+source/*.pdf
+source/*.jpg
+legacy/
+apps-script/
+scripts/build_backend.py
+tests/apps-script.test.ts
+tests/environment.test.ts
+tests/http.test.ts
+supabase/.temp/
+.DS_Store

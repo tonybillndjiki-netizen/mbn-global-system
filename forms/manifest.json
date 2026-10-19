@@ -1,0 +1,116 @@
+[
+  {
+    "school": "LSB",
+    "slug": "lsb",
+    "source": "LSB_MONO_CAMPUS_V7.html",
+    "campus_brand": null
+  },
+  {
+    "school": "ESUV",
+    "slug": "esuv",
+    "source": "ESUV_MONO_CAMPUS_V7.html",
+    "campus_brand": null
+  },
+  {
+    "school": "ESEA",
+    "slug": "esea",
+    "source": "ESEA_MONO_CAMPUS_V7.html",
+    "campus_brand": "Campus Innovation Marne-la-Vallée"
+  },
+  {
+    "school": "MLV BS",
+    "slug": "mlv-bs",
+    "source": "MLV_BS_MONO_CAMPUS_V7 (1).html",
+    "campus_brand": "Campus Innovation Marne-la-Vallée"
+  },
+  {
+    "school": "MLV BTS",
+    "slug": "mlv-bts",
+    "source": "MLV_BTS_MONO_CAMPUS_V7.html",
+    "campus_brand": "Campus Innovation Marne-la-Vallée"
+  },
+  {
+    "school": "ESMOSS",
+    "slug": "esmoss",
+    "source": "ESMOSS_MONO_CAMPUS_V7.html",
+    "campus_brand": "Campus Innovation Marne-la-Vallée"
+  },
+  {
+    "school": "ESMAS",
+    "slug": "esmas",
+    "source": "ESMAS_MONO_CAMPUS_V7.html",
+    "campus_brand": "Campus Innovation Marne-la-Vallée"
+  },
+  {
+    "school": "ESART",
+    "slug": "esart",
+    "source": "ESART_MONO_CAMPUS_V7.html",
+    "campus_brand": "Campus Innovation Marne-la-Vallée"
+  },
+  {
+    "school": "CESCOM",
+    "slug": "cescom",
+    "source": "CESCOM_MONO_CAMPUS_V7.html",
+    "campus_brand": "Campus Innovation Marne-la-Vallée"
+  },
+  {
+    "school": "ESJM",
+    "slug": "esjm",
+    "source": "ESJM_MONO_CAMPUS_V7.html",
+    "campus_brand": "Campus Innovation Marne-la-Vallée"
+  },
+  {
+    "school": "EVRY BS",
+    "slug": "evry-bs",
+    "source": "EVRY_BS_MONO_CAMPUS_V7.html",
+    "campus_brand": null
+  },
+  {
+    "school": "EVRY BTS",
+    "slug": "evry-bts",
+    "source": "MLV_BTS_MONO_CAMPUS_V7.html",
+    "campus_brand": null
+  },
+  {
+    "school": "ESETH",
+    "slug": "eseth",
+    "source": "ESETH_MONO_CAMPUS_V7.html",
+    "campus_brand": null
+  },
+  {
+    "school": "ISMOD",
+    "slug": "ismod",
+    "source": "ISMOD_3_CAMPUS_V6_1_CURSUS_CORRIGE (1).html",
+    "campus_brand": null
+  },
+  {
+    "school": "ILMIS",
+    "slug": "ilmis",
+    "source": "ILMIS_3_CAMPUS_V6_1_CURSUS_CORRIGE (1).html",
+    "campus_brand": null
+  },
+  {
+    "school": "DCG FORMATIONS",
+    "slug": "dcg-formations",
+    "source": "DCG_FORMATIONS_3_CAMPUS_V6_1_CURSUS_CORRIGE (1).html",
+    "campus_brand": null
+  },
+  {
+    "school": "ESIIA",
+    "slug": "esiia",
+    "source": "ESIIA_V6_3_CHOIX_PAYS_CORRIGE (1).html",
+    "campus_brand": null
+  },
+  {
+    "school": "ESMEP",
+    "slug": "esmep",
+    "source": "ESMEP_V6_3_CHOIX_PAYS_CORRIGE (1).html",
+    "campus_brand": null
+  },
+  {
+    "school": "EMSP",
+    "slug": "emsp",
+    "source": "EMSP_3_CAMPUS_V6_1_CURSUS_CORRIGE (1).html",
+    "campus_brand": null
+  }
+]

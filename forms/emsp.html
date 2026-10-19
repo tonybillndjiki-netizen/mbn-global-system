@@ -1,0 +1,2007 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admission | EMSP Business School</title>
+    
+    <!-- Intégration de Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Polices Google -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Icônes FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Configuration Tailwind pour EMSP -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f4f8',
+                            100: '#e1e7ed',
+                            400: '#5c7394',
+                            500: '#3d567a',
+                            600: '#e3282b', 
+                            800: '#c81e21', 
+                            900: '#1c305c', 
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Montserrat', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            background-color: #f8fafc;
+        }
+
+        .step-container {
+            display: none;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.4s ease-out;
+        }
+        .step-container.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .input-emsp {
+            border: 1px solid #cbd5e1;
+            background-color: #ffffff;
+            transition: all 0.3s ease;
+        }
+        .input-emsp:focus {
+            border-color: #1c305c;
+            box-shadow: 0 0 0 3px rgba(28, 48, 92, 0.2);
+            outline: none;
+        }
+
+        select:disabled, input:disabled {
+            background-color: #f1f5f9;
+            color: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+<meta name="mbn-school" content="EMSP"><meta name="referrer" content="no-referrer"></head>
+
+<body class="text-gray-800 font-sans min-h-screen flex flex-col"><style>
+#mbn-native-test{font:14px/1.5 Arial,sans-serif;background:#112747;color:#fff;padding:18px 24px;position:relative;z-index:100}
+#mbn-native-test p{margin:5px 0}#mbn-native-test a{color:#a6e4dd;text-decoration:underline}
+#mbn-native-test form{display:flex;gap:10px;align-items:end;flex-wrap:wrap;margin-top:12px}
+#mbn-native-test label{display:grid;gap:4px}#mbn-native-test input{padding:8px 10px;border-radius:5px;color:#152742;background:#fff;border:1px solid #bdd0e6}
+#mbn-native-test button{background:#fff;color:#112747;padding:8px 12px;border:1px solid #bdd0e6;border-radius:5px;font-weight:700;cursor:pointer}
+#mbn-native-test button:disabled{opacity:.5}#mbn-native-test [hidden]{display:none!important}
+#mbn-native-status{min-height:22px}#mbn-native-test .mbn-ref{font-size:11px;overflow-wrap:anywhere;color:#c8d5e8}
+</style><section id="mbn-native-test" aria-label="Validation administrateur">
+<p><img src="../assets/brands/emsp.png" alt="EMSP" style="display:inline-block;height:30px;max-width:130px;object-fit:contain;background:#fff;padding:3px;margin-right:10px"> <strong>MBN GLOBAL · Validation des formulaires</strong> — <a href="../MBN_GLOBAL_Admin_Supabase.html">Console administrateur</a></p>
+<p>Mode test : utilisez des données et des documents fictifs. Aucun e-mail n’est envoyé.</p>
+<p id="mbn-native-status" role="status">Chargement du catalogue…</p><p class="mbn-ref" id="mbn-native-reference"></p>
+<form id="mbn-native-login"><label>Nom d’utilisateur<input id="mbn-native-username" type="text" autocomplete="username" value="Tony Bill" required></label>
+<label>Mot de passe — six chiffres<input id="mbn-native-password" type="password" inputmode="numeric" maxlength="8" pattern="[0-9 ]{6,8}" autocomplete="current-password" required></label>
+<button type="submit">Se connecter</button></form>
+<div style="margin-top:10px"><button type="button" id="mbn-native-logout" hidden>Déconnexion</button> <button type="button" id="mbn-native-access">Mon accès</button> <button type="button" id="mbn-native-new">Nouvel essai</button></div></section>
+
+    <header class="w-full shadow-md z-50 relative bg-white">
+        <!-- Top bar bleue avec infos de contact EMSP -->
+        <div class="bg-brand-900 text-white text-xs py-2 px-6 flex justify-between items-center hidden lg:flex">
+            <div class="flex gap-6 items-center">
+                <span><i class="fa-solid fa-phone mr-2"></i>(+33) 01 60 05 58 30 / 07 45 25 02 70</span>
+                <span><i class="fa-solid fa-envelope mr-2"></i>contact@emsp-bs.fr</span>
+            </div>
+            <div class="flex gap-4 text-lg">
+                <i class="fa-brands fa-facebook hover:text-brand-600 cursor-pointer transition-colors"></i>
+                <i class="fa-brands fa-linkedin hover:text-brand-600 cursor-pointer transition-colors"></i>
+                <i class="fa-brands fa-instagram hover:text-brand-600 cursor-pointer transition-colors"></i>
+                <i class="fa-brands fa-whatsapp hover:text-brand-600 cursor-pointer transition-colors"></i>
+            </div>
+        </div>
+        
+        <div class="py-4 px-6 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="flex flex-col justify-center items-center mr-2">
+                    <div class="flex items-end font-bold text-4xl tracking-tighter leading-none">
+                        <span class="text-brand-900">ЄM</span><span class="text-brand-600 relative">SP<i class="fa-solid fa-tower-observation absolute -top-3 -right-2 text-[10px] text-brand-600"></i></span>
+                    </div>
+                    <span class="text-[5px] sm:text-[6px] text-brand-900 font-bold tracking-[0.2em] mt-1">EXECUTIVE MANAGEMENT SCHOOL OF PARIS</span>
+                </div>
+            </div>
+            <!-- Bouton Retour au site -->
+            <a href="https://www.emsp-bs.fr/" class="bg-brand-900 text-white text-xs font-bold px-4 py-2 rounded shadow-md hover:bg-brand-600 transition-colors flex items-center gap-2">
+                <i class="fa-solid fa-arrow-left"></i> Retour au site web
+            </a>
+        </div>
+    </header>
+
+    <main class="flex-grow py-12 px-4 sm:px-6 relative">
+        <div class="absolute inset-0 bg-brand-900 h-[280px] -z-10 rounded-b-[40px]"></div>
+
+        <div class="max-w-4xl mx-auto">
+            
+            <div class="text-center mb-10 text-white">
+                <h2 class="font-bold text-4xl md:text-5xl tracking-wide mb-3 text-shadow-md">PORTAIL D'ADMISSION</h2>
+                <p class="font-medium text-brand-100 text-lg">Rejoignez l'Executive Management School of Paris</p>
+            </div>
+
+            <!-- Stepper visuel -->
+            <div class="mb-10 px-2 sm:px-8 bg-white p-6 rounded-2xl shadow-md border border-gray-100">
+                <div class="flex items-center justify-between relative">
+                    <div class="absolute left-0 top-5 transform -translate-y-1/2 w-full h-[3px] bg-gray-200 z-0"></div>
+                    <div class="absolute left-0 top-5 transform -translate-y-1/2 h-[3px] bg-brand-600 z-0 transition-all duration-700 ease-out" id="progress-line" style="width: 0%"></div>
+                    
+                    <div class="relative z-10 flex flex-col items-center step-dot w-1/5">
+                        <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm bg-white border-2 border-gray-300 transition-all duration-500 text-gray-400">1</div>
+                        <span class="text-[10px] font-bold uppercase tracking-wider mt-2 text-center transition-colors duration-300 hidden sm:block text-gray-400">Identité</span>
+                    </div>
+                    <div class="relative z-10 flex flex-col items-center step-dot w-1/5">
+                        <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm bg-white border-2 border-gray-300 transition-all duration-500 text-gray-400">2</div>
+                        <span class="text-[10px] font-bold uppercase tracking-wider mt-2 text-center transition-colors duration-300 hidden sm:block text-gray-400">Contact</span>
+                    </div>
+                    <div class="relative z-10 flex flex-col items-center step-dot w-1/5">
+                        <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm bg-white border-2 border-gray-300 transition-all duration-500 text-gray-400">3</div>
+                        <span class="text-[10px] font-bold uppercase tracking-wider mt-2 text-center transition-colors duration-300 hidden sm:block text-gray-400">Cursus</span>
+                    </div>
+                    <div class="relative z-10 flex flex-col items-center step-dot w-1/5">
+                        <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm bg-white border-2 border-gray-300 transition-all duration-500 text-gray-400">4</div>
+                        <span class="text-[10px] font-bold uppercase tracking-wider mt-2 text-center transition-colors duration-300 hidden sm:block text-gray-400">Frais</span>
+                    </div>
+                    <div class="relative z-10 flex flex-col items-center step-dot w-1/5">
+                        <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm bg-white border-2 border-gray-300 transition-all duration-500 text-gray-400">5</div>
+                        <span class="text-[10px] font-bold uppercase tracking-wider mt-2 text-center transition-colors duration-300 hidden sm:block text-gray-400">Pièces</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formulaire -->
+            <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+                <form id="admission-form" class="p-8 sm:p-12 relative z-10" onsubmit="event.preventDefault(); submitForm();">
+                    
+                    <!-- Étape 1 : Identité -->
+                    <div class="step-container active" id="step-1">
+                        <div class="flex items-center gap-3 mb-8 pb-4 border-b border-gray-100">
+                            <div class="w-10 h-10 rounded-full bg-brand-50 flex items-center justify-center text-brand-600">
+                                <i class="fa-solid fa-user text-lg"></i>
+                            </div>
+                            <h2 class="text-2xl font-bold text-brand-900">Information Personnelle</h2>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="col-span-1 md:col-span-2">
+                                <label class="block text-sm font-semibold text-brand-900 mb-2">Nom de famille <span class="text-brand-600">*</span></label>
+                                <input type="text" id="nom" name="nom" required class="input-emsp w-full px-4 py-3 rounded-xl uppercase" placeholder="EX: DUPONT">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-brand-900 mb-2">Prénom(s) <span class="text-brand-600">*</span></label>
+                                <input type="text" id="prenom" name="prenom" required class="input-emsp w-full px-4 py-3 rounded-xl" placeholder="Jean">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-brand-900 mb-2">Date de naissance <span class="text-brand-600">*</span></label>
+                                <input type="date" id="ddn" name="ddn" required class="input-emsp w-full px-4 py-3 rounded-xl text-gray-600">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-brand-900 mb-2">Lieu de naissance <span class="text-brand-600">*</span></label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                        <i class="fa-solid fa-location-dot text-gray-400"></i>
+                                    </div>
+                                    <input type="text" id="ldn" name="ldn" required class="input-emsp w-full pl-11 px-4 py-3 rounded-xl" placeholder="Ex: Paris">
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-semibold text-brand-900 mb-2">Pays de résidence actuel <span class="text-brand-600">*</span></label>
+                                <div class="relative" id="country-container">
+                                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                        <i class="fa-solid fa-earth-europe text-gray-400"></i>
+                                    </div>
+                                    <input type="text" id="pays_residence" name="pays_residence" required autocomplete="off"
+                                           class="input-emsp w-full pl-11 pr-10 px-4 py-3 rounded-xl cursor-text" 
+                                           placeholder="Rechercher...">
+                                    <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none transition-transform duration-200" id="country-chevron">
+                                        <i class="fa-solid fa-chevron-down text-gray-400"></i>
+                                    </div>
+                                    <div id="country-dropdown" class="absolute z-50 w-full mt-2 bg-white border border-gray-200 rounded-xl shadow-xl max-h-60 overflow-y-auto custom-scrollbar hidden">
+                                        <ul id="country-list" class="py-2 text-sm text-gray-700"></ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-span-1 md:col-span-2 mt-4 p-4 bg-gray-50 rounded-xl border border-gray-200">
+                                <label class="block text-sm font-semibold text-brand-900 mb-3">Êtes-vous en situation de handicap ? <span class="text-brand-600">*</span></label>
+                                <div class="flex gap-6">
+                                    <label class="flex items-center cursor-pointer">
+                                        <input type="radio" name="handicap" value="Oui" required class="w-4 h-4 text-brand-600 border-gray-300 focus:ring-brand-500">
+                                        <span class="ml-2 text-sm text-gray-700 font-medium">Oui</span>
+                                    </label>
+                                    <label class="flex items-center cursor-pointer">
+                                        <input type="radio" name="handicap" value="Non" class="w-4 h-4 text-brand-600 border-gray-300 focus:ring-brand-500">
+                                        <span class="ml-2 text-sm text-gray-700 font-medium">Non</span>
+                                    </label>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-2">Cette information nous permet de préparer au mieux votre accueil (aménagement d'épreuves, accessibilité).</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Étape 2 : Contact -->
+                    <div class="step-container" id="step-2">
+                        <div class="flex items-center gap-3 mb-8 pb-4 border-b border-gray-100">
+                            <div class="w-10 h-10 rounded-full bg-brand-50 flex items-center justify-center text-brand-600">
+                                <i class="fa-solid fa-envelope text-lg"></i>
+                            </div>
+                            <h2 class="text-2xl font-bold text-brand-900">Coordonnées</h2>
+                        </div>
+                        
+                        <div class="space-y-6">
+                            <div>
+                                <label class="block text-sm font-semibold text-brand-900 mb-2">Adresse e-mail <span class="text-brand-600">*</span></label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                        <i class="fa-regular fa-envelope text-gray-400"></i>
+                                    </div>
+                                    <input type="email" id="email" name="email" required class="input-emsp w-full pl-11 px-4 py-3 rounded-xl" placeholder="votre.email@exemple.com">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-brand-900 mb-2">Numéro de téléphone <span class="text-brand-600">*</span></label>
+                                <div class="flex gap-2 relative">
+                                    <div class="relative w-[120px] sm:w-[140px]" id="indicatif-candidat-container">
+                                        <select id="indicatif_tel" name="indicatif_tel" required class="input-emsp w-full px-3 py-3 rounded-xl cursor-text font-medium text-gray-700 text-center">
+<option value="+33" data-iso="FR" selected>France (+33)</option>
+<option value="+247" data-iso="AC">AC (+247)</option>
+<option value="+93" data-iso="AF">Afghanistan (+93)</option>
+<option value="+27" data-iso="ZA">Afrique du Sud (+27)</option>
+<option value="+355" data-iso="AL">Albanie (+355)</option>
+<option value="+213" data-iso="DZ">Algérie (+213)</option>
+<option value="+49" data-iso="DE">Allemagne (+49)</option>
+<option value="+376" data-iso="AD">Andorre (+376)</option>
+<option value="+244" data-iso="AO">Angola (+244)</option>
+<option value="+1" data-iso="AI">Anguilla (+1)</option>
+<option value="+1" data-iso="AG">Antigua-et-Barbuda (+1)</option>
+<option value="+966" data-iso="SA">Arabie saoudite (+966)</option>
+<option value="+54" data-iso="AR">Argentine (+54)</option>
+<option value="+374" data-iso="AM">Arménie (+374)</option>
+<option value="+297" data-iso="AW">Aruba (+297)</option>
+<option value="+61" data-iso="AU">Australie (+61)</option>
+<option value="+43" data-iso="AT">Autriche (+43)</option>
+<option value="+994" data-iso="AZ">Azerbaïdjan (+994)</option>
+<option value="+1" data-iso="BS">Bahamas (+1)</option>
+<option value="+973" data-iso="BH">Bahreïn (+973)</option>
+<option value="+880" data-iso="BD">Bangladesh (+880)</option>
+<option value="+1" data-iso="BB">Barbade (+1)</option>
+<option value="+32" data-iso="BE">Belgique (+32)</option>
+<option value="+501" data-iso="BZ">Belize (+501)</option>
+<option value="+1" data-iso="BM">Bermudes (+1)</option>
+<option value="+975" data-iso="BT">Bhoutan (+975)</option>
+<option value="+95" data-iso="MM">Birmanie (+95)</option>
+<option value="+591" data-iso="BO">Bolivie, état plurinational de (+591)</option>
+<option value="+599" data-iso="BQ">Bonaire, Saint-Eustache et Saba (+599)</option>
+<option value="+387" data-iso="BA">Bosnie-Herzégovine (+387)</option>
+<option value="+267" data-iso="BW">Botswana (+267)</option>
+<option value="+673" data-iso="BN">Brunéi Darussalam (+673)</option>
+<option value="+55" data-iso="BR">Brésil (+55)</option>
+<option value="+359" data-iso="BG">Bulgarie (+359)</option>
+<option value="+226" data-iso="BF">Burkina Faso (+226)</option>
+<option value="+257" data-iso="BI">Burundi (+257)</option>
+<option value="+375" data-iso="BY">Bélarus (+375)</option>
+<option value="+229" data-iso="BJ">Bénin (+229)</option>
+<option value="+855" data-iso="KH">Cambodge (+855)</option>
+<option value="+237" data-iso="CM">Cameroun (+237)</option>
+<option value="+1" data-iso="CA">Canada (+1)</option>
+<option value="+238" data-iso="CV">Cap-Vert (+238)</option>
+<option value="+56" data-iso="CL">Chili (+56)</option>
+<option value="+86" data-iso="CN">Chine (+86)</option>
+<option value="+61" data-iso="CX">Christmas, Île (+61)</option>
+<option value="+357" data-iso="CY">Chypre (+357)</option>
+<option value="+61" data-iso="CC">Cocos (Keeling), Îles (+61)</option>
+<option value="+57" data-iso="CO">Colombie (+57)</option>
+<option value="+269" data-iso="KM">Comores (+269)</option>
+<option value="+82" data-iso="KR">Corée, République de (+82)</option>
+<option value="+850" data-iso="KP">Corée, République populaire démocratique de (+850)</option>
+<option value="+506" data-iso="CR">Costa Rica (+506)</option>
+<option value="+385" data-iso="HR">Croatie (+385)</option>
+<option value="+53" data-iso="CU">Cuba (+53)</option>
+<option value="+599" data-iso="CW">Curaçao (+599)</option>
+<option value="+225" data-iso="CI">Côte d'Ivoire (+225)</option>
+<option value="+45" data-iso="DK">Danemark (+45)</option>
+<option value="+253" data-iso="DJ">Djibouti (+253)</option>
+<option value="+1" data-iso="DM">Dominique (+1)</option>
+<option value="+34" data-iso="ES">Espagne (+34)</option>
+<option value="+372" data-iso="EE">Estonie (+372)</option>
+<option value="+268" data-iso="SZ">Eswatini (+268)</option>
+<option value="+679" data-iso="FJ">Fidji (+679)</option>
+<option value="+358" data-iso="FI">Finlande (+358)</option>
+<option value="+241" data-iso="GA">Gabon (+241)</option>
+<option value="+220" data-iso="GM">Gambie (+220)</option>
+<option value="+233" data-iso="GH">Ghana (+233)</option>
+<option value="+350" data-iso="GI">Gibraltar (+350)</option>
+<option value="+1" data-iso="GD">Grenade (+1)</option>
+<option value="+299" data-iso="GL">Groënland (+299)</option>
+<option value="+30" data-iso="GR">Grèce (+30)</option>
+<option value="+590" data-iso="GP">Guadeloupe (+590)</option>
+<option value="+1" data-iso="GU">Guam (+1)</option>
+<option value="+502" data-iso="GT">Guatemala (+502)</option>
+<option value="+44" data-iso="GG">Guernesey (+44)</option>
+<option value="+224" data-iso="GN">Guinée (+224)</option>
+<option value="+240" data-iso="GQ">Guinée Équatoriale (+240)</option>
+<option value="+245" data-iso="GW">Guinée-Bissau (+245)</option>
+<option value="+592" data-iso="GY">Guyana (+592)</option>
+<option value="+594" data-iso="GF">Guyane française (+594)</option>
+<option value="+995" data-iso="GE">Géorgie (+995)</option>
+<option value="+509" data-iso="HT">Haïti (+509)</option>
+<option value="+504" data-iso="HN">Honduras (+504)</option>
+<option value="+852" data-iso="HK">Hong Kong (+852)</option>
+<option value="+36" data-iso="HU">Hongrie (+36)</option>
+<option value="+91" data-iso="IN">Inde (+91)</option>
+<option value="+62" data-iso="ID">Indonésie (+62)</option>
+<option value="+964" data-iso="IQ">Irak (+964)</option>
+<option value="+98" data-iso="IR">Iran, République islamique d' (+98)</option>
+<option value="+353" data-iso="IE">Irlande (+353)</option>
+<option value="+354" data-iso="IS">Islande (+354)</option>
+<option value="+972" data-iso="IL">Israël (+972)</option>
+<option value="+39" data-iso="IT">Italie (+39)</option>
+<option value="+1" data-iso="JM">Jamaïque (+1)</option>
+<option value="+81" data-iso="JP">Japon (+81)</option>
+<option value="+44" data-iso="JE">Jersey (+44)</option>
+<option value="+962" data-iso="JO">Jordanie (+962)</option>
+<option value="+7" data-iso="KZ">Kazakhstan (+7)</option>
+<option value="+254" data-iso="KE">Kenya (+254)</option>
+<option value="+996" data-iso="KG">Kirghizistan (+996)</option>
+<option value="+686" data-iso="KI">Kiribati (+686)</option>
+<option value="+383" data-iso="XK">Kosovo (+383)</option>
+<option value="+965" data-iso="KW">Koweït (+965)</option>
+<option value="+856" data-iso="LA">Lao, République démocratique populaire (+856)</option>
+<option value="+266" data-iso="LS">Lesotho (+266)</option>
+<option value="+371" data-iso="LV">Lettonie (+371)</option>
+<option value="+961" data-iso="LB">Liban (+961)</option>
+<option value="+218" data-iso="LY">Libye (+218)</option>
+<option value="+231" data-iso="LR">Libéria (+231)</option>
+<option value="+423" data-iso="LI">Liechtenstein (+423)</option>
+<option value="+370" data-iso="LT">Lituanie (+370)</option>
+<option value="+352" data-iso="LU">Luxembourg (+352)</option>
+<option value="+853" data-iso="MO">Macau (+853)</option>
+<option value="+389" data-iso="MK">Macédoine du Nord (+389)</option>
+<option value="+261" data-iso="MG">Madagascar (+261)</option>
+<option value="+60" data-iso="MY">Malaisie (+60)</option>
+<option value="+265" data-iso="MW">Malawi (+265)</option>
+<option value="+960" data-iso="MV">Maldives (+960)</option>
+<option value="+223" data-iso="ML">Mali (+223)</option>
+<option value="+500" data-iso="FK">Malouines, Îles (Falkland) (+500)</option>
+<option value="+356" data-iso="MT">Malte (+356)</option>
+<option value="+212" data-iso="MA">Maroc (+212)</option>
+<option value="+596" data-iso="MQ">Martinique (+596)</option>
+<option value="+230" data-iso="MU">Maurice (+230)</option>
+<option value="+222" data-iso="MR">Mauritanie (+222)</option>
+<option value="+262" data-iso="YT">Mayotte (+262)</option>
+<option value="+52" data-iso="MX">Mexique (+52)</option>
+<option value="+691" data-iso="FM">Micronésie, États fédérés de (+691)</option>
+<option value="+373" data-iso="MD">Moldova, République de (+373)</option>
+<option value="+377" data-iso="MC">Monaco (+377)</option>
+<option value="+976" data-iso="MN">Mongolie (+976)</option>
+<option value="+1" data-iso="MS">Montserrat (+1)</option>
+<option value="+382" data-iso="ME">Monténégro (+382)</option>
+<option value="+258" data-iso="MZ">Mozambique (+258)</option>
+<option value="+264" data-iso="NA">Namibie (+264)</option>
+<option value="+674" data-iso="NR">Nauru (+674)</option>
+<option value="+505" data-iso="NI">Nicaragua (+505)</option>
+<option value="+227" data-iso="NE">Niger (+227)</option>
+<option value="+234" data-iso="NG">Nigeria (+234)</option>
+<option value="+683" data-iso="NU">Nioue (+683)</option>
+<option value="+47" data-iso="NO">Norvège (+47)</option>
+<option value="+687" data-iso="NC">Nouvelle-Calédonie (+687)</option>
+<option value="+64" data-iso="NZ">Nouvelle-Zélande (+64)</option>
+<option value="+977" data-iso="NP">Népal (+977)</option>
+<option value="+968" data-iso="OM">Oman (+968)</option>
+<option value="+256" data-iso="UG">Ouganda (+256)</option>
+<option value="+998" data-iso="UZ">Ouzbékistan (+998)</option>
+<option value="+92" data-iso="PK">Pakistan (+92)</option>
+<option value="+680" data-iso="PW">Palaos (+680)</option>
+<option value="+970" data-iso="PS">Palestine, État de (+970)</option>
+<option value="+507" data-iso="PA">Panama (+507)</option>
+<option value="+675" data-iso="PG">Papouasie-Nouvelle-Guinée (+675)</option>
+<option value="+595" data-iso="PY">Paraguay (+595)</option>
+<option value="+31" data-iso="NL">Pays-Bas (+31)</option>
+<option value="+63" data-iso="PH">Philippines (+63)</option>
+<option value="+48" data-iso="PL">Pologne (+48)</option>
+<option value="+689" data-iso="PF">Polynésie française (+689)</option>
+<option value="+1" data-iso="PR">Porto Rico (+1)</option>
+<option value="+351" data-iso="PT">Portugal (+351)</option>
+<option value="+51" data-iso="PE">Pérou (+51)</option>
+<option value="+974" data-iso="QA">Qatar (+974)</option>
+<option value="+40" data-iso="RO">Roumanie (+40)</option>
+<option value="+44" data-iso="GB">Royaume-Uni (+44)</option>
+<option value="+7" data-iso="RU">Russie, Fédération de (+7)</option>
+<option value="+250" data-iso="RW">Rwanda (+250)</option>
+<option value="+236" data-iso="CF">République centrafricaine (+236)</option>
+<option value="+1" data-iso="DO">République dominicaine (+1)</option>
+<option value="+242" data-iso="CG">République du Congo (+242)</option>
+<option value="+243" data-iso="CD">République démocratique du Congo (+243)</option>
+<option value="+262" data-iso="RE">Réunion, Île de la (+262)</option>
+<option value="+212" data-iso="EH">Sahara occidental (+212)</option>
+<option value="+590" data-iso="BL">Saint-Barthélemy (+590)</option>
+<option value="+1" data-iso="KN">Saint-Christophe-et-Niévès (+1)</option>
+<option value="+378" data-iso="SM">Saint-Marin (+378)</option>
+<option value="+590" data-iso="MF">Saint-Martin (partie française) (+590)</option>
+<option value="+1" data-iso="SX">Saint-Martin (partie néerlandaise) (+1)</option>
+<option value="+508" data-iso="PM">Saint-Pierre-et-Miquelon (+508)</option>
+<option value="+39" data-iso="VA">Saint-Siège (état de la cité du Vatican) (+39)</option>
+<option value="+1" data-iso="VC">Saint-Vincent-et-les-Grenadines (+1)</option>
+<option value="+290" data-iso="SH">Sainte-Hélène, Ascension et Tristan da Cunha (+290)</option>
+<option value="+1" data-iso="LC">Sainte-Lucie (+1)</option>
+<option value="+677" data-iso="SB">Salomon, Îles (+677)</option>
+<option value="+503" data-iso="SV">Salvador (+503)</option>
+<option value="+685" data-iso="WS">Samoa (+685)</option>
+<option value="+1" data-iso="AS">Samoa américaines (+1)</option>
+<option value="+239" data-iso="ST">Sao Tomé-et-Principe (+239)</option>
+<option value="+381" data-iso="RS">Serbie (+381)</option>
+<option value="+248" data-iso="SC">Seychelles (+248)</option>
+<option value="+232" data-iso="SL">Sierra Leone (+232)</option>
+<option value="+65" data-iso="SG">Singapour (+65)</option>
+<option value="+421" data-iso="SK">Slovaquie (+421)</option>
+<option value="+386" data-iso="SI">Slovénie (+386)</option>
+<option value="+252" data-iso="SO">Somalie (+252)</option>
+<option value="+249" data-iso="SD">Soudan (+249)</option>
+<option value="+211" data-iso="SS">Soudan du Sud (+211)</option>
+<option value="+94" data-iso="LK">Sri Lanka (+94)</option>
+<option value="+41" data-iso="CH">Suisse (+41)</option>
+<option value="+597" data-iso="SR">Surinam (+597)</option>
+<option value="+46" data-iso="SE">Suède (+46)</option>
+<option value="+47" data-iso="SJ">Svalbard et île Jan Mayen (+47)</option>
+<option value="+963" data-iso="SY">Syrienne, République arabe (+963)</option>
+<option value="+221" data-iso="SN">Sénégal (+221)</option>
+<option value="+290" data-iso="TA">TA (+290)</option>
+<option value="+992" data-iso="TJ">Tadjikistan (+992)</option>
+<option value="+255" data-iso="TZ">Tanzanie, République unie de (+255)</option>
+<option value="+886" data-iso="TW">Taïwan, province de Chine (+886)</option>
+<option value="+235" data-iso="TD">Tchad (+235)</option>
+<option value="+420" data-iso="CZ">Tchéquie (+420)</option>
+<option value="+246" data-iso="IO">Territoire britannique de l'océan Indien (+246)</option>
+<option value="+66" data-iso="TH">Thaïlande (+66)</option>
+<option value="+670" data-iso="TL">Timor oriental (+670)</option>
+<option value="+228" data-iso="TG">Togo (+228)</option>
+<option value="+690" data-iso="TK">Tokelau (+690)</option>
+<option value="+676" data-iso="TO">Tonga (+676)</option>
+<option value="+1" data-iso="TT">Trinité-et-Tobago (+1)</option>
+<option value="+216" data-iso="TN">Tunisie (+216)</option>
+<option value="+993" data-iso="TM">Turkménistan (+993)</option>
+<option value="+90" data-iso="TR">Turquie (+90)</option>
+<option value="+688" data-iso="TV">Tuvalu (+688)</option>
+<option value="+380" data-iso="UA">Ukraine (+380)</option>
+<option value="+598" data-iso="UY">Uruguay (+598)</option>
+<option value="+678" data-iso="VU">Vanuatu (+678)</option>
+<option value="+84" data-iso="VN">Viêt Nam (+84)</option>
+<option value="+58" data-iso="VE">Vénézuela, république bolivarienne du (+58)</option>
+<option value="+681" data-iso="WF">Wallis et Futuna (+681)</option>
+<option value="+967" data-iso="YE">Yémen (+967)</option>
+<option value="+260" data-iso="ZM">Zambie (+260)</option>
+<option value="+263" data-iso="ZW">Zimbabwe (+263)</option>
+<option value="+358" data-iso="AX">Åland, Îles (+358)</option>
+<option value="+20" data-iso="EG">Égypte (+20)</option>
+<option value="+971" data-iso="AE">Émirats arabes unis (+971)</option>
+<option value="+593" data-iso="EC">Équateur (+593)</option>
+<option value="+291" data-iso="ER">Érythrée (+291)</option>
+<option value="+1" data-iso="US">États-Unis (+1)</option>
+<option value="+251" data-iso="ET">Éthiopie (+251)</option>
+<option value="+44" data-iso="IM">Île de Man (+44)</option>
+<option value="+672" data-iso="NF">Île Norfolk (+672)</option>
+<option value="+1" data-iso="KY">Îles Caïmans (+1)</option>
+<option value="+682" data-iso="CK">Îles Cook (+682)</option>
+<option value="+298" data-iso="FO">Îles Féroé (+298)</option>
+<option value="+1" data-iso="MP">Îles Mariannes du Nord (+1)</option>
+<option value="+692" data-iso="MH">Îles Marshall (+692)</option>
+<option value="+1" data-iso="TC">Îles Turques-et-Caïques (+1)</option>
+<option value="+1" data-iso="VG">Îles Vierges britanniques (+1)</option>
+<option value="+1" data-iso="VI">Îles Vierges, États-Unis (+1)</option>
+                                        </select>
+                                    </div>
+                                    <input type="tel" id="telephone" name="telephone" required class="input-emsp flex-1 px-4 py-3 rounded-xl" placeholder="6 00 00 00 00">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-brand-900 mb-2">Numéro d'un proche (urgence) <span class="text-brand-600">*</span></label>
+                                <div class="flex gap-2 relative">
+                                    <div class="relative w-[120px] sm:w-[140px]" id="indicatif-proche-container">
+                                        <select id="indicatif_proche" name="indicatif_proche" required class="input-emsp w-full px-3 py-3 rounded-xl cursor-text font-medium text-gray-700 text-center">
+<option value="+33" data-iso="FR" selected>France (+33)</option>
+<option value="+247" data-iso="AC">AC (+247)</option>
+<option value="+93" data-iso="AF">Afghanistan (+93)</option>
+<option value="+27" data-iso="ZA">Afrique du Sud (+27)</option>
+<option value="+355" data-iso="AL">Albanie (+355)</option>
+<option value="+213" data-iso="DZ">Algérie (+213)</option>
+<option value="+49" data-iso="DE">Allemagne (+49)</option>
+<option value="+376" data-iso="AD">Andorre (+376)</option>
+<option value="+244" data-iso="AO">Angola (+244)</option>
+<option value="+1" data-iso="AI">Anguilla (+1)</option>
+<option value="+1" data-iso="AG">Antigua-et-Barbuda (+1)</option>
+<option value="+966" data-iso="SA">Arabie saoudite (+966)</option>
+<option value="+54" data-iso="AR">Argentine (+54)</option>
+<option value="+374" data-iso="AM">Arménie (+374)</option>
+<option value="+297" data-iso="AW">Aruba (+297)</option>
+<option value="+61" data-iso="AU">Australie (+61)</option>
+<option value="+43" data-iso="AT">Autriche (+43)</option>
+<option value="+994" data-iso="AZ">Azerbaïdjan (+994)</option>
+<option value="+1" data-iso="BS">Bahamas (+1)</option>
+<option value="+973" data-iso="BH">Bahreïn (+973)</option>
+<option value="+880" data-iso="BD">Bangladesh (+880)</option>
+<option value="+1" data-iso="BB">Barbade (+1)</option>
+<option value="+32" data-iso="BE">Belgique (+32)</option>
+<option value="+501" data-iso="BZ">Belize (+501)</option>
+<option value="+1" data-iso="BM">Bermudes (+1)</option>
+<option value="+975" data-iso="BT">Bhoutan (+975)</option>
+<option value="+95" data-iso="MM">Birmanie (+95)</option>
+<option value="+591" data-iso="BO">Bolivie, état plurinational de (+591)</option>
+<option value="+599" data-iso="BQ">Bonaire, Saint-Eustache et Saba (+599)</option>
+<option value="+387" data-iso="BA">Bosnie-Herzégovine (+387)</option>
+<option value="+267" data-iso="BW">Botswana (+267)</option>
+<option value="+673" data-iso="BN">Brunéi Darussalam (+673)</option>
+<option value="+55" data-iso="BR">Brésil (+55)</option>
+<option value="+359" data-iso="BG">Bulgarie (+359)</option>
+<option value="+226" data-iso="BF">Burkina Faso (+226)</option>
+<option value="+257" data-iso="BI">Burundi (+257)</option>
+<option value="+375" data-iso="BY">Bélarus (+375)</option>
+<option value="+229" data-iso="BJ">Bénin (+229)</option>
+<option value="+855" data-iso="KH">Cambodge (+855)</option>
+<option value="+237" data-iso="CM">Cameroun (+237)</option>
+<option value="+1" data-iso="CA">Canada (+1)</option>
+<option value="+238" data-iso="CV">Cap-Vert (+238)</option>
+<option value="+56" data-iso="CL">Chili (+56)</option>
+<option value="+86" data-iso="CN">Chine (+86)</option>
+<option value="+61" data-iso="CX">Christmas, Île (+61)</option>
+<option value="+357" data-iso="CY">Chypre (+357)</option>
+<option value="+61" data-iso="CC">Cocos (Keeling), Îles (+61)</option>
+<option value="+57" data-iso="CO">Colombie (+57)</option>
+<option value="+269" data-iso="KM">Comores (+269)</option>
+<option value="+82" data-iso="KR">Corée, République de (+82)</option>
+<option value="+850" data-iso="KP">Corée, République populaire démocratique de (+850)</option>
+<option value="+506" data-iso="CR">Costa Rica (+506)</option>
+<option value="+385" data-iso="HR">Croatie (+385)</option>
+<option value="+53" data-iso="CU">Cuba (+53)</option>
+<option value="+599" data-iso="CW">Curaçao (+599)</option>
+<option value="+225" data-iso="CI">Côte d'Ivoire (+225)</option>
+<option value="+45" data-iso="DK">Danemark (+45)</option>
+<option value="+253" data-iso="DJ">Djibouti (+253)</option>
+<option value="+1" data-iso="DM">Dominique (+1)</option>
+<option value="+34" data-iso="ES">Espagne (+34)</option>
+<option value="+372" data-iso="EE">Estonie (+372)</option>
+<option value="+268" data-iso="SZ">Eswatini (+268)</option>
+<option value="+679" data-iso="FJ">Fidji (+679)</option>
+<option value="+358" data-iso="FI">Finlande (+358)</option>
+<option value="+241" data-iso="GA">Gabon (+241)</option>
+<option value="+220" data-iso="GM">Gambie (+220)</option>
+<option value="+233" data-iso="GH">Ghana (+233)</option>
+<option value="+350" data-iso="GI">Gibraltar (+350)</option>
+<option value="+1" data-iso="GD">Grenade (+1)</option>
+<option value="+299" data-iso="GL">Groënland (+299)</option>
+<option value="+30" data-iso="GR">Grèce (+30)</option>
+<option value="+590" data-iso="GP">Guadeloupe (+590)</option>
+<option value="+1" data-iso="GU">Guam (+1)</option>
+<option value="+502" data-iso="GT">Guatemala (+502)</option>
+<option value="+44" data-iso="GG">Guernesey (+44)</option>
+<option value="+224" data-iso="GN">Guinée (+224)</option>
+<option value="+240" data-iso="GQ">Guinée Équatoriale (+240)</option>
+<option value="+245" data-iso="GW">Guinée-Bissau (+245)</option>
+<option value="+592" data-iso="GY">Guyana (+592)</option>
+<option value="+594" data-iso="GF">Guyane française (+594)</option>
+<option value="+995" data-iso="GE">Géorgie (+995)</option>
+<option value="+509" data-iso="HT">Haïti (+509)</option>
+<option value="+504" data-iso="HN">Honduras (+504)</option>
+<option value="+852" data-iso="HK">Hong Kong (+852)</option>
+<option value="+36" data-iso="HU">Hongrie (+36)</option>
+<option value="+91" data-iso="IN">Inde (+91)</option>
+<option value="+62" data-iso="ID">Indonésie (+62)</option>
+<option value="+964" data-iso="IQ">Irak (+964)</option>
+<option value="+98" data-iso="IR">Iran, République islamique d' (+98)</option>
+<option value="+353" data-iso="IE">Irlande (+353)</option>
+<option value="+354" data-iso="IS">Islande (+354)</option>
+<option value="+972" data-iso="IL">Israël (+972)</option>
+<option value="+39" data-iso="IT">Italie (+39)</option>
+<option value="+1" data-iso="JM">Jamaïque (+1)</option>
+<option value="+81" data-iso="JP">Japon (+81)</option>
+<option value="+44" data-iso="JE">Jersey (+44)</option>
+<option value="+962" data-iso="JO">Jordanie (+962)</option>
+<option value="+7" data-iso="KZ">Kazakhstan (+7)</option>
+<option value="+254" data-iso="KE">Kenya (+254)</option>
+<option value="+996" data-iso="KG">Kirghizistan (+996)</option>
+<option value="+686" data-iso="KI">Kiribati (+686)</option>
+<option value="+383" data-iso="XK">Kosovo (+383)</option>
+<option value="+965" data-iso="KW">Koweït (+965)</option>
+<option value="+856" data-iso="LA">Lao, République démocratique populaire (+856)</option>
+<option value="+266" data-iso="LS">Lesotho (+266)</option>
+<option value="+371" data-iso="LV">Lettonie (+371)</option>
+<option value="+961" data-iso="LB">Liban (+961)</option>
+<option value="+218" data-iso="LY">Libye (+218)</option>
+<option value="+231" data-iso="LR">Libéria (+231)</option>
+<option value="+423" data-iso="LI">Liechtenstein (+423)</option>
+<option value="+370" data-iso="LT">Lituanie (+370)</option>
+<option value="+352" data-iso="LU">Luxembourg (+352)</option>
+<option value="+853" data-iso="MO">Macau (+853)</option>
+<option value="+389" data-iso="MK">Macédoine du Nord (+389)</option>
+<option value="+261" data-iso="MG">Madagascar (+261)</option>
+<option value="+60" data-iso="MY">Malaisie (+60)</option>
+<option value="+265" data-iso="MW">Malawi (+265)</option>
+<option value="+960" data-iso="MV">Maldives (+960)</option>
+<option value="+223" data-iso="ML">Mali (+223)</option>
+<option value="+500" data-iso="FK">Malouines, Îles (Falkland) (+500)</option>
+<option value="+356" data-iso="MT">Malte (+356)</option>
+<option value="+212" data-iso="MA">Maroc (+212)</option>
+<option value="+596" data-iso="MQ">Martinique (+596)</option>
+<option value="+230" data-iso="MU">Maurice (+230)</option>
+<option value="+222" data-iso="MR">Mauritanie (+222)</option>
+<option value="+262" data-iso="YT">Mayotte (+262)</option>
+<option value="+52" data-iso="MX">Mexique (+52)</option>
+<option value="+691" data-iso="FM">Micronésie, États fédérés de (+691)</option>
+<option value="+373" data-iso="MD">Moldova, République de (+373)</option>
+<option value="+377" data-iso="MC">Monaco (+377)</option>
+<option value="+976" data-iso="MN">Mongolie (+976)</option>
+<option value="+1" data-iso="MS">Montserrat (+1)</option>
+<option value="+382" data-iso="ME">Monténégro (+382)</option>
+<option value="+258" data-iso="MZ">Mozambique (+258)</option>
+<option value="+264" data-iso="NA">Namibie (+264)</option>
+<option value="+674" data-iso="NR">Nauru (+674)</option>
+<option value="+505" data-iso="NI">Nicaragua (+505)</option>
+<option value="+227" data-iso="NE">Niger (+227)</option>
+<option value="+234" data-iso="NG">Nigeria (+234)</option>
+<option value="+683" data-iso="NU">Nioue (+683)</option>
+<option value="+47" data-iso="NO">Norvège (+47)</option>
+<option value="+687" data-iso="NC">Nouvelle-Calédonie (+687)</option>
+<option value="+64" data-iso="NZ">Nouvelle-Zélande (+64)</option>
+<option value="+977" data-iso="NP">Népal (+977)</option>
+<option value="+968" data-iso="OM">Oman (+968)</option>
+<option value="+256" data-iso="UG">Ouganda (+256)</option>
+<option value="+998" data-iso="UZ">Ouzbékistan (+998)</option>
+<option value="+92" data-iso="PK">Pakistan (+92)</option>
+<option value="+680" data-iso="PW">Palaos (+680)</option>
+<option value="+970" data-iso="PS">Palestine, État de (+970)</option>
+<option value="+507" data-iso="PA">Panama (+507)</option>
+<option value="+675" data-iso="PG">Papouasie-Nouvelle-Guinée (+675)</option>
+<option value="+595" data-iso="PY">Paraguay (+595)</option>
+<option value="+31" data-iso="NL">Pays-Bas (+31)</option>
+<option value="+63" data-iso="PH">Philippines (+63)</option>
+<option value="+48" data-iso="PL">Pologne (+48)</option>
+<option value="+689" data-iso="PF">Polynésie française (+689)</option>
+<option value="+1" data-iso="PR">Porto Rico (+1)</option>
+<option value="+351" data-iso="PT">Portugal (+351)</option>
+<option value="+51" data-iso="PE">Pérou (+51)</option>
+<option value="+974" data-iso="QA">Qatar (+974)</option>
+<option value="+40" data-iso="RO">Roumanie (+40)</option>
+<option value="+44" data-iso="GB">Royaume-Uni (+44)</option>
+<option value="+7" data-iso="RU">Russie, Fédération de (+7)</option>
+<option value="+250" data-iso="RW">Rwanda (+250)</option>
+<option value="+236" data-iso="CF">République centrafricaine (+236)</option>
+<option value="+1" data-iso="DO">République dominicaine (+1)</option>
+<option value="+242" data-iso="CG">République du Congo (+242)</option>
+<option value="+243" data-iso="CD">République démocratique du Congo (+243)</option>
+<option value="+262" data-iso="RE">Réunion, Île de la (+262)</option>
+<option value="+212" data-iso="EH">Sahara occidental (+212)</option>
+<option value="+590" data-iso="BL">Saint-Barthélemy (+590)</option>
+<option value="+1" data-iso="KN">Saint-Christophe-et-Niévès (+1)</option>
+<option value="+378" data-iso="SM">Saint-Marin (+378)</option>
+<option value="+590" data-iso="MF">Saint-Martin (partie française) (+590)</option>
+<option value="+1" data-iso="SX">Saint-Martin (partie néerlandaise) (+1)</option>
+<option value="+508" data-iso="PM">Saint-Pierre-et-Miquelon (+508)</option>
+<option value="+39" data-iso="VA">Saint-Siège (état de la cité du Vatican) (+39)</option>
+<option value="+1" data-iso="VC">Saint-Vincent-et-les-Grenadines (+1)</option>
+<option value="+290" data-iso="SH">Sainte-Hélène, Ascension et Tristan da Cunha (+290)</option>
+<option value="+1" data-iso="LC">Sainte-Lucie (+1)</option>
+<option value="+677" data-iso="SB">Salomon, Îles (+677)</option>
+<option value="+503" data-iso="SV">Salvador (+503)</option>
+<option value="+685" data-iso="WS">Samoa (+685)</option>
+<option value="+1" data-iso="AS">Samoa américaines (+1)</option>
+<option value="+239" data-iso="ST">Sao Tomé-et-Principe (+239)</option>
+<option value="+381" data-iso="RS">Serbie (+381)</option>
+<option value="+248" data-iso="SC">Seychelles (+248)</option>
+<option value="+232" data-iso="SL">Sierra Leone (+232)</option>
+<option value="+65" data-iso="SG">Singapour (+65)</option>
+<option value="+421" data-iso="SK">Slovaquie (+421)</option>
+<option value="+386" data-iso="SI">Slovénie (+386)</option>
+<option value="+252" data-iso="SO">Somalie (+252)</option>
+<option value="+249" data-iso="SD">Soudan (+249)</option>
+<option value="+211" data-iso="SS">Soudan du Sud (+211)</option>
+<option value="+94" data-iso="LK">Sri Lanka (+94)</option>
+<option value="+41" data-iso="CH">Suisse (+41)</option>
+<option value="+597" data-iso="SR">Surinam (+597)</option>
+<option value="+46" data-iso="SE">Suède (+46)</option>
+<option value="+47" data-iso="SJ">Svalbard et île Jan Mayen (+47)</option>
+<option value="+963" data-iso="SY">Syrienne, République arabe (+963)</option>
+<option value="+221" data-iso="SN">Sénégal (+221)</option>
+<option value="+290" data-iso="TA">TA (+290)</option>
+<option value="+992" data-iso="TJ">Tadjikistan (+992)</option>
+<option value="+255" data-iso="TZ">Tanzanie, République unie de (+255)</option>
+<option value="+886" data-iso="TW">Taïwan, province de Chine (+886)</option>
+<option value="+235" data-iso="TD">Tchad (+235)</option>
+<option value="+420" data-iso="CZ">Tchéquie (+420)</option>
+<option value="+246" data-iso="IO">Territoire britannique de l'océan Indien (+246)</option>
+<option value="+66" data-iso="TH">Thaïlande (+66)</option>
+<option value="+670" data-iso="TL">Timor oriental (+670)</option>
+<option value="+228" data-iso="TG">Togo (+228)</option>
+<option value="+690" data-iso="TK">Tokelau (+690)</option>
+<option value="+676" data-iso="TO">Tonga (+676)</option>
+<option value="+1" data-iso="TT">Trinité-et-Tobago (+1)</option>
+<option value="+216" data-iso="TN">Tunisie (+216)</option>
+<option value="+993" data-iso="TM">Turkménistan (+993)</option>
+<option value="+90" data-iso="TR">Turquie (+90)</option>
+<option value="+688" data-iso="TV">Tuvalu (+688)</option>
+<option value="+380" data-iso="UA">Ukraine (+380)</option>
+<option value="+598" data-iso="UY">Uruguay (+598)</option>
+<option value="+678" data-iso="VU">Vanuatu (+678)</option>
+<option value="+84" data-iso="VN">Viêt Nam (+84)</option>
+<option value="+58" data-iso="VE">Vénézuela, république bolivarienne du (+58)</option>
+<option value="+681" data-iso="WF">Wallis et Futuna (+681)</option>
+<option value="+967" data-iso="YE">Yémen (+967)</option>
+<option value="+260" data-iso="ZM">Zambie (+260)</option>
+<option value="+263" data-iso="ZW">Zimbabwe (+263)</option>
+<option value="+358" data-iso="AX">Åland, Îles (+358)</option>
+<option value="+20" data-iso="EG">Égypte (+20)</option>
+<option value="+971" data-iso="AE">Émirats arabes unis (+971)</option>
+<option value="+593" data-iso="EC">Équateur (+593)</option>
+<option value="+291" data-iso="ER">Érythrée (+291)</option>
+<option value="+1" data-iso="US">États-Unis (+1)</option>
+<option value="+251" data-iso="ET">Éthiopie (+251)</option>
+<option value="+44" data-iso="IM">Île de Man (+44)</option>
+<option value="+672" data-iso="NF">Île Norfolk (+672)</option>
+<option value="+1" data-iso="KY">Îles Caïmans (+1)</option>
+<option value="+682" data-iso="CK">Îles Cook (+682)</option>
+<option value="+298" data-iso="FO">Îles Féroé (+298)</option>
+<option value="+1" data-iso="MP">Îles Mariannes du Nord (+1)</option>
+<option value="+692" data-iso="MH">Îles Marshall (+692)</option>
+<option value="+1" data-iso="TC">Îles Turques-et-Caïques (+1)</option>
+<option value="+1" data-iso="VG">Îles Vierges britanniques (+1)</option>
+<option value="+1" data-iso="VI">Îles Vierges, États-Unis (+1)</option>
+                                        </select>
+                                    </div>
+                                    <input type="tel" id="telephone_proche" name="telephone_proche" required class="input-emsp flex-1 px-4 py-3 rounded-xl" placeholder="6 00 00 00 00">
+                                </div>
+                                <p class="text-xs text-gray-500 mt-1">Sera utilisé uniquement si le vôtre ne passe pas.</p>
+                            </div>
+
+                            <!-- Adresse postale (Adaptative via JS) -->
+                            <div id="container-adresse">
+                                <label id="label-adresse" class="block text-sm font-semibold text-brand-900 mb-2">Adresse postale <span class="text-brand-600">*</span></label>
+                                <textarea id="adresse" name="adresse" rows="2" required class="input-emsp w-full px-4 py-3 rounded-xl" placeholder="Numéro, rue, code postal, ville..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Étape 3 : Formation (Cursus) -->
+                    <div class="step-container" id="step-3">
+                        <div class="flex items-center gap-3 mb-8 pb-4 border-b border-gray-100">
+                            <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
+                                <i class="fa-solid fa-graduation-cap text-lg"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-2xl font-bold">Cursus</h2>
+                                <p class="text-xs text-gray-500 mt-1">Sélection stricte : campus → cycle → niveau → domaine → formation → rythme.</p>
+                            </div>
+                        </div>
+
+                        <div class="space-y-6">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">1. Campus <span class="text-red-500">*</span></label>
+                                <select id="campus" name="campus" required onchange="updateCycles()" class="input-emsp w-full px-4 py-3 rounded-xl font-medium text-gray-800">
+                                    <option value="" selected disabled>-- Sélectionnez le campus --</option>
+                                    <option value="TORCY">Campus de Torcy</option>
+                                    <option value="EVRY">Campus d'Évry</option>
+                                    <option value="LYON">Campus de Lyon</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">2. Cycle <span class="text-red-500">*</span></label>
+                                <select id="cycle" name="cycle" required disabled onchange="updateNiveaux()" class="input-emsp w-full px-4 py-3 rounded-xl font-medium text-gray-800">
+                                    <option value="" selected disabled>-- Sélectionnez d’abord le campus --</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">3. Niveau académique <span class="text-red-500">*</span></label>
+                                <select id="niveau_academique" name="niveau_academique" required disabled onchange="updateDomaines()" class="input-emsp w-full px-4 py-3 rounded-xl font-medium text-gray-800">
+                                    <option value="" selected disabled>-- Sélectionnez d’abord le cycle --</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">4. Domaine <span class="text-red-500">*</span></label>
+                                <select id="domaine" name="domaine" required disabled onchange="updateFormationsCascade()" class="input-emsp w-full px-4 py-3 rounded-xl font-medium text-gray-800">
+                                    <option value="" selected disabled>-- Sélectionnez d’abord le niveau --</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">5. Formation <span class="text-red-500">*</span></label>
+                                <select id="formation" name="formation" required disabled class="input-emsp w-full px-4 py-3 rounded-xl font-medium text-gray-800">
+                                    <option value="" selected disabled>-- Sélectionnez d’abord le domaine --</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">6. Rythme académique <span class="text-red-500">*</span></label>
+                                <select id="rythme" name="rythme_academique" required class="input-emsp w-full px-4 py-3 rounded-xl font-medium text-gray-800">
+                                    <option value="" selected disabled>-- Sélectionnez le rythme --</option>
+                                    <option value="Présentiel">Présentiel</option>
+                                    <option value="En ligne">En ligne</option>
+                                </select>
+                                <p id="msg-rythme-etranger" class="text-xs text-orange-600 mt-2 font-medium hidden">
+                                    <i class="fa-solid fa-circle-info"></i> Les rythmes en alternance sont réservés aux candidats résidant en France.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Étape 4 : Financement -->
+                    <div class="step-container" id="step-4">
+                        <div class="flex items-center gap-3 mb-4 pb-2 border-b border-gray-100">
+                            <div class="w-10 h-10 rounded-full bg-brand-50 flex items-center justify-center text-brand-600">
+                                <i class="fa-solid fa-hand-holding-dollar text-lg"></i>
+                            </div>
+                            <h2 class="text-2xl font-bold text-brand-900" id="titre-financement">Projet de financement</h2>
+                        </div>
+                        <p class="text-sm text-gray-500 mb-6 font-medium" id="desc-financement">Sélectionnez le mode de financement de vos frais.</p>
+                        
+                        <!-- CONTENEUR FINANCEMENT FRANCE -->
+                        <div id="financement-france" class="w-full">
+                            <select id="financement_fr" name="financement_fr" class="input-emsp w-full px-4 py-3 rounded-xl font-medium text-gray-800" required>
+                                <option value="" disabled selected>-- Choisissez votre mode de financement --</option>
+                                <option value="CPF">Financement CPF (Compte Personnel de Formation)</option>
+                                <option value="Pole Emploi">Pôle Emploi / France Travail (AIF)</option>
+                                <option value="OPCO">Financement OPCO / Entreprise (Alternance)</option>
+                                <option value="Personnel">Financement Personnel (Règlement échelonné possible)</option>
+                            </select>
+                        </div>
+
+                        <!-- CONTENEUR FINANCEMENT HORS FRANCE -->
+                        <div id="financement-hors-france" class="w-full hidden">
+                            <select id="financement_hors_fr" name="financement_hors_fr" class="input-emsp w-full px-4 py-3 rounded-xl font-medium text-gray-800" disabled>
+                                <option value="" disabled selected>-- Choisissez votre projet de financement --</option>
+                                <option value="Oui, entièrement par mes propres moyens">Oui, entièrement par mes propres moyens</option>
+                                <option value="Oui, avec l'aide de ma famille">Oui, avec l'aide de ma famille</option>
+                                <option value="Oui, grâce à un garant en France">Oui, grâce à un garant en France</option>
+                                <option value="Oui, grâce à une bourse d'études">Oui, grâce à une bourse d'études</option>
+                                <option value="Oui, plusieurs sources de financement">Oui, plusieurs sources de financement combinées</option>
+                                <option value="Partiellement, je recherche des solutions">Partiellement, je recherche des solutions complémentaires</option>
+                                <option value="Non, je recherche un financement">Non, je recherche actuellement un financement global</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Étape 5 : Documents (Pièces) -->
+                    <div class="step-container" id="step-5">
+                        <div class="flex items-center gap-3 mb-8 pb-4 border-b border-gray-100">
+                            <div class="w-10 h-10 rounded-full bg-brand-50 flex items-center justify-center text-brand-600">
+                                <i class="fa-solid fa-folder-open text-lg"></i>
+                            </div>
+                            <h2 class="text-2xl font-bold text-brand-900">Pièces justificatives</h2>
+                        </div>
+                        
+                        <div id="info-pieces" class="mb-6 p-4 bg-brand-50 text-brand-800 rounded-xl text-sm font-medium border border-brand-100">
+                            <i class="fa-solid fa-circle-info mr-2"></i> Veuillez fournir les documents requis selon votre pays de résidence.
+                        </div>
+
+                        <div class="space-y-4">
+                            <!-- ID -->
+                            <div class="p-4 border-2 border-dashed border-gray-300 rounded-xl bg-gray-50 hover:border-brand-600 hover:bg-brand-50 transition-colors group relative">
+                                <label id="label_identite" for="file_identite" class="block text-sm font-bold text-gray-800 mb-2 group-hover:text-brand-900 transition-colors">Carte d'identité, Passeport ou Titre de séjour <span class="text-brand-600">*</span></label>
+                                <input type="file" id="file_identite" required accept=".pdf,.jpg,.jpeg,.png" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-white file:text-brand-900 file:shadow-sm hover:file:bg-gray-100 cursor-pointer" name="file_identite">
+                            </div>
+                            
+                            <!-- Diplôme -->
+                            <div class="p-4 border-2 border-dashed border-gray-300 rounded-xl bg-gray-50 hover:border-brand-600 hover:bg-brand-50 transition-colors group">
+                                <label for="file_diplome" class="block text-sm font-bold text-gray-800 mb-2 group-hover:text-brand-900 transition-colors">Dernier diplôme ou Relevé de notes <span class="text-brand-600">*</span></label>
+                                <input type="file" id="file_diplome" required accept=".pdf,.jpg,.jpeg,.png" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-white file:text-brand-900 file:shadow-sm hover:file:bg-gray-100 cursor-pointer" name="file_diplome">
+                            </div>
+                            
+                            <!-- CV -->
+                            <div class="p-4 border-2 border-dashed border-gray-300 rounded-xl bg-gray-50 hover:border-brand-600 hover:bg-brand-50 transition-colors group relative">
+                                <label for="file_cv" class="block text-sm font-bold text-gray-800 mb-2 group-hover:text-brand-900 transition-colors">Curriculum Vitae (CV) <span class="text-brand-600">*</span></label>
+                                <input type="file" id="file_cv" required accept=".pdf,.jpg,.jpeg,.png" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-white file:text-brand-900 file:shadow-sm hover:file:bg-gray-100 cursor-pointer" name="file_cv">
+                            </div>
+                            
+                            <!-- Carte Vitale -->
+                            <div id="container-vitale" class="hidden p-4 border-2 border-dashed border-blue-200 rounded-xl bg-blue-50 transition-colors group">
+                                <label for="file_vitale" class="block text-sm font-bold text-brand-900 mb-2">Copie de la carte vitale <span class="text-brand-600">*</span></label>
+                                <input type="file" id="file_vitale" accept=".pdf,.jpg,.jpeg,.png" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-white file:text-brand-900 file:shadow-sm hover:file:bg-gray-100 cursor-pointer" name="file_vitale">
+                            </div>
+
+                            <!-- RQTH -->
+                            <div id="container-rqth" class="hidden p-4 border-2 border-dashed border-brand-200 rounded-xl bg-brand-50 group">
+                                <label for="file_rqth" class="block text-sm font-bold text-brand-900 mb-2">Justificatif de situation de handicap (RQTH ou autre) <span class="text-brand-600">*</span></label>
+                                <p class="text-xs text-brand-800 mb-2">Vous avez indiqué être en situation de handicap à l'étape 1.</p>
+                                <input type="file" id="file_rqth" accept=".pdf,.jpg,.jpeg,.png" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-white file:text-brand-900 file:shadow-sm hover:file:bg-brand-100 cursor-pointer" name="file_rqth">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Message d'erreur global -->
+                    <div id="error-message" class="hidden mt-4 p-4 bg-red-50 text-brand-600 rounded-xl text-sm font-semibold border border-red-200">
+                        <i class="fa-solid fa-triangle-exclamation mr-2"></i> Une erreur est survenue. Veuillez vérifier tous les champs obligatoires (en rouge).
+                    </div>
+
+                    <!-- Écran de succès -->
+                    <div id="success-screen" class="hidden text-center py-10 relative z-10">
+                        <div class="w-24 h-24 bg-brand-50 border border-brand-200 rounded-full flex items-center justify-center mx-auto mb-8">
+                            <i class="fa-solid fa-check text-4xl text-brand-600"></i>
+                        </div>
+                        <h2 class="text-3xl font-bold text-brand-900 mb-3">Dossier Transmis !</h2>
+                        <p class="text-gray-600 mb-8 font-medium">L'équipe pédagogique d'EMSP traitera votre demande dans les plus brefs délais.</p>
+                    </div>
+
+                    <!-- Boutons de navigation -->
+                    <div class="mt-12 flex justify-between items-center pt-6 border-t border-gray-200" id="form-navigation">
+                        <button type="button" id="btn-prev" class="hidden px-6 py-3 border-2 border-gray-200 bg-white text-gray-600 font-bold rounded-full hover:bg-gray-50 hover:border-gray-300 transition-colors" onclick="changeStep(-1)">
+                            <i class="fa-solid fa-arrow-left mr-2"></i> Précédent
+                        </button>
+                        
+                        <div id="spacer" class="block w-full"></div>
+
+                        <button type="button" id="btn-next" class="px-8 py-3 bg-brand-600 text-white font-bold rounded-full hover:bg-brand-800 transition-colors shadow-md ml-auto" onclick="changeStep(1)">
+                            Suivant <i class="fa-solid fa-arrow-right ml-2"></i>
+                        </button>
+
+                        <button type="submit" id="btn-submit" class="hidden px-8 py-3 bg-brand-600 text-white font-bold rounded-full hover:bg-brand-800 transition-colors shadow-md ml-auto flex items-center gap-2">
+                            <i class="fa-solid fa-paper-plane"></i> Soumettre le dossier
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+            
+            <p class="text-center text-xs text-gray-400 mt-8 font-medium">
+                <i class="fa-solid fa-shield-halved mr-1"></i> Connexion chiffrée. Données transmises au service admission EMSP.
+            </p>
+        </div>
+    </main>
+
+    <!-- Scripts JavaScript -->
+    <script>
+        let currentStep = 1;
+        const totalSteps = 5;
+
+        // --- 1. GESTION DES LISTES ET REGIONS ---
+        const listePays = [
+            "Afghanistan",
+            "Afrique du Sud",
+            "Albanie",
+            "Algérie",
+            "Allemagne",
+            "Andorre",
+            "Angola",
+            "Antigua-et-Barbuda",
+            "Arabie Saoudite",
+            "Argentine",
+            "Arménie",
+            "Australie",
+            "Autriche",
+            "Azerbaïdjan",
+            "Bahamas",
+            "Bahreïn",
+            "Bangladesh",
+            "Barbade",
+            "Belgique",
+            "Belize",
+            "Bhoutan",
+            "Birmanie",
+            "Biélorussie",
+            "Bolivie",
+            "Bosnie-Herzégovine",
+            "Botswana",
+            "Brunei",
+            "Brésil",
+            "Bulgarie",
+            "Burkina Faso",
+            "Burundi",
+            "Bénin",
+            "Cambodge",
+            "Cameroun",
+            "Canada",
+            "Cap-Vert",
+            "Chili",
+            "Chine",
+            "Chypre",
+            "Colombie",
+            "Comores",
+            "Congo",
+            "Congo (RDC)",
+            "Corée du Nord",
+            "Corée du Sud",
+            "Costa Rica",
+            "Croatie",
+            "Cuba",
+            "Côte d'Ivoire",
+            "Danemark",
+            "Djibouti",
+            "Dominique",
+            "Espagne",
+            "Estonie",
+            "Eswatini",
+            "Fidji",
+            "Finlande",
+            "France",
+            "Gabon",
+            "Gambie",
+            "Ghana",
+            "Grenade",
+            "Grèce",
+            "Guatemala",
+            "Guinée",
+            "Guinée équatoriale",
+            "Guinée-Bissau",
+            "Guyana",
+            "Géorgie",
+            "Haïti",
+            "Honduras",
+            "Hongrie",
+            "Inde",
+            "Indonésie",
+            "Irak",
+            "Iran",
+            "Irlande",
+            "Islande",
+            "Israël",
+            "Italie",
+            "Jamaïque",
+            "Japon",
+            "Jordanie",
+            "Kazakhstan",
+            "Kenya",
+            "Kirghizistan",
+            "Kiribati",
+            "Kosovo",
+            "Koweït",
+            "Laos",
+            "Lesotho",
+            "Lettonie",
+            "Liban",
+            "Liberia",
+            "Libye",
+            "Liechtenstein",
+            "Lituanie",
+            "Luxembourg",
+            "Macédoine du Nord",
+            "Madagascar",
+            "Malaisie",
+            "Malawi",
+            "Maldives",
+            "Mali",
+            "Malte",
+            "Maroc",
+            "Maurice",
+            "Mauritanie",
+            "Mexique",
+            "Micronésie",
+            "Moldavie",
+            "Monaco",
+            "Mongolie",
+            "Monténégro",
+            "Mozambique",
+            "Namibie",
+            "Nauru",
+            "Nicaragua",
+            "Niger",
+            "Nigeria",
+            "Norvège",
+            "Nouvelle-Zélande",
+            "Népal",
+            "Oman",
+            "Ouganda",
+            "Ouzbékistan",
+            "Pakistan",
+            "Palaos",
+            "Palestine",
+            "Panama",
+            "Papouasie-Nouvelle-Guinée",
+            "Paraguay",
+            "Pays-Bas",
+            "Philippines",
+            "Pologne",
+            "Portugal",
+            "Pérou",
+            "Qatar",
+            "Roumanie",
+            "Royaume-Uni",
+            "Russie",
+            "Rwanda",
+            "République centrafricaine",
+            "République dominicaine",
+            "Saint-Kitts-et-Nevis",
+            "Saint-Marin",
+            "Saint-Vincent-et-les-Grenadines",
+            "Sainte-Lucie",
+            "Salvador",
+            "Samoa",
+            "Serbie",
+            "Seychelles",
+            "Sierra Leone",
+            "Singapour",
+            "Slovaquie",
+            "Slovénie",
+            "Somalie",
+            "Soudan",
+            "Soudan du Sud",
+            "Sri Lanka",
+            "Suisse",
+            "Suriname",
+            "Suède",
+            "Syrie",
+            "São Tomé-et-Principe",
+            "Sénégal",
+            "Tadjikistan",
+            "Tanzanie",
+            "Taïwan",
+            "Tchad",
+            "Tchéquie",
+            "Thaïlande",
+            "Timor oriental",
+            "Togo",
+            "Tonga",
+            "Trinité-et-Tobago",
+            "Tunisie",
+            "Turkménistan",
+            "Turquie",
+            "Tuvalu",
+            "Ukraine",
+            "Uruguay",
+            "Vanuatu",
+            "Vatican",
+            "Venezuela",
+            "Viêt Nam",
+            "Yémen",
+            "Zambie",
+            "Zimbabwe",
+            "Égypte",
+            "Émirats arabes unis",
+            "Équateur",
+            "Érythrée",
+            "États-Unis",
+            "Éthiopie"
+        ];
+
+        const paysAfrique = [
+            "Algérie", "Angola", "Bénin", "Botswana", "Burkina Faso", "Burundi", "Cameroun", "Cap-Vert", 
+            "République centrafricaine", "Tchad", "Comores", "Congo", "Congo (RDC)", "Djibouti", "Égypte", 
+            "Guinée équatoriale", "Érythrée", "Eswatini", "Éthiopie", "Gabon", "Gambie", "Ghana", "Guinée", 
+            "Guinée-Bissau", "Côte d'Ivoire", "Kenya", "Lesotho", "Liberia", "Libye", "Madagascar", "Malawi", 
+            "Mali", "Mauritanie", "Maurice", "Maroc", "Mozambique", "Namibie", "Niger", "Nigeria", "Rwanda", 
+            "São Tomé-et-Principe", "Sénégal", "Seychelles", "Sierra Leone", "Somalie", "Afrique du Sud", 
+            "Soudan du Sud", "Soudan", "Tanzanie", "Togo", "Tunisie", "Ouganda", "Zambie", "Zimbabwe"
+        ];
+
+        const paysUE = [
+            "Allemagne", "Autriche", "Belgique", "Bulgarie", "Chypre", "Croatie", "Danemark", "Espagne", 
+            "Estonie", "Finlande", "Grèce", "Hongrie", "Irlande", "Italie", "Lettonie", "Lituanie", 
+            "Luxembourg", "Malte", "Pays-Bas", "Pologne", "Portugal", "Tchéquie", "Roumanie", "Slovaquie", 
+            "Slovénie", "Suède"
+        ];
+
+        // --- GESTION LOGIQUE PAYS ---
+        const countryInput = document.getElementById('pays_residence');
+        const countryDropdown = document.getElementById('country-dropdown');
+        const countryListEl = document.getElementById('country-list');
+
+        function gererLogiquePays(pays) {
+            // 1. Étape 2 : Adresse (Gérée selon la région)
+            const adresseContainer = document.getElementById('container-adresse');
+            const adresseInput = document.getElementById('adresse');
+            const labelAdresse = document.getElementById('label-adresse');
+
+            adresseContainer.classList.remove('hidden');
+            adresseInput.required = true;
+
+            if (paysUE.includes(pays) || pays === "France") {
+                labelAdresse.innerHTML = `Adresse postale <span class="text-brand-600">*</span>`;
+                adresseInput.placeholder = "Numéro, rue, code postal, ville...";
+            } else {
+                // Pour l'Afrique et l'international, on ne demande que la ville pour simplifier.
+                labelAdresse.innerHTML = `Ville de résidence <span class="text-brand-600">*</span>`;
+                adresseInput.placeholder = "Ville...";
+            }
+            // 1.b. Étape 3 : rythmes conditionnels
+            if (typeof mettreAJourRythmes === "function") {
+                mettreAJourRythmes(pays);
+            }
+
+
+            // 2. Étape 4 : Financement (France vs Hors France)
+            const divFrance = document.getElementById('financement-france');
+            const divHorsFrance = document.getElementById('financement-hors-france');
+            const selectFr = document.getElementById('financement_fr');
+            const selectHorsFr = document.getElementById('financement_hors_fr');
+            const titreFinancement = document.getElementById('titre-financement');
+            const descFinancement = document.getElementById('desc-financement');
+
+            if (pays !== "France") {
+                divFrance.classList.add('hidden');
+                divHorsFrance.classList.remove('hidden');
+                titreFinancement.innerText = "Projet de financement";
+                descFinancement.innerText = "Disposez-vous actuellement de moyens suffisants pour financer vos études et votre séjour ?";
+                
+                selectFr.disabled = true;
+                selectFr.required = false;
+                selectHorsFr.disabled = false;
+                selectHorsFr.required = true;
+            } else {
+                divHorsFrance.classList.add('hidden');
+                divFrance.classList.remove('hidden');
+                titreFinancement.innerText = "Les frais";
+                descFinancement.innerText = "Sélectionnez le mode de financement de vos frais.";
+                
+                selectHorsFr.disabled = true;
+                selectHorsFr.required = false;
+                selectFr.disabled = false;
+                selectFr.required = true;
+            }
+
+            // 3. Étape 5 : Pièces
+            const labelIdentite = document.getElementById('label_identite');
+            const containerVitale = document.getElementById('container-vitale');
+            const inputVitale = document.getElementById('file_vitale');
+            const msgInfoPieces = document.getElementById('info-pieces');
+
+            if (pays === "France") {
+                labelIdentite.innerHTML = `Carte d'identité, Passeport ou Titre de séjour <span class="text-brand-600">*</span>`;
+                containerVitale.classList.remove('hidden');
+                inputVitale.required = true;
+                msgInfoPieces.innerHTML = `<i class="fa-solid fa-circle-check mr-2"></i> Candidat résidant en France.`;
+            } else if (paysUE.includes(pays)) {
+                labelIdentite.innerHTML = `Carte d'identité, Passeport ou Titre de séjour <span class="text-brand-600">*</span>`;
+                containerVitale.classList.add('hidden');
+                inputVitale.required = false;
+                inputVitale.value = "";
+                msgInfoPieces.innerHTML = `<i class="fa-solid fa-circle-info mr-2"></i> Candidat résidant en Union Européenne (hors France). Carte Vitale non requise.`;
+            } else if (paysAfrique.includes(pays)) {
+                labelIdentite.innerHTML = `Passeport ou Carte d'identité <span class="text-brand-600">*</span>`;
+                containerVitale.classList.add('hidden');
+                inputVitale.required = false;
+                inputVitale.value = "";
+                msgInfoPieces.innerHTML = `<i class="fa-solid fa-circle-info mr-2"></i> Candidat résidant en Afrique. Carte Vitale non requise.`;
+            } else {
+                labelIdentite.innerHTML = `Passeport ou Carte d'identité <span class="text-brand-600">*</span>`;
+                containerVitale.classList.add('hidden');
+                inputVitale.required = false;
+                inputVitale.value = "";
+                msgInfoPieces.innerHTML = `<i class="fa-solid fa-circle-info mr-2"></i> Candidat International (hors UE/Afrique). Carte Vitale non requise.`;
+            }
+        }
+
+        // Handicap
+        document.querySelectorAll('input[name="handicap"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                const containerRqth = document.getElementById('container-rqth');
+                const inputRqth = document.getElementById('file_rqth');
+                if (e.target.value === "Oui") {
+                    containerRqth.classList.remove('hidden');
+                    inputRqth.required = true;
+                } else {
+                    containerRqth.classList.add('hidden');
+                    inputRqth.required = false;
+                    inputRqth.value = ""; 
+                }
+            });
+        });
+
+        function renderCountries(filter = "") {
+            const filtered = listePays.filter(pays => pays.toLowerCase().includes(filter.toLowerCase()));
+            countryListEl.innerHTML = "";
+            if(filtered.length === 0) {
+                countryListEl.innerHTML = '<li class="px-4 py-3 text-gray-500 italic">Aucun pays trouvé</li>';
+                return;
+            }
+            filtered.forEach(pays => {
+                const li = document.createElement('li');
+                li.className = "px-4 py-2 hover:bg-brand-50 hover:text-brand-600 cursor-pointer transition-colors font-medium";
+                if(filter) {
+                    const regex = new RegExp(`(${filter})`, "gi");
+                    li.innerHTML = pays.replace(regex, "<span class='font-bold text-brand-900'>$1</span>");
+                } else {
+                    li.textContent = pays;
+                }
+                li.onclick = () => {
+                    countryInput.value = pays;
+                    countryInput.setCustomValidity("");
+                    gererLogiquePays(pays);
+                    closeCountryDropdown();
+                };
+                countryListEl.appendChild(li);
+            });
+        }
+
+        function openCountryDropdown() { countryDropdown.classList.remove('hidden'); renderCountries(countryInput.value); }
+        function closeCountryDropdown() {
+            countryDropdown.classList.add('hidden');
+            if (countryInput.value && !listePays.includes(countryInput.value)) {
+                countryInput.setCustomValidity("Veuillez sélectionner un pays valide dans la liste.");
+            } else if (!countryInput.value) {
+                countryInput.setCustomValidity("Ce champ est obligatoire.");
+            } else {
+                countryInput.setCustomValidity("");
+                gererLogiquePays(countryInput.value); 
+            }
+        }
+
+        countryInput.addEventListener('focus', openCountryDropdown);
+        countryInput.addEventListener('click', openCountryDropdown);
+        countryInput.addEventListener('input', (e) => {
+            openCountryDropdown();
+            renderCountries(e.target.value);
+            if(!listePays.includes(e.target.value)){
+                 countryInput.setCustomValidity("Veuillez sélectionner un pays valide dans la liste.");
+            } else {
+                 countryInput.setCustomValidity("");
+            }
+        });
+
+        // --- 2. INDICATIFS TÉLÉPHONIQUES ---
+        // Les deux menus <select> contiennent les indicatifs internationaux.
+        document.addEventListener('click', (e) => {
+            const conteneurPays = document.getElementById('country-container');
+            if (conteneurPays && !conteneurPays.contains(e.target)) closeCountryDropdown();
+        });
+
+
+        // --- 3. BASE DE DONNÉES DU CURSUS ---
+        
+
+        // --- 3. BASE DE DONNÉES DU CURSUS EN CASCADE ---
+        const cursusCascadeData = {
+            "Bachelor 1": {
+                        "Commerce - Vente": [
+                                    "Bachelor Commerce International",
+                                    "Bachelor Négociation et Vente",
+                                    "Bachelor Start-up et Business Development",
+                                    "Bachelor Marketing et Communication",
+                                    "Bachelor Chef de Produit",
+                                    "Bachelor Gestion et Affaires Internationales",
+                                    "Responsable Établissement Marchand",
+                                    "Bachelor Gestion des Risques Interculturels",
+                                    "Bachelor Responsabilité Sociétale des Entreprises"
+                        ],
+                        "Technologie et Data Innovation": [
+                                    "Bachelor Informatique et Réseaux",
+                                    "Bachelor Développement Web et Application",
+                                    "Bachelor Marketing Digital et Data"
+                        ],
+                        "Finance": [
+                                    "Bachelor Finance et Comptabilité",
+                                    "Bachelor Gestion de Patrimoine"
+                        ],
+                        "Management et Gestion": [
+                                    "Bachelor Achats et Logistique",
+                                    "Bachelor Ressources Humaines",
+                                    "Bachelor Gestion de Projets"
+                        ],
+                        "Stratégie et Management International": [
+                                    "Bachelor Stratégie et Management International",
+                                    "Bachelor Commerce International et Logistique"
+                        ],
+                        "English Track": [
+                                    "Bachelor’s Degree in Sales and Negotiation",
+                                    "Bachelor’s Degree in Human Resources",
+                                    "Bachelor’s Degree in International Business",
+                                    "Bachelor’s Degree in Product Management",
+                                    "Bachelor’s Degree in Start-up and Business Development",
+                                    "Bachelor’s Degree in Procurement and Logistics",
+                                    "Bachelor’s Degree in Commercial Establishments Management",
+                                    "Bachelor’s Degree in Corporate Social Responsibility",
+                                    "Bachelor’s Degree in International Management and Business",
+                                    "Bachelor’s Degree in Project Management",
+                                    "Bachelor’s Degree in Marketing and Communication",
+                                    "Bachelor’s Degree in Intercultural Risk Management"
+                        ]
+            },
+            "Bachelor 2": {
+                        "Commerce - Vente": [
+                                    "Bachelor Commerce International",
+                                    "Bachelor Négociation et Vente",
+                                    "Bachelor Start-up et Business Development",
+                                    "Bachelor Marketing et Communication",
+                                    "Bachelor Chef de Produit",
+                                    "Bachelor Gestion et Affaires Internationales",
+                                    "Responsable Établissement Marchand",
+                                    "Bachelor Gestion des Risques Interculturels",
+                                    "Bachelor Responsabilité Sociétale des Entreprises"
+                        ],
+                        "Technologie et Data Innovation": [
+                                    "Bachelor Informatique et Réseaux",
+                                    "Bachelor Développement Web et Application",
+                                    "Bachelor Marketing Digital et Data"
+                        ],
+                        "Finance": [
+                                    "Bachelor Finance et Comptabilité",
+                                    "Bachelor Gestion de Patrimoine"
+                        ],
+                        "Management et Gestion": [
+                                    "Bachelor Achats et Logistique",
+                                    "Bachelor Ressources Humaines",
+                                    "Bachelor Gestion de Projets"
+                        ],
+                        "Stratégie et Management International": [
+                                    "Bachelor Stratégie et Management International",
+                                    "Bachelor Commerce International et Logistique"
+                        ],
+                        "English Track": [
+                                    "Bachelor’s Degree in Sales and Negotiation",
+                                    "Bachelor’s Degree in Human Resources",
+                                    "Bachelor’s Degree in International Business",
+                                    "Bachelor’s Degree in Product Management",
+                                    "Bachelor’s Degree in Start-up and Business Development",
+                                    "Bachelor’s Degree in Procurement and Logistics",
+                                    "Bachelor’s Degree in Commercial Establishments Management",
+                                    "Bachelor’s Degree in Corporate Social Responsibility",
+                                    "Bachelor’s Degree in International Management and Business",
+                                    "Bachelor’s Degree in Project Management",
+                                    "Bachelor’s Degree in Marketing and Communication",
+                                    "Bachelor’s Degree in Intercultural Risk Management"
+                        ]
+            },
+            "Bachelor 3": {
+                        "Commerce - Vente": [
+                                    "Bachelor Commerce International",
+                                    "Bachelor Négociation et Vente",
+                                    "Bachelor Start-up et Business Development",
+                                    "Bachelor Marketing et Communication",
+                                    "Bachelor Chef de Produit",
+                                    "Bachelor Gestion et Affaires Internationales",
+                                    "Responsable Établissement Marchand",
+                                    "Bachelor Gestion des Risques Interculturels",
+                                    "Bachelor Responsabilité Sociétale des Entreprises"
+                        ],
+                        "Technologie et Data Innovation": [
+                                    "Bachelor Informatique et Réseaux",
+                                    "Bachelor Développement Web et Application",
+                                    "Bachelor Marketing Digital et Data"
+                        ],
+                        "Finance": [
+                                    "Bachelor Finance et Comptabilité",
+                                    "Bachelor Gestion de Patrimoine"
+                        ],
+                        "Management et Gestion": [
+                                    "Bachelor Achats et Logistique",
+                                    "Bachelor Ressources Humaines",
+                                    "Bachelor Gestion de Projets"
+                        ],
+                        "Stratégie et Management International": [
+                                    "Bachelor Stratégie et Management International",
+                                    "Bachelor Commerce International et Logistique"
+                        ],
+                        "English Track": [
+                                    "Bachelor’s Degree in Sales and Negotiation",
+                                    "Bachelor’s Degree in Human Resources",
+                                    "Bachelor’s Degree in International Business",
+                                    "Bachelor’s Degree in Product Management",
+                                    "Bachelor’s Degree in Start-up and Business Development",
+                                    "Bachelor’s Degree in Procurement and Logistics",
+                                    "Bachelor’s Degree in Commercial Establishments Management",
+                                    "Bachelor’s Degree in Corporate Social Responsibility",
+                                    "Bachelor’s Degree in International Management and Business",
+                                    "Bachelor’s Degree in Project Management",
+                                    "Bachelor’s Degree in Marketing and Communication",
+                                    "Bachelor’s Degree in Intercultural Risk Management"
+                        ]
+            },
+            "Mastère 1": {
+                        "Commerce - Vente": [
+                                    "Mastère Commerce International et Digitalisation",
+                                    "Mastère Management des Produits Digitaux",
+                                    "Mastère Affaires Internationales et Enjeux Digitaux",
+                                    "Mastère Marketing et Communication Digitales"
+                        ],
+                        "Technologie et Data Innovation": [
+                                    "Mastère UX-Designer",
+                                    "Manager Entrepreneuriel de Projet Numérique et Stratégie Digitale",
+                                    "Mastère E-Santé et Transformation Digitale",
+                                    "Mastères Managements de Projets et de l'Innovation",
+                                    "Mastère Cybersécurité et Management des Données Personnelles"
+                        ],
+                        "Finance": [
+                                    "Mastère Banque Finance et Assurance",
+                                    "Mastère Comptabilité Audit et Contrôle de Gestion (CAC)",
+                                    "Mastère Finance de Marché et Management des Risques",
+                                    "Mastère E-Banking et Fintech"
+                        ],
+                        "Management et Gestion": [
+                                    "Mastère en Ingénieur(e) d'Affaires",
+                                    "Mastère Ressources Humaines",
+                                    "Mastère en Management de la Qualité Hygiène Sécurité Environnement",
+                                    "Mastère Management et Numérisation des Processus QHSE"
+                        ],
+                        "Stratégie et Management International": [
+                                    "Mastère Management et Stratégie",
+                                    "Mastère en Management Stratégique et Intelligence Économique"
+                        ],
+                        "English Track": [
+                                    "Master’s Degree in E-Health and Digital Transformation",
+                                    "Master’s Degree in UX Design",
+                                    "Master’s Degree in Project and Innovation Management",
+                                    "Master’s Degree in Quality, Health, Safety, and Environment Management",
+                                    "Master’s Degree in Business Development Management",
+                                    "Master’s Degree in Digital Product Management",
+                                    "Master’s Degree in Human Resources and Digitisation of Operations",
+                                    "Master’s Degree in Management and Strategy",
+                                    "Master’s Degree in Entrepreneurial Management of Digital Projects and Digital Strategy",
+                                    "Master’s Degree in Digital Marketing and Communication",
+                                    "Master’s Degree in Management and Digitisation of QHSE Processes"
+                        ]
+            },
+            "Mastère 2": {
+                        "Commerce - Vente": [
+                                    "Mastère Commerce International et Digitalisation",
+                                    "Mastère Management des Produits Digitaux",
+                                    "Mastère Affaires Internationales et Enjeux Digitaux",
+                                    "Mastère Marketing et Communication Digitales"
+                        ],
+                        "Technologie et Data Innovation": [
+                                    "Mastère UX-Designer",
+                                    "Manager Entrepreneuriel de Projet Numérique et Stratégie Digitale",
+                                    "Mastère E-Santé et Transformation Digitale",
+                                    "Mastères Managements de Projets et de l'Innovation",
+                                    "Mastère Cybersécurité et Management des Données Personnelles"
+                        ],
+                        "Finance": [
+                                    "Mastère Banque Finance et Assurance",
+                                    "Mastère Comptabilité Audit et Contrôle de Gestion (CAC)",
+                                    "Mastère Finance de Marché et Management des Risques",
+                                    "Mastère E-Banking et Fintech"
+                        ],
+                        "Management et Gestion": [
+                                    "Mastère en Ingénieur(e) d'Affaires",
+                                    "Mastère Ressources Humaines",
+                                    "Mastère en Management de la Qualité Hygiène Sécurité Environnement",
+                                    "Mastère Management et Numérisation des Processus QHSE"
+                        ],
+                        "Stratégie et Management International": [
+                                    "Mastère Management et Stratégie",
+                                    "Mastère en Management Stratégique et Intelligence Économique"
+                        ],
+                        "English Track": [
+                                    "Master’s Degree in E-Health and Digital Transformation",
+                                    "Master’s Degree in UX Design",
+                                    "Master’s Degree in Project and Innovation Management",
+                                    "Master’s Degree in Quality, Health, Safety, and Environment Management",
+                                    "Master’s Degree in Business Development Management",
+                                    "Master’s Degree in Digital Product Management",
+                                    "Master’s Degree in Human Resources and Digitisation of Operations",
+                                    "Master’s Degree in Management and Strategy",
+                                    "Master’s Degree in Entrepreneurial Management of Digital Projects and Digital Strategy",
+                                    "Master’s Degree in Digital Marketing and Communication",
+                                    "Master’s Degree in Management and Digitisation of QHSE Processes"
+                        ]
+            },
+            "Master spécialisé": {
+                        "Commerce - Vente": [
+                                    "Mastère Spécialisé en Commerce International et Digitalisation",
+                                    "Mastère Spécialisé en Management des Produits Digitaux",
+                                    "Mastère Spécialisé Marketing, Communication Internationale et Digitale",
+                                    "Mastère Spécialisé en Affaires Internationales et Enjeux Digitaux",
+                                    "Mastère Spécialisé en Marketing et Communication Digitale",
+                                    "Mastère Spécialisé en Ingénieur(e) d’Affaires"
+                        ],
+                        "Technologie et Data Innovation": [
+                                    "Mastère Spécialisé UX Designer",
+                                    "Mastère Spécialisé en Management de Projets et de l’Innovation",
+                                    "Mastère Spécialisé en Manager Entrepreneuriel de Projet Numérique et Stratégie Digitale",
+                                    "Mastère Spécialisé Cybersécurité et Management des Données Personnelles",
+                                    "Mastère Spécialisé Management International et Transformation Digitale",
+                                    "Mastère Spécialisé en E-Santé et Transformation Digitale"
+                        ],
+                        "Finance": [
+                                    "Mastère Spécialisé en Banque Finance et Assurance",
+                                    "Mastère Spécialisé en Finance de Marché et Management des Risques",
+                                    "Mastère Spécialisé en Comptabilité Audit et Contrôle de Gestion (CAC)",
+                                    "Mastère Spécialisé en E-Banking et Fintech"
+                        ],
+                        "Management et Gestion": [
+                                    "Mastère Spécialisé en Management Stratégique et Intelligence Économique",
+                                    "Mastère Spécialisé en Management de la Qualité, Hygiène, Sécurité et Environnement",
+                                    "Mastère Spécialisé en Management et Numérisation des Processus QHSE"
+                        ],
+                        "Stratégie et Management International": [
+                                    "Mastère Spécialisé en Management International des Projets et Digitalisation des Process",
+                                    "Mastère Spécialisé en Management et Stratégie",
+                                    "Mastère Spécialisé Management International des RH et Numérisation des Opérations"
+                        ]
+            },
+            "MBA": {
+                        "MBA": [
+                                    "Master of Business Administration (MBA)"
+                        ]
+            }
+};
+
+        function resetSelectCascade(select, placeholder) {
+            select.innerHTML = `<option value="" selected disabled>${placeholder}</option>`;
+            select.disabled = true;
+        }
+
+        const NIVEAUX_PAR_CYCLE = Object.freeze({
+            "Bachelor": Object.freeze([
+                Object.freeze({ value: "Bachelor 1", label: "Bachelor 1" }),
+                Object.freeze({ value: "Bachelor 2", label: "Bachelor 2" }),
+                Object.freeze({ value: "Bachelor 3", label: "Bachelor 3" })
+            ]),
+            "Mastère": Object.freeze([
+                Object.freeze({ value: "Master 1", label: "Mastère 1" }),
+                Object.freeze({ value: "Master 2", label: "Mastère 2" })
+            ]),
+            "Mastère spécialisé": Object.freeze([
+                Object.freeze({ value: "Master spécialisé", label: "Mastère spécialisé" })
+            ]),
+            "MBA": Object.freeze([
+                Object.freeze({ value: "MBA", label: "MBA" })
+            ]),
+            "English Track": Object.freeze([
+                Object.freeze({ value: "Bachelor Degree", label: "Bachelor Degree" }),
+                Object.freeze({ value: "Master Degree", label: "Master Degree" })
+            ])
+        });
+
+        function formationsEnglishTrack(niveau) {
+            const niveauxSources = niveau === "Bachelor Degree"
+                ? ["Bachelor 1", "Bachelor 2", "Bachelor 3"]
+                : niveau === "Master Degree"
+                    ? ["Master 1", "Master 2"]
+                    : [];
+
+            const formations = [];
+            niveauxSources.forEach(niveauSource => {
+                const liste = cursusCascadeData[niveauSource]?.["English Track"] || [];
+                liste.forEach(formation => {
+                    if (!formations.includes(formation)) formations.push(formation);
+                });
+            });
+            return formations;
+        }
+
+        function niveauDisponiblePourCycle(cycle, niveau) {
+            if (cycle === "English Track") {
+                return formationsEnglishTrack(niveau).length > 0;
+            }
+
+            const domaines = cursusCascadeData[niveau] || {};
+            return Object.keys(domaines).some(domaine =>
+                domaine !== "English Track" &&
+                Array.isArray(domaines[domaine]) &&
+                domaines[domaine].length > 0
+            );
+        }
+
+        function cycleDisponible(cycle) {
+            return (NIVEAUX_PAR_CYCLE[cycle] || []).some(item =>
+                niveauDisponiblePourCycle(cycle, item.value)
+            );
+        }
+
+        function updateCycles() {
+            const campus = document.getElementById('campus').value;
+            const cycleSelect = document.getElementById('cycle');
+            const niveauSelect = document.getElementById('niveau_academique');
+            const domaineSelect = document.getElementById('domaine');
+            const formationSelect = document.getElementById('formation');
+
+            resetSelectCascade(niveauSelect, '-- Sélectionnez d’abord le cycle --');
+            resetSelectCascade(domaineSelect, '-- Sélectionnez d’abord le niveau --');
+            resetSelectCascade(formationSelect, '-- Sélectionnez d’abord le domaine --');
+
+            if (!campus) {
+                resetSelectCascade(cycleSelect, '-- Sélectionnez d’abord le campus --');
+                return;
+            }
+
+            const cycles = Object.keys(NIVEAUX_PAR_CYCLE).filter(cycleDisponible);
+            cycleSelect.innerHTML = '<option value="" selected disabled>-- Sélectionnez le cycle --</option>';
+            cycles.forEach(cycle => {
+                const option = document.createElement('option');
+                option.value = cycle;
+                option.textContent = cycle;
+                cycleSelect.appendChild(option);
+            });
+            cycleSelect.disabled = cycles.length === 0;
+        }
+
+        function updateNiveaux() {
+            const cycle = document.getElementById('cycle').value;
+            const niveauSelect = document.getElementById('niveau_academique');
+            const domaineSelect = document.getElementById('domaine');
+            const formationSelect = document.getElementById('formation');
+
+            resetSelectCascade(domaineSelect, '-- Sélectionnez d’abord le niveau --');
+            resetSelectCascade(formationSelect, '-- Sélectionnez d’abord le domaine --');
+
+            if (!cycle || !NIVEAUX_PAR_CYCLE[cycle]) {
+                resetSelectCascade(niveauSelect, '-- Sélectionnez d’abord le cycle --');
+                return;
+            }
+
+            const niveaux = NIVEAUX_PAR_CYCLE[cycle].filter(item =>
+                niveauDisponiblePourCycle(cycle, item.value)
+            );
+
+            niveauSelect.innerHTML = '<option value="" selected disabled>-- Sélectionnez le niveau académique --</option>';
+            niveaux.forEach(item => {
+                const option = document.createElement('option');
+                option.value = item.value;
+                option.textContent = item.label;
+                niveauSelect.appendChild(option);
+            });
+            niveauSelect.disabled = niveaux.length === 0;
+        }
+
+        function updateDomaines() {
+            const cycle = document.getElementById('cycle').value;
+            const niveau = document.getElementById('niveau_academique').value;
+            const domaineSelect = document.getElementById('domaine');
+            const formationSelect = document.getElementById('formation');
+
+            resetSelectCascade(formationSelect, '-- Sélectionnez d’abord le domaine --');
+
+            if (!cycle || !niveau) {
+                resetSelectCascade(domaineSelect, '-- Sélectionnez d’abord le niveau --');
+                return;
+            }
+
+            let domaines = [];
+            if (cycle === "English Track") {
+                if (formationsEnglishTrack(niveau).length > 0) domaines = ["English Track"];
+            } else {
+                domaines = Object.keys(cursusCascadeData[niveau] || {}).filter(domaine =>
+                    domaine !== "English Track" &&
+                    Array.isArray(cursusCascadeData[niveau][domaine]) &&
+                    cursusCascadeData[niveau][domaine].length > 0
+                );
+            }
+
+            domaineSelect.innerHTML = '<option value="" selected disabled>-- Sélectionnez le domaine --</option>';
+            domaines.forEach(domaine => {
+                const option = document.createElement('option');
+                option.value = domaine;
+                option.textContent = domaine;
+                domaineSelect.appendChild(option);
+            });
+            domaineSelect.disabled = domaines.length === 0;
+        }
+
+        function updateFormationsCascade() {
+            const cycle = document.getElementById('cycle').value;
+            const niveau = document.getElementById('niveau_academique').value;
+            const domaine = document.getElementById('domaine').value;
+            const formationSelect = document.getElementById('formation');
+
+            const formations = cycle === "English Track"
+                ? formationsEnglishTrack(niveau)
+                : (cursusCascadeData[niveau]?.[domaine] || []);
+
+            formationSelect.innerHTML = '<option value="" selected disabled>-- Sélectionnez la formation --</option>';
+            formations.forEach(formation => {
+                const option = document.createElement('option');
+                option.value = formation;
+                option.textContent = formation;
+                formationSelect.appendChild(option);
+            });
+            formationSelect.disabled = formations.length === 0;
+        }
+
+        function mettreAJourRythmes(paysForce) {
+            const pays = String(paysForce || document.getElementById('pays_residence')?.value || '').trim();
+            const select = document.getElementById('rythme');
+            const message = document.getElementById('msg-rythme-etranger');
+            if (!select) return;
+
+            const valeurActuelle = select.value;
+            const options = [
+                { value: 'Présentiel', label: 'Présentiel' },
+                { value: 'En ligne', label: 'En ligne' }
+            ];
+
+            if (pays === 'France') {
+                options.push(
+                    { value: 'Alternance - Présentiel', label: 'Alternance — Présentiel' },
+                    { value: 'Alternance - En ligne', label: 'Alternance — En ligne' }
+                );
+                message?.classList.add('hidden');
+            } else {
+                message?.classList.remove('hidden');
+            }
+
+            select.innerHTML = '<option value="" disabled>-- Sélectionnez le rythme --</option>';
+            options.forEach(item => {
+                const option = document.createElement('option');
+                option.value = item.value;
+                option.textContent = item.label;
+                select.appendChild(option);
+            });
+
+            const valeursAutorisees = options.map(item => item.value);
+            select.value = valeursAutorisees.includes(valeurActuelle) ? valeurActuelle : '';
+        }
+
+        // Compatibilité avec l’ancien nom de la fonction de formation.
+        // Ne jamais redéfinir updateNiveaux ici : cette fonction pilote réellement
+        // le déblocage du niveau académique après le choix du cycle.
+        function updateFormations() { updateFormationsCascade(); }
+
+        // Initialisation propre de toute la cascade au chargement du script.
+        updateCycles();
+        mettreAJourRythmes();
+
+
+        // --- 4. NAVIGATION ET VALIDATION ---
+        function updateUI() {
+            const dots = document.querySelectorAll('.step-dot');
+            const progressLine = document.getElementById('progress-line');
+            
+            dots.forEach((dot, index) => {
+                const circle = dot.querySelector('div');
+                const label = dot.querySelector('span');
+                const stepNum = index + 1;
+
+                if (stepNum < currentStep) {
+                    circle.className = "w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm bg-brand-900 text-white shadow-md transition-all duration-500";
+                    label.className = "text-[10px] font-bold uppercase tracking-wider mt-2 text-center text-brand-900 hidden sm:block transition-colors duration-300";
+                    circle.innerHTML = '<i class="fa-solid fa-check"></i>';
+                } else if (stepNum === currentStep) {
+                    circle.className = "w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm bg-brand-600 text-white shadow-lg transition-all duration-500 scale-110";
+                    label.className = "text-[10px] font-bold uppercase tracking-wider mt-2 text-center text-brand-600 hidden sm:block transition-colors duration-300";
+                    circle.innerHTML = stepNum;
+                } else {
+                    circle.className = "w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm bg-white border-2 border-gray-300 transition-all duration-500 text-gray-400";
+                    label.className = "text-[10px] font-bold uppercase tracking-wider mt-2 text-center text-gray-400 hidden sm:block transition-colors duration-300";
+                    circle.innerHTML = stepNum;
+                }
+            });
+
+            progressLine.style.width = `${((currentStep - 1) / (totalSteps - 1)) * 100}%`;
+
+            const btnPrev = document.getElementById('btn-prev');
+            const spacer = document.getElementById('spacer');
+            const btnNext = document.getElementById('btn-next');
+            const btnSubmit = document.getElementById('btn-submit');
+
+            if (currentStep === 1) { btnPrev.classList.add('hidden'); spacer.style.display = "block"; } 
+            else { btnPrev.classList.remove('hidden'); spacer.style.display = "none"; }
+
+            if (currentStep === totalSteps) { btnNext.classList.add('hidden'); btnSubmit.classList.remove('hidden'); } 
+            else { btnNext.classList.remove('hidden'); btnSubmit.classList.add('hidden'); }
+        }
+
+        function validateCurrentStep() {
+            const currentStepDiv = document.getElementById(`step-${currentStep}`);
+            const inputs = currentStepDiv.querySelectorAll('input:not([type="radio"]):not([disabled])[required], select:not([disabled])[required], textarea:not([disabled])[required]');
+            let isValid = true;
+
+            if(currentStep === 1) closeCountryDropdown(); 
+
+            inputs.forEach(input => {
+                if (!input.checkValidity()) {
+                    input.reportValidity(); 
+                    input.classList.add('border-red-500');
+                    setTimeout(() => input.classList.remove('border-red-500'), 3000);
+                    isValid = false;
+                }
+            });
+
+            const radioGroups = {};
+            currentStepDiv.querySelectorAll('input[type="radio"]:not([disabled])[required]').forEach(radio => {
+                if (!radioGroups[radio.name]) radioGroups[radio.name] = [];
+                radioGroups[radio.name].push(radio);
+            });
+
+            for (const name in radioGroups) {
+                const radios = document.querySelectorAll(`input[name="${name}"]:not([disabled])`); 
+                let isChecked = false;
+                radios.forEach(r => { if (r.checked) isChecked = true; });
+                if (!isChecked && radios.length > 0) {
+                    radios[0].reportValidity();
+                    isValid = false;
+                }
+            }
+
+            return isValid;
+        }
+
+        function changeStep(direction) {
+            if (direction === 1 && !validateCurrentStep()) {
+                document.getElementById('error-message').classList.remove('hidden');
+                return;
+            }
+            
+            document.getElementById('error-message').classList.add('hidden');
+
+            const currentContainer = document.getElementById(`step-${currentStep}`);
+            currentContainer.classList.remove('active');
+            
+            setTimeout(() => {
+                currentStep += direction;
+                const nextContainer = document.getElementById(`step-${currentStep}`);
+                nextContainer.classList.add('active');
+                updateUI();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }, 300);
+        }
+
+                // ============================================================
+        // CONNEXION AU BACKEND CENTRAL GOOGLE APPS SCRIPT
+        // Remplacer apiUrl par l'URL /exec du déploiement Apps Script.
+        // ============================================================
+        const ADMISSION_CONFIG = {
+            ecole: "EMSP",
+            apiUrl: "https://ppqeuluykiknuujfaoid.supabase.co/functions/v1/mbn-form-ingest",
+            tailleMaxParFichier: 5 * 1024 * 1024,
+            tailleMaxTotale: 20 * 1024 * 1024
+        };
+
+        
+
+        function afficherConfirmationSoumission(resultat) {
+            document.querySelectorAll('.step-container').forEach(element => {
+                element.style.display = 'none';
+            });
+
+            const navigation = document.getElementById('form-navigation');
+            if (navigation) navigation.style.display = 'none';
+
+            const barreProgression = document.getElementById('progress-line');
+            const stepper = barreProgression ? barreProgression.closest('.mb-10, .mb-8') : null;
+            if (stepper) stepper.style.display = 'none';
+
+            const successScreen = document.getElementById('success-screen');
+            if (!successScreen) return;
+
+            const reference = resultat.reference || resultat.numero || resultat.numeroDossier || "";
+            let referenceElement = document.getElementById('display-num-dossier');
+
+            if (reference) {
+                if (!referenceElement) {
+                    referenceElement = document.createElement('p');
+                    referenceElement.id = 'display-num-dossier';
+                    referenceElement.className = 'mt-4 font-bold text-lg';
+                    successScreen.appendChild(referenceElement);
+                }
+                referenceElement.textContent = reference;
+            }
+
+            successScreen.classList.remove('hidden');
+        }
+
+        async function submitForm() { return window.mbnSubmitNative(); }
+
+        window.onload = () => {
+            updateUI();
+            updateCycles();
+            mettreAJourRythmes();
+            document.getElementById('pays_residence').setCustomValidity("Ce champ est obligatoire.");
+            
+            document.getElementById('financement_hors_fr').disabled = true;
+            document.getElementById('financement_hors_fr').required = false;
+            document.getElementById('financement_fr').disabled = false;
+            document.getElementById('financement_fr').required = true;
+        };
+    </script>
+<script src="../assets/auth-client.js" defer></script><script src="../assets/native-client.js" defer></script></body>
+</html>
