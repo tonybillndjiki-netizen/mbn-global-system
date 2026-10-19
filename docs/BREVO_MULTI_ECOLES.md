@@ -21,7 +21,7 @@ réussi. Cela ne prouve pas la livraison d'un e-mail réel.
 
 Trois profils sont disponibles :
 
-| Code | Nom initial, modifiable | Usage prévu |
+| Code | Nom du groupe, modifiable | Usage prévu |
 | --- | --- | --- |
 | `MBN_GLOBAL` | MBN Global Éducation | Écoles rattachées à MBN, quel que soit leur campus |
 | `CAMPUS_INNOVATION_MLV` | Campus Innovation Marne-la-Vallée | Les huit écoles de Noisiel |
@@ -37,7 +37,11 @@ Le troisième profil est ajouté par une nouvelle migration additive,
 expéditeurs. Les routes et les preuves existantes des deux premiers profils
 sont conservées. Aucun expéditeur déjà configuré n’est remplacé.
 Ils utilisent une clé Brevo commune, un suivi de livraison commun et un plafond
-quotidien commun. Le nom et l'adresse d'expédition sont propres à chaque profil.
+quotidien commun. L’adresse d’expédition est propre à chaque profil.
+Le nom affiché au destinataire est calculé automatiquement :
+**Service admissions — [nom de l’école]**. Le nom du groupe est un libellé
+d’administration ; il ne remplace pas ce nom visible. Les campagnes, les tests
+et les lettres appliquent la même règle depuis `assets/branding.js`.
 Les réponses restent dirigées vers l'adresse automatique d'expédition.
 
 Un administrateur renseigne, pour chaque école, le groupe et le contact du
@@ -124,16 +128,18 @@ livrés ensemble dans l'environnement de validation lors de la mise en service.
 
 ## Validation et éléments encore nécessaires
 
-`npm run check` : **161 tests réussis**, typage réussi et paquet statique
+`npm run check` : **162 tests réussis**, typage réussi et paquet statique
 construit. Les contrôles couvrent les trois expéditeurs, leurs preuves de remise
 séparées, le plafond commun et le changement de groupe d’une école. Ils vérifient
 que les quatre écoles du profil commun gardent leur propre contact admissions,
 que les messages déjà envoyés conservent leur identité et que les campus restent
-inchangés. Les échanges Brevo sont simulés ; aucun e-mail réel n’a été envoyé.
+inchangés. Un test suit deux écoles partageant une adresse jusqu’au JSON
+Brevo et vérifie leurs deux noms affichés distincts. Les lettres vérifient
+également le nom « Service admissions — école ». Les échanges Brevo sont simulés ; aucun e-mail réel n’a été envoyé.
 
 Une vérification du front dans un DOM simulé a contrôlé les trois profils,
 les 19 formulaires, le changement ESETH de MBN vers le profil commun et sa
-persistance après rechargement, le renommage de l’expéditeur, le plafond et
+persistance après rechargement, le renommage du groupe, le plafond et
 l’aperçu bloqué d’une école sans groupe. La vérification visuelle dans un
 navigateur reste à réaliser ; aucun moteur de navigateur n’est installé ici.
 Les tests de base utilisent PGlite et le schéma initial de référence fourni par
@@ -142,7 +148,7 @@ chantier distinct identifié dans le PDF du responsable.
 
 Pour mettre les envois en service, il reste à fournir et vérifier :
 
-- Les trois adresses automatiques exactes et leurs noms d'expéditeur.
+- Les trois adresses automatiques exactes et les noms des groupes d’expédition.
 - Le rattachement confirmé des 19 écoles à ces trois groupes.
 - Le contact réel du service des admissions pour chaque école.
 - La clé API installée directement dans les secrets du serveur, les trois

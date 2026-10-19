@@ -12,12 +12,16 @@ Version 0.8.0 · lot trois expéditeurs du 19 octobre 2026. Le serveur et les le
 ## Mise en service
 
 1. Ouvrir [les secrets des fonctions Supabase](https://supabase.com/dashboard/project/ppqeuluykiknuujfaoid/functions/secrets). Ajouter **MBN_BREVO_API_KEY**, coller la clé Brevo comme valeur, puis enregistrer. Garder cette valeur hors des fichiers du site et des conversations.
-2. Après validation et livraison de ce lot, ouvrir **Connexion e-mail** dans [MBN GLOBAL](https://mbn-global.netlify.app/mbn_global_admin_supabase). Enregistrer le nom et l’adresse de chacun des trois expéditeurs en laissant leurs envois en pause. Régler le plafond quotidien total.
+2. Après validation et livraison de ce lot, ouvrir **Connexion e-mail** dans [MBN GLOBAL](https://mbn-global.netlify.app/mbn_global_admin_supabase). Enregistrer le nom du groupe et l’adresse de chacun des trois expéditeurs en laissant leurs envois en pause. Régler le plafond quotidien total.
 3. Dans **Écoles et adresses de contact**, renseigner puis enregistrer le groupe et le contact admissions de chaque école. Une école sans groupe ou sans contact ne sera pas envoyée. Au moins une école active et configurée est nécessaire pour tester chaque groupe.
 4. Cliquer **Vérifier cet expéditeur** pour chaque profil. L’application contrôle l’adresse dans les expéditeurs actifs, l’activation de l’envoi transactionnel et les crédits e-mail retournés par le compte.
 5. Cliquer une fois **Configurer les retours Brevo** dans la partie commune. L’application crée ou met à jour uniquement son propre webhook, avec un secret d’authentification généré côté serveur. Elle ne modifie pas les webhooks des autres applications. Refaire cette configuration invalide les tests de tous les profils.
 6. Avec l’autorisation d’effectuer des envois réels, cliquer **M’envoyer son test** pour chaque expéditeur. Le destinataire est limité à l’adresse confirmée du compte administrateur connecté. Vérifier le message et son contact admissions, puis cliquer **Actualiser les statuts** jusqu’à la remise confirmée pour chacun des trois profils.
 7. Cocher **Activer les envois de ce groupe**, puis enregistrer pour chaque groupe prêt. Le serveur refuse l’activation avant la remise du test correspondant à son identité actuelle et à la clé commune. La réussite du test d’un autre groupe ne suffit pas.
+
+## Nom affiché au destinataire
+
+Les campagnes, les lettres et les tests utilisent automatiquement **Service admissions — [nom de l’école]**, par exemple **Service admissions — ESIIA**, **Service admissions — CESCOM** ou **Service admissions — Évry BTS**. Le nom provient du code de l’école enregistré côté serveur. Deux écoles peuvent partager la même adresse automatique tout en affichant chacune leur propre nom. Le nom du groupe saisi dans l’administration sert à identifier le profil ; il ne remplace pas le nom affiché au candidat.
 
 ## Changer le groupe d’expédition d’une école
 
@@ -41,7 +45,7 @@ La séquence Meta reste J0, J+2, J+4 et J+6. Le consentement, les exclusions, l�
 - Les notifications sont dédupliquées. Rejets permanents et plaintes excluent l’adresse des envois suivants ; les désinscriptions arrêtent les campagnes de cette adresse dans les écoles concernées.
 - Les coupures après transmission ou réponses ambiguës restent **Envoi à vérifier**, sans nouvel envoi automatique.
 - Un retour arrivé avant la fin de l’envoi reçoit une réponse 429 pour permettre la nouvelle tentative Brevo. Les retours peuvent donc être différés. Une réponse 5xx arrêterait les nouvelles tentatives selon la documentation Brevo.
-- Un changement de nom ou d’adresse invalide le test de cet expéditeur. Une nouvelle clé API impose de reconfigurer les retours et de refaire les tests de chaque expéditeur. Une modification du groupe ou du contact d’une école révoque les messages déjà réservés qui utilisent l’ancienne configuration.
+- Un changement de nom du groupe ou d’adresse invalide le test de cet expéditeur. Une nouvelle clé API impose de reconfigurer les retours et de refaire les tests de chaque expéditeur. Une modification du groupe ou du contact d’une école révoque les messages déjà réservés qui utilisent l’ancienne configuration.
 - Le plafond quotidien MBN est commun aux trois groupes, tests et lettres compris. Les limites du compte Brevo s’appliquent aussi. Les crédits SMS ne sont pas comptés comme crédits e-mail. Aucun volume d’envoi n’est garanti par le code.
 
 Endpoint des retours : `https://ppqeuluykiknuujfaoid.supabase.co/functions/v1/mbn-brevo-events`.

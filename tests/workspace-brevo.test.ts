@@ -78,7 +78,7 @@ test('dispatch chooses all three server-side sender snapshots and keeps replies 
   },transport:{configured:true,inspect:async s=>({sender_verified:firstReady||s.code!=='MBN_GLOBAL',production_access:true,account_sending_enabled:true,remaining:10,rate:1}),send:async(s,m)=>{sent.push({s,m});return {status:'ACCEPTED',provider_id:'<'+m.id+'>'};}},download:async()=>new Uint8Array(),sleep:async()=>{}});
   const response=await handler(new Request('https://example.invalid',{method:'POST',headers:{authorization:'Bearer '+'t'.repeat(30)},body:JSON.stringify({action:'dispatch'})}));
   assert.equal(response.status,200);const result=await response.json();assert.equal(result.processed,firstReady?3:2);assert.equal(sent.length,firstReady?3:2);assert.equal(finished.length,sent.length);
-  for(const {s,m} of sent){assert.equal(s.reply_to,s.from_email);assert.ok(m.text.includes(s.code.toLowerCase()+'-service@example.invalid'));assert.equal(m.recipient,s.code.toLowerCase()+'-candidate@example.invalid');}
+  for(const {s,m} of sent){assert.equal(s.from_name,({MBN_GLOBAL:'Service admissions — EMSP',CAMPUS_INNOVATION_MLV:'Service admissions — Marne-la-Vallée BTS',ADMISSIONS_COMMUN:'Service admissions — ESETH'} as Record<string,string>)[s.code]);assert.equal(s.reply_to,s.from_email);assert.ok(m.text.includes(s.code.toLowerCase()+'-service@example.invalid'));assert.equal(m.recipient,s.code.toLowerCase()+'-candidate@example.invalid');}
   assert.ok(sent.some(({s})=>s.code==='CAMPUS_INNOVATION_MLV'));assert.ok(sent.some(({s})=>s.code==='ADMISSIONS_COMMUN'));assert.equal(result.skipped.length,firstReady?0:1);
  }
 });
@@ -103,7 +103,35 @@ test('an administrator can explicitly select the neutral third sender for its ow
   }
   if(name==='mbn_mail_profile_authorized'||name==='mbn_mail_finish')return {data:true,error:null};
   throw Error('Unexpected RPC '+name);
- },transport:{configured:true,inspect:async()=>({sender_verified:true,production_access:true,account_sending_enabled:true,remaining:10,rate:1}),send:async(s,m)=>{sent++;assert.equal(s.from_name,'Service admissions');assert.equal(s.reply_to,s.from_email);assert.ok(m.text.includes('eseth-service@example.invalid'));return {status:'ACCEPTED',provider_id:'<neutral-test>'};}},download:async()=>new Uint8Array(),sleep:async()=>{}});
+ },transport:{configured:true,inspect:async()=>({sender_verified:true,production_access:true,account_sending_enabled:true,remaining:10,rate:1}),send:async(s,m)=>{sent++;assert.equal(s.from_name,'Service admissions — ESETH');assert.equal(s.reply_to,s.from_email);assert.ok(m.text.includes('eseth-service@example.invalid'));return {status:'ACCEPTED',provider_id:'<neutral-test>'};}},download:async()=>new Uint8Array(),sleep:async()=>{}});
  const response=await handler(new Request('https://example.invalid',{method:'POST',headers:{authorization:'Bearer '+'t'.repeat(30)},body:JSON.stringify({action:'test_send',data:{sender_group:'ADMISSIONS_COMMUN'}})}));
  assert.equal(response.status,200);assert.equal((await response.json()).processed,1);assert.equal(sent,1);assert.equal(prepared,true);
+});
+
+test('two schools sharing an address reach Brevo with different school-specific sender names',async()=>{
+ const profile={...sender,code:'ADMISSIONS_COMMUN',revision:id,from_name:'Internal group label',from_email:'no-reply@commun.example.invalid',enabled:true};
+ const schools=['ESETH','LSB'],payloads:any[]=[];
+ const brevo=createBrevo('synthetic',async(url,init)=>{
+  if(String(url).endsWith('/account'))return new Response(JSON.stringify({relay:{enabled:true},plan:[{type:'free',credits:10}]}));
+  if(String(url).endsWith('/senders'))return new Response(JSON.stringify({senders:[{email:profile.from_email,active:true}]}));
+  assert.equal(String(url),'https://api.brevo.com/v3/smtp/email');
+  payloads.push(JSON.parse(String(init?.body)));return new Response(JSON.stringify({messageId:'<school-'+payloads.length+'>'}),{status:201});
+ });
+ const handler=workspace({authenticate:async()=>({id,session_id:other}),rpc:async(name,args)=>{
+  if(name==='mbn_workspace_action')return {data:{},error:null};
+  if(name==='mbn_mail_profile_settings'||name==='mbn_mail_profile_checked')return {data:profile,error:null};
+  if(name==='mbn_mail_profile_claim'){
+   const school_code=schools.shift();if(!school_code)return {data:null,error:null};
+   return {data:{id:school_code==='ESETH'?id:other,attempt_id:other,lead_id:id,school_code,recipient:school_code.toLowerCase()+'-candidate@example.invalid',subject:'Admission',body:'Synthetic',service_contact_email:school_code.toLowerCase()+'-admissions@example.invalid',sender:profile,lead:{full_name:'Synthetic'}},error:null};
+  }
+  if(name==='mbn_mail_link')return {data:{id,revoked:false,expires_at:'2099-01-01'},error:null};
+  if(name==='mbn_runtime_key')return {data:secret,error:null};
+  if(name==='mbn_mail_profile_authorized'||name==='mbn_mail_finish')return {data:true,error:null};
+  throw Error('Unexpected RPC '+name);
+ },transport:brevo,download:async()=>new Uint8Array(),sleep:async()=>{}});
+ const response=await handler(new Request('https://example.invalid',{method:'POST',headers:{authorization:'Bearer '+'t'.repeat(30)},body:JSON.stringify({action:'dispatch',data:{sender_group:'ADMISSIONS_COMMUN'}})}));
+ assert.equal(response.status,200);assert.equal((await response.json()).processed,2);
+ assert.deepEqual(payloads.map(p=>p.sender),[{name:'Service admissions — ESETH',email:profile.from_email},{name:'Service admissions — LSB',email:profile.from_email}]);
+ assert.ok(payloads[0].textContent.includes('eseth-admissions@example.invalid'));assert.ok(payloads[1].textContent.includes('lsb-admissions@example.invalid'));
+ assert.ok(payloads.every(p=>p.replyTo.email===profile.from_email));
 });

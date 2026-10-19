@@ -1,7 +1,7 @@
 import {AppError,object,json,readJSON,rpcError,UUID,renderMessage,type Actor} from '../mbn-workspace/handler.ts';
 import {digest} from '../mbn-form-ingest/handler.ts';
 import type {Sender,Inspection,Outcome,Attachment} from '../mbn-workspace/ses.ts';
-import {brandFor} from '../../../assets/branding.js';
+import {brandFor,admissionsSenderName} from '../../../assets/branding.js';
 import {makeLetterPDF} from './pdf.ts';
 import {admissionMail} from './template.ts';
 type Asset={key:string;bucket:string;object_path:string;sha256:string;byte_size:number;mime_type:string;filename:string};
@@ -85,7 +85,7 @@ export function createHandler(deps:Dependencies){
       if(!message.service_contact_email)throw new AppError('mail_route_missing',422);
       const sender=object(claim.sender);
       const rendered=renderMessage({school_code:row.school_code,lead:{full_name:row.fields.full_name},subject:'Votre admission · '+row.fields.school_name,body:admissionMail(row.fields),service_contact_email:message.service_contact_email});
-      outcome=await deps.transport.send({...sender,reply_to:sender.from_email}as Sender,{id:message.id,recipient:row.fields.email,...rendered,attachments});
+      outcome=await deps.transport.send({...sender,from_name:admissionsSenderName(row.school_code),reply_to:sender.from_email}as Sender,{id:message.id,recipient:row.fields.email,...rendered,attachments});
      }
     }catch{outcome={status:'UNCERTAIN',error:'brevo_acceptance_uncertain'};}
     await rpc('mbn_letter_finish',{p_id:message.id,p_attempt:message.attempt_id,p_status:outcome.status,p_provider_id:outcome.provider_id||null,p_error:outcome.error||null});

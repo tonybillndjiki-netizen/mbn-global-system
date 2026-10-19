@@ -1,4 +1,4 @@
-import {brandFor,logoURL} from '../../../assets/branding.js';
+import {brandFor,logoURL,admissionsSenderName} from '../../../assets/branding.js';
 import type {Inspection,Outcome,Sender} from './ses.ts';
 import {digest} from '../mbn-form-ingest/handler.ts';
 export type Actor={id:string;session_id:string};
@@ -79,7 +79,7 @@ export function createHandler(deps:Dependencies){
     const sender=object(msg.sender);
     const paths=msg.is_test?undefined:await links(msg.lead_id),rendered=renderMessage(msg,paths?.url,paths?.preferences);
     if(await rpc('mbn_mail_profile_authorized',{p_id:msg.id,p_attempt:msg.attempt_id})!==true){outcomes.push({id:msg.id,status:'CANCELED'});continue;}
-    result=await deps.transport.send({...sender,reply_to:sender.from_email} as Sender,{id:msg.id,recipient:msg.recipient,...rendered,unsubscribe:paths?.oneClick});
+    result=await deps.transport.send({...sender,from_name:admissionsSenderName(msg.school_code),reply_to:sender.from_email} as Sender,{id:msg.id,recipient:msg.recipient,...rendered,unsubscribe:paths?.oneClick});
    }catch{result={status:'FAILED',error:'message_preparation_failed'};}
    await rpc('mbn_mail_finish',{p_id:msg.id,p_attempt:msg.attempt_id,p_status:result.status,p_provider_id:result.provider_id||null,p_error:result.error||null});
    outcomes.push({id:msg.id,status:result.status});

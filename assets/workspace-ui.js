@@ -1,4 +1,4 @@
-import {brandFor,campusName,hostedFormURL,logoURL} from './branding.js';
+import {brandFor,campusName,hostedFormURL,logoURL,admissionsSenderName} from './branding.js';
 const ENDPOINT='https://ppqeuluykiknuujfaoid.supabase.co/functions/v1/mbn-workspace';
 const PUBLIC_KEY='sb_publishable_NGnS0aBO4WUBbL6EbgMr0A_ad6EfOzS';
 export const escapeHTML=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -100,10 +100,10 @@ export function createWorkspace({client,getSchools,getAdmin,toast,navigate}){
   const credentials=provider.credentials_configured,groups=config.groups,active=groups.filter(g=>g.enabled).length;
   const groupOptions=selected=>'<option value="">À renseigner</option>'+groups.map(g=>`<option value="${h(g.code)}" ${selected===g.code?'selected':''}>${h(g.from_name)}</option>`).join('');
   view.innerHTML=`<div class="module-heading"><div class="module-symbol">${icon('settings',27)}</div><div><span class="eyebrow">TROIS EXPÉDITEURS, UN CHOIX PAR ÉCOLE</span><h2>Connexion Brevo</h2></div><span class="status ${active?'ok':''}">${active} groupe${active>1?'s':''} activé${active>1?'s':''} sur ${groups.length}</span></div>
-  <p class="small">Enregistrez les trois adresses automatiques, puis choisissez le groupe d’expédition et le contact admissions de chaque école. Le troisième profil peut porter un nom commun, par exemple « Service admissions ». Une école sans groupe ou sans contact ne peut pas envoyer de message.</p>
+  <p class="small">Enregistrez les trois adresses automatiques, puis choisissez le groupe d’expédition et le contact admissions de chaque école. Le candidat voit « Service admissions — nom de son école ». Le nom du groupe sert à identifier l’adresse utilisée dans cette page. Une école sans groupe ou sans contact ne peut pas envoyer de message.</p>
   <div class="settings-layout mail-sender-groups">${groups.map(g=>`<section class="panel no-top"><div class="panel-head"><h2>${h(g.from_name)}</h2><span class="status ${g.enabled?'ok':''}">${g.enabled?'Activé':'En pause'}</span></div>
-   <form data-sender-group="${h(g.code)}"><input type="hidden" name="sender_group" value="${h(g.code)}"><div class="form-grid"><label>Nom d’expéditeur (modifiable)<input name="from_name" required maxlength="100" value="${h(g.from_name)}"></label><label>Adresse d’expédition automatique<input name="from_email" type="email" required maxlength="254" placeholder="no-reply@votre-domaine.fr" value="${h(g.from_email)}"></label></div>
-   <p class="small">Les réponses restent dirigées vers cette adresse automatique. Le message invite le candidat à écrire au contact de son école, indiqué ci-dessous.</p>
+   <form data-sender-group="${h(g.code)}"><input type="hidden" name="sender_group" value="${h(g.code)}"><div class="form-grid"><label>Nom du groupe d’expédition<input name="from_name" required maxlength="100" value="${h(g.from_name)}"></label><label>Adresse d’expédition automatique<input name="from_email" type="email" required maxlength="254" placeholder="no-reply@votre-domaine.fr" value="${h(g.from_email)}"></label></div>
+   <p class="small">Le nom affiché au candidat est « Service admissions — nom de l’école ». Les réponses restent dirigées vers cette adresse automatique ; le message indique le contact admissions de l’école.</p>
    <label class="check-label"><input type="checkbox" name="enabled" ${g.enabled?'checked':''}> Activer les envois de ce groupe</label>${buttons('Enregistrer cet expéditeur')}</form>
    <ol class="setup-steps"><li class="${g.sender_verified?'done':''}"><span>1</span><div><strong>Expéditeur vérifié</strong><small>${g.sender_verified?'Adresse confirmée par Brevo':'Enregistrez puis vérifiez cette adresse'}</small></div></li>
    <li class="${config.brevo_webhook_id?'done':''}"><span>2</span><div><strong>Suivi des livraisons</strong><small>${config.brevo_webhook_id?'Retours Brevo configurés':'Configuration commune à tous les groupes'}</small></div></li>
@@ -124,7 +124,7 @@ export function createWorkspace({client,getSchools,getAdmin,toast,navigate}){
   view.querySelectorAll('[data-mail-route]').forEach(form=>{
    const row=form.closest('tr'),select=row.querySelector('select[name="sender_group"]'),preview=row.querySelector('[data-route-preview]'),change=form.querySelector('[data-route-change]'),original=config.schools.find(s=>s.school_code===form.elements.school_code.value).sender_group||'';
    select.value=original;
-   const update=()=>{const group=groups.find(g=>g.code===select.value);preview.textContent=group?(group.from_email||'Adresse automatique à renseigner')+(group.enabled?'':' · en pause'):'Envoi bloqué : aucun groupe choisi';change.hidden=select.value===original;change.textContent=select.value?'Appliquer ce groupe aux prochains envois de l’école.':'Bloquer les prochains envois de l’école.';};
+   const update=()=>{const group=groups.find(g=>g.code===select.value);preview.textContent=admissionsSenderName(form.elements.school_code.value)+' — '+(group?(group.from_email||'Adresse automatique à renseigner')+(group.enabled?'':' · en pause'):'Envoi bloqué : aucun groupe choisi');change.hidden=select.value===original;change.textContent=select.value?'Appliquer ce groupe aux prochains envois de l’école.':'Bloquer les prochains envois de l’école.';};
    select.addEventListener('change',update);update();
    saveForm(form,'mail_route_save',f=>Object.fromEntries(new FormData(f)));
   });
