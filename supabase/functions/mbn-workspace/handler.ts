@@ -3,7 +3,7 @@ import type {Inspection,Outcome,Sender} from './ses.ts';
 import {digest} from '../mbn-form-ingest/handler.ts';
 export type Actor={id:string;session_id:string};
 type Reply={data:unknown;error:{code?:string;message?:string}|null};
-type Transport={configured:boolean;inspect(sender:Sender):Promise<Inspection>;configureWebhook?(token:string):Promise<{id:number}>;send(sender:Sender,message:{id:string;recipient:string;subject:string;text:string;html:string;unsubscribe?:string}):Promise<Outcome>};
+type Transport={configured:boolean;supportsAppsScript?:boolean;configuredFor?(provider:string):boolean;inspect(sender:Sender):Promise<Inspection>;configureWebhook?(token:string):Promise<{id:number}>;send(sender:Sender,message:{id:string;recipient:string;subject:string;text:string;html:string;unsubscribe?:string}):Promise<Outcome>};
 export type Dependencies={authenticate(token:string):Promise<Actor|null>;rpc(name:string,args:Record<string,unknown>):PromiseLike<Reply>;transport:Transport;download(bucket:string,path:string):Promise<Uint8Array>;sleep(ms:number):Promise<void>};
 export const ORIGIN='https://mbn-global.netlify.app';
 export const ENDPOINT='https://ppqeuluykiknuujfaoid.supabase.co/functions/v1';
@@ -119,6 +119,7 @@ export function createHandler(deps:Dependencies){
    if(!actor)throw new AppError('authentication_required',401);
    const input=await readJSON(request);if(Object.keys(input).some(k=>!['action','data'].includes(k)))throw new AppError('invalid_request');
    const data=object(input.data||{}),args={p_actor:actor.id,p_session:actor.session_id,p_action:input.action,p_data:data};
+   if(input.action==='appscript_select'||input.action==='appscript_confirm_test')return json(await rpc('mbn_appscript_admin',{...args,p_action:input.action==='appscript_select'?'select':'confirm_test'}));
    if(['followups_context','followup_save','followup_toggle'].includes(input.action))return json(await rpc('mbn_followup_action',args));
    if(['document_requests_context','document_request_create','document_request_cancel','document_request_send'].includes(input.action)){
     const action=input.action==='document_requests_context'?'context':input.action==='document_request_create'?'create':input.action==='document_request_cancel'?'cancel':'context';
@@ -158,10 +159,11 @@ export function createHandler(deps:Dependencies){
    // The following actions require a live owner session, not merely a logged-in account.
    if(['provider_status','provider_check','provider_webhook_setup','test_send','dispatch'].includes(input.action)){
     const settings=await rpc('mbn_workspace_action',{...args,p_action:'settings_get',p_data:{}});
-    if(input.action==='provider_status')return json({settings,credentials_configured:deps.transport.configured});
+    if(input.action==='provider_status'){const provider=object(settings).provider||'BREVO';return json({settings,provider,supports_appscript:!!deps.transport.supportsAppsScript,credentials_configured:deps.transport.configuredFor?deps.transport.configuredFor(provider):deps.transport.configured});}
     const group=senderGroup(data.sender_group??'MBN_GLOBAL');
     if(input.action==='provider_check'){const {inspection}=await check(group);return json({inspection,credentials_configured:deps.transport.configured});}
     if(input.action==='provider_webhook_setup'){
+     if(object(settings).provider==='GOOGLE_APPS_SCRIPT')throw new AppError('appscript_no_delivery_webhook',422);
      const checked=await check(group);if(!checked.inspection.account_sending_enabled)throw new AppError(checked.inspection.error||'sender_not_ready',422);
      if(!deps.transport.configureWebhook)throw new AppError('brevo_webhook_setup_failed',422);
      const secret=await rpc('mbn_runtime_key',{p_name:'brevo_webhook'});if(typeof secret!=='string'||secret.length<80)throw Error('webhook_secret_unavailable');

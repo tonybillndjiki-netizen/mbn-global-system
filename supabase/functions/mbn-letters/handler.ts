@@ -25,7 +25,11 @@ export function createHandler(deps:Dependencies){
  async function pdf(row:Record<string,any>){const bytes=await deps.download('mbn-admission-letters',row.object_path);if(bytes.length!==row.pdf_bytes||bytes.length>5242880||await digest(bytes)!==row.pdf_sha256)throw Error('letter_integrity_failure');return bytes;}
  return async(request:Request)=>{
   if(request.method==='OPTIONS')return new Response(null,{status:204,headers});
-  if(request.method==='GET'&&new URL(request.url).search==='?health=1')return json({service:'mbn-letters',version:'0.8.0',provider:'BREVO',credentials_configured:deps.transport.configured});
+  if(request.method==='GET'&&new URL(request.url).search==='?health=1'){
+   try{const transport=deps.transport as Dependencies['transport']&{status?():Promise<{provider:string;credentials_configured:boolean}>};
+    return json({service:'mbn-letters',version:'0.8.0',...(transport.status?await transport.status():{provider:'BREVO',credentials_configured:transport.configured})});
+   }catch{return json({error:'service_unavailable'},503);}
+  }
   if(request.method!=='POST')return json({error:'method_not_allowed'},405);
   try{
    const ticket=request.headers.get('x-mbn-asset');

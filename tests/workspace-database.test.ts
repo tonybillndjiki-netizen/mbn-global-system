@@ -1158,3 +1158,44 @@ test('sender dispatch order ignores connection tests and remembers actual leases
  assert.equal((await invoke('mbn_mail_profile_settings',['CAMPUS_INNOVATION_MLV'])).last_dispatch_at,null);
  assert.equal((await invoke('mbn_mail_profile_settings',['ADMISSIONS_COMMUN'])).last_dispatch_at,null);
 }));
+
+const googleAdmin=(action:string,data:object={},actor=owner)=>invoke('mbn_appscript_admin',[actor,sid(actor),action,JSON.stringify(data)]);
+async function googleCheck(group:string,hash='a'.repeat(64)){
+ const settings=await invoke('mbn_mail_profile_settings',[group]);
+ return invoke('mbn_mail_profile_checked',[group,settings.revision,JSON.stringify({provider:'GOOGLE_APPS_SCRIPT',sender_verified:true,production_access:true,account_sending_enabled:true,remaining:10,rate:1,credential_fingerprint:hash})]);
+}
+async function googleTest(group:string){
+ await groupSave(group);await routeSave(group);await googleCheck(group);
+ const prepared=await action('mail_test_prepare',{sender_group:group}),claim=await invoke('mbn_mail_profile_claim',[group,prepared.id]);
+ assert.equal(claim.provider,'GOOGLE_APPS_SCRIPT');assert.equal(claim.sender.provider,'GOOGLE_APPS_SCRIPT');
+ await invoke('mbn_mail_finish',[claim.id,claim.attempt_id,'ACCEPTED','apps-script:'+claim.id,null]);return claim;
+}
+test('Apps Script requires an owner-confirmed accepted test and never invents automatic delivery',()=>isolated(async()=>{
+ await assert.rejects(googleAdmin('select',{},cm),{message:'access_denied'});
+ await googleAdmin('select');
+ const claim=await googleTest('MBN_GLOBAL');
+ await assert.rejects(groupSave('MBN_GLOBAL',{enabled:true}),{message:'sender_not_ready'});
+ await assert.rejects(googleAdmin('confirm_test',{sender_group:'MBN_GLOBAL',message_id:claim.id,received:false}),{message:'appscript_test_required'});
+ await assert.rejects(googleAdmin('confirm_test',{sender_group:'MBN_GLOBAL',message_id:claim.id,received:true},cm),{message:'access_denied'});
+ await googleAdmin('confirm_test',{sender_group:'MBN_GLOBAL',message_id:claim.id,received:true});
+ await groupSave('MBN_GLOBAL',{enabled:true});
+ const config=await action('mail_config_get'),group=config.groups.find((g:any)=>g.code==='MBN_GLOBAL');
+ assert.equal(config.provider,'GOOGLE_APPS_SCRIPT');assert.equal(group.enabled,true);assert.equal(group.test_confirmation_valid,true);
+ assert.equal(group.events_verified_at,null);assert.equal(group.last_test.status,'ACCEPTED');
+ const {rows:[message]}=await db.query<{status:string;delivered_at:string|null}>('select status,delivered_at from public.mail_messages where id=$1',[claim.id]);
+ assert.equal(message.status,'ACCEPTED');assert.equal(message.delivered_at,null);
+ assert.equal(await invoke('mbn_brevo_event',['a'.repeat(64),JSON.stringify({event:'delivered',provider_id:'apps-script:'+claim.id,message_id:claim.id,email:'nbtonybill@gmail.com'})]),false);
+}));
+test('Apps Script sender proofs are isolated per group and reset on credential or sender changes',()=>isolated(async()=>{
+ await enableGroups();await googleAdmin('select');
+ await db.exec("update public.mail_messages set created_at=now()-interval '2 minutes' where is_test");
+ for(const g of (await action('mail_config_get')).groups){assert.equal(g.enabled,false);assert.equal(g.sender_verified,false);}
+ const claim=await googleTest('MBN_GLOBAL');
+ await googleAdmin('confirm_test',{sender_group:'MBN_GLOBAL',message_id:claim.id,received:true});await groupSave('MBN_GLOBAL',{enabled:true});
+ await groupSave('CAMPUS_INNOVATION_MLV');await routeSave('CAMPUS_INNOVATION_MLV');await googleCheck('CAMPUS_INNOVATION_MLV','b'.repeat(64));
+ assert.equal((await action('mail_config_get')).groups.find((g:any)=>g.code==='MBN_GLOBAL').enabled,true);
+ await googleCheck('MBN_GLOBAL','c'.repeat(64));
+ const config=await action('mail_config_get'),first=config.groups.find((g:any)=>g.code==='MBN_GLOBAL'),campus=config.groups.find((g:any)=>g.code==='CAMPUS_INNOVATION_MLV');
+ assert.equal(first.enabled,false);assert.equal(first.test_confirmation_valid,false);assert.equal(first.test_confirmed_at,null);assert.equal(campus.sender_verified,true);
+ await assert.rejects(googleAdmin('confirm_test',{sender_group:'MBN_GLOBAL',message_id:claim.id,received:true}),{message:'appscript_test_required'});
+}));

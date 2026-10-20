@@ -1,7 +1,7 @@
 export type Attachment={filename:string;mime_type:string;base64:string};
 export type Credentials={accessKeyId:string;secretAccessKey:string;sessionToken?:string};
-export type Sender={from_name:string;from_email:string;reply_to:string;identity:string;region:string;configuration_set:string};
-export type Inspection={sender_verified:boolean;production_access:boolean;account_sending_enabled:boolean;remaining:number;rate:number;error?:string;credential_fingerprint?:string};
+export type Sender={from_name:string;from_email:string;reply_to:string;identity:string;region:string;configuration_set:string;code?:string;provider?:string};
+export type Inspection={sender_verified:boolean;production_access:boolean;account_sending_enabled:boolean;remaining:number;rate:number;error?:string;credential_fingerprint?:string;provider?:string};
 export type Outcome={status:'ACCEPTED'|'FAILED'|'UNCERTAIN';provider_id?:string;error?:string};
 const utf8=new TextEncoder();
 const hex=(v:ArrayBuffer)=>Array.from(new Uint8Array(v),n=>n.toString(16).padStart(2,'0')).join('');

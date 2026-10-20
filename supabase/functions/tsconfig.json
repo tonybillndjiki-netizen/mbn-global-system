@@ -26,6 +26,8 @@
     "mbn-workspace/brevo.ts",
     "mbn-brevo-events/handler.ts",
     "mbn-meta/handler.ts",
-    "mbn-antivirus/handler.ts"
+    "mbn-antivirus/handler.ts",
+    "mbn-workspace/appscript.ts",
+    "mbn-workspace/mail-transport.ts"
   ]
 }
