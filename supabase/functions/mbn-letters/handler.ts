@@ -41,6 +41,9 @@ export function createHandler(deps:Dependencies){
    if(!actor)throw new AppError('authentication_required',401);
    const input=await readJSON(request,32768);if(Object.keys(input).some(k=>!['action','data'].includes(k)))throw new AppError('invalid_request');
    const data=object(input.data||{});
+   if(input.action==='letter_config_get'||input.action==='letter_config_save'){
+    return json(await rpc('mbn_letter_config_action',{p_actor:actor.id,p_session:actor.session_id,p_action:input.action==='letter_config_get'?'get':'save',p_data:data}));
+   }
    const action=async(p_action:string,p_data:Record<string,unknown>=data)=>rpc('mbn_letter_action',{p_actor:actor.id,p_session:actor.session_id,p_action,p_data});
    if(input.action==='letter_context')return json(await action('context'));
    if(input.action==='letter_asset'){

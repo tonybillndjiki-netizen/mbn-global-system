@@ -178,27 +178,122 @@ test('public school sessions are limited, school-scoped and expire without expos
  await db.exec("update public.schools set is_active=false where code='MLV BTS'");
  await assert.rejects(invoke('mbn_school_entry',['mlv-bts','c'.repeat(64)]),{message:'link_unavailable'});
 }));
-const letterFields={academic_year:'2026/2027',intake:'janvier 2027',deferred_intake:'septembre 2027',registration_fee:'1000',tuition_deposit:'1000',confirmation_days:'30',date_of_birth:'2000-01-02',place_of_birth:'Lieu synthétique',signatory:'Service synthétique',avi_mode:'OPTIONAL',logo_variant:'CAMPUS'};
+const letterSettingFields={academic_year:'2026/2027',intake:'janvier 2027',deferred_intake:'septembre 2027',registration_fee:'1000',tuition_deposit:'1000',confirmation_days:'30',signatory:'Service synthétique',avi_mode:'OPTIONAL'};
+const letterFields={date_of_birth:'2000-01-02',place_of_birth:'Lieu synthétique',logo_variant:'CAMPUS'};
+const letterConfig=(name:string,data:object={},actor=owner)=>invoke('mbn_letter_config_action',[actor,sid(actor),name,JSON.stringify(data)]);
+async function configureLetters(type='INTERNATIONAL',fields={},school='MLV BTS',enabled=true){
+ const config=await letterConfig('get'),current=config.settings.find((s:any)=>s.school_code===school&&s.admission_type===type);
+ return letterConfig('save',{school_code:school,admission_type:type,expected_revision:current.revision,enabled,fields:{...letterSettingFields,...(type==='NATIONAL'?{avi_mode:'NONE',deferred_intake:'',registration_fee:'0',tuition_deposit:'0'}:{}),...fields}});
+}
+async function currentLetterRevision(type='INTERNATIONAL',school='MLV BTS'){
+ return (await letterConfig('get')).settings.find((s:any)=>s.school_code===school&&s.admission_type===type).revision;
+}
+test('letter settings start empty and paused for both flows of every school',()=>isolated(async()=>{
+ const data=await letterConfig('get');assert.equal(data.schools.length,19);assert.equal(data.settings.length,38);
+ for(const setting of data.settings){assert.deepEqual(setting.fields,{});assert.equal(setting.enabled,false);assert.ok(setting.revision);}
+ await assert.rejects(letterConfig('get',{},cm),{message:'access_denied'});
+ await assert.rejects(letterConfig('get',{},other),{message:'access_denied'});
+ await assert.rejects(letterConfig('save',{},reviewer),{message:'access_denied'});
+}));
+test('letter configuration validates its flow, amounts, year and stale revisions with an audit record',()=>isolated(async()=>{
+ for(const patch of [{avi_mode:'OPTIONAL'},{registration_fee:'-1'},{tuition_deposit:'1e3'},{academic_year:'2026/2028'},{signatory:'  '},{confirmation_days:'0'},{school_name:'Spoofed'}]){
+  await assert.rejects(configureLetters('NATIONAL',patch),{message:'invalid_letter_settings'});
+ }
+ const before=await currentLetterRevision('NATIONAL'),saved=await configureLetters('NATIONAL');assert.notEqual(saved.revision,before);
+ await assert.rejects(letterConfig('save',{school_code:'MLV BTS',admission_type:'NATIONAL',expected_revision:before,fields:saved.fields,enabled:true}),{message:'letter_settings_changed'});
+ assert.equal((await db.query<{n:number}>('select count(*)::int n from private.mbn_letter_settings_events')).rows[0].n,1);
+ const unchanged=await configureLetters('NATIONAL');assert.equal(unchanged.revision,saved.revision);
+}));
+test('national and international fees remain separate and are never copied from another school',()=>isolated(async()=>{
+ await configureLetters('NATIONAL',{registration_fee:'0',tuition_deposit:'120.50'});await configureLetters('INTERNATIONAL',{registration_fee:'800'});
+ const all=(await letterConfig('get')).settings;
+ assert.equal(all.find((s:any)=>s.school_code==='MLV BTS'&&s.admission_type==='NATIONAL').fields.registration_fee,'0');
+ assert.equal(all.find((s:any)=>s.school_code==='MLV BTS'&&s.admission_type==='INTERNATIONAL').fields.registration_fee,'800');
+ assert.deepEqual(all.find((s:any)=>s.school_code==='CESCOM'&&s.admission_type==='NATIONAL').fields,{});
+}));
+test('preparing a letter requires enabled settings and the exact configuration shown in the editor',()=>isolated(async()=>{
+ const a=await application();await db.query("update public.crm_applications set status='ADMITTED' where id=$1",[a.id]);
+ const args={application_id:a.id,request_id:crypto.randomUUID(),fields:letterFields,attachments:[]};
+ await assert.rejects(letterAction('prepare',args),{message:'letter_settings_missing'});
+ const settings=await configureLetters();await assert.rejects(letterAction('prepare',{...args,expected_config_revision:crypto.randomUUID()}),{message:'letter_settings_changed'});
+ await assert.rejects(letterAction('prepare',{...args,expected_config_revision:settings.revision,fields:{...letterFields,registration_fee:'1'}}),{message:'invalid_letter'});
+ await assert.rejects(letterAction('prepare',{...args,expected_config_revision:settings.revision,fields:{...letterFields,date_of_birth:'2026-02-31'}}),{message:'invalid_letter'});
+}));
+test('national letters snapshot server parameters and reject international annexes',()=>isolated(async()=>{
+ const a=await application();await db.query("update public.crm_applications set status='ADMITTED',admission_type='NATIONAL' where id=$1",[a.id]);
+ await db.exec('update private.mbn_original_assets set installed_at=now()');
+ const settings=await configureLetters('NATIONAL',{tuition_deposit:'150'});
+ const args={application_id:a.id,request_id:crypto.randomUUID(),expected_config_revision:settings.revision,fields:letterFields,attachments:['cgv_group']};
+ const prepared=await letterAction('prepare',args);assert.equal(prepared.fields.admission_type,'NATIONAL');assert.equal(prepared.fields.template_version,'national-v1-20261019');
+ assert.equal(prepared.fields.registration_fee,'0');assert.equal(prepared.fields.tuition_deposit,'150');assert.equal(prepared.fields.signatory,settings.fields.signatory);assert.equal(prepared.fields.avi_mode,'NONE');
+ assert.deepEqual((await letterAction('prepare',args)).fields,prepared.fields);
+ const context=await letterAction('context',{application_id:a.id});assert.equal(context.letter_settings.revision,settings.revision);
+ for(const key of ['avi_attestation','visa_refusal','rib_cameroun']){
+  assert.ok(!context.assets.some((x:any)=>x.key===key));
+  await assert.rejects(letterAction('prepare',{...args,request_id:crypto.randomUUID(),attachments:[key]}),{message:'national_attachment_conflict'});
+ }
+}));
+test('changing school parameters preserves historical PDFs but invalidates their unsent preview',()=>isolated(async()=>{
+ const {id,prepared}=await admissionLetter();await db.query('insert into storage.objects(bucket_id,name,metadata) values($1,$2,$3)',['mbn-admission-letters',id+'/admission.pdf',JSON.stringify({size:100})]);
+ await letterAction('generated',{id,sha256:'f'.repeat(64),byte_size:100});
+ await configureLetters('INTERNATIONAL',{registration_fee:'2000'});
+ const row=await letterAction('download',{id});assert.equal(row.fields.registration_fee,'1000');assert.equal(row.fields.config_revision,prepared.fields.config_revision);
+ await assert.rejects(letterAction('claim',{id,confirmed:true}),{message:'letter_settings_changed'});
+ assert.equal((await db.query<{n:number}>('select count(*)::int n from public.mail_messages')).rows[0].n,0);
+}));
+test('a national PDF requires human approval and follows accepted then delivered states',()=>isolated(async()=>{
+ const a=await application();await db.query("update public.crm_applications set status='ADMITTED',admission_type='NATIONAL' where id=$1",[a.id]);
+ await db.exec('update private.mbn_original_assets set installed_at=now()');const settings=await configureLetters('NATIONAL');
+ const id=crypto.randomUUID();await letterAction('prepare',{application_id:a.id,request_id:id,expected_config_revision:settings.revision,fields:letterFields,attachments:['cgv_group']});
+ await db.query('insert into storage.objects(bucket_id,name,metadata) values($1,$2,$3)',['mbn-admission-letters',id+'/admission.pdf',JSON.stringify({size:100})]);
+ await letterAction('generated',{id,sha256:'f'.repeat(64),byte_size:100});
+ await db.exec("update private.mbn_mail_settings set enabled=true,sender_verified=true,production_access=true,account_sending_enabled=true,provider_checked_at=now()");
+ await assert.rejects(letterAction('claim',{id}),{message:'letter_approval_required'});
+ const claim=await letterAction('claim',{id,confirmed:true});assert.equal(claim.fields.admission_type,'NATIONAL');
+ await invoke('mbn_letter_finish',[claim.message.id,claim.message.attempt_id,'ACCEPTED','synthetic-national-provider',null]);
+ assert.equal((await action('application_detail',{id:a.id})).application.status,'LETTER_SENT');
+ assert.equal((await db.query<{status:string}>('select status from public.mail_messages where id=$1',[claim.message.id])).rows[0].status,'ACCEPTED');
+ await invoke('mbn_brevo_event',['e'.repeat(64),JSON.stringify({event:'delivered',provider_id:'synthetic-national-provider',message_id:claim.message.id,email:claim.fields.email})]);
+ assert.equal((await db.query<{status:string}>('select status from public.mail_messages where id=$1',[claim.message.id])).rows[0].status,'DELIVERED');
+}));
+test('authorization is rechecked against a changed flow or paused letter profile after taking the send lease',()=>isolated(async()=>{
+ const {a,id}=await admissionLetter();await db.query('insert into storage.objects(bucket_id,name,metadata) values($1,$2,$3)',['mbn-admission-letters',id+'/admission.pdf',JSON.stringify({size:100})]);
+ await letterAction('generated',{id,sha256:'f'.repeat(64),byte_size:100});
+ await db.exec("update private.mbn_mail_settings set enabled=true,sender_verified=true,production_access=true,account_sending_enabled=true,provider_checked_at=now()");
+ const claim=await letterAction('claim',{id,confirmed:true});
+ await db.query("update public.crm_applications set admission_type='NATIONAL' where id=$1",[a.id]);
+ assert.equal(await letterAction('authorized',{id,attempt_id:claim.message.attempt_id}),false);
+ await db.query("update public.crm_applications set admission_type='INTERNATIONAL' where id=$1",[a.id]);
+ await configureLetters('INTERNATIONAL',{},'MLV BTS',false);
+ assert.equal(await letterAction('authorized',{id,attempt_id:claim.message.attempt_id}),false);
+}));
+test('all letter RPCs and configuration tables remain inaccessible to browser roles',()=>isolated(async()=>{
+ const {rows}=await db.query<{proname:string;prosecdef:boolean;anon:boolean;staff:boolean}>(`select p.proname,p.prosecdef,has_function_privilege('anon',p.oid,'EXECUTE') anon,has_function_privilege('authenticated',p.oid,'EXECUTE') staff from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='public' and p.proname like 'mbn_letter_%'`);
+ for(const row of rows){assert.equal(row.prosecdef,false);assert.equal(row.anon,false,row.proname);assert.equal(row.staff,false,row.proname);}
+ const {rows:tables}=await db.query<{relname:string;relrowsecurity:boolean;allowed:boolean}>(`select c.relname,c.relrowsecurity,has_table_privilege('authenticated',c.oid,'SELECT') allowed from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='private' and c.relname in ('mbn_school_letter_settings','mbn_letter_settings_events')`);
+ assert.equal(tables.length,2);for(const t of tables){assert.equal(t.relrowsecurity,true);assert.equal(t.allowed,false);}
+}));
 const letterAction=(name:string,data:object={},actor=owner)=>invoke('mbn_letter_action',[actor,sid(actor),name,JSON.stringify(data)]);
 async function admissionLetter(overrides={}){
  const a=await application();await db.query("update public.crm_applications set status='ADMITTED' where id=$1",[a.id]);
  await db.exec('update private.mbn_original_assets set installed_at=now()');
- const id=crypto.randomUUID();const prepared=await letterAction('prepare',{application_id:a.id,request_id:id,fields:{...letterFields,...overrides},attachments:['cgv_group']});
+ const settings=await configureLetters();
+ const id=crypto.randomUUID();const prepared=await letterAction('prepare',{application_id:a.id,request_id:id,expected_config_revision:settings.revision,fields:{...letterFields,...overrides},attachments:['cgv_group']});
  return {a,id,prepared};
 }
-test('letters require an admitted international dossier, separate send permission and the campus logo',()=>isolated(async()=>{
- const a=await application();await assert.rejects(letterAction('context',{application_id:a.id},cm),{message:'access_denied'});
- await assert.rejects(letterAction('prepare',{application_id:a.id,request_id:crypto.randomUUID(),fields:letterFields,attachments:[]}),{message:'international_admission_required'});
+test('letters require an admitted dossier, separate send permission and the campus logo',()=>isolated(async()=>{
+ const a=await application();const settings=await configureLetters();await assert.rejects(letterAction('context',{application_id:a.id},cm),{message:'access_denied'});
+ await assert.rejects(letterAction('prepare',{application_id:a.id,request_id:crypto.randomUUID(),fields:letterFields,attachments:[]}),{message:'admission_required'});
  await db.query("update public.crm_applications set status='ADMITTED' where id=$1",[a.id]);
- await assert.rejects(letterAction('prepare',{application_id:a.id,request_id:crypto.randomUUID(),fields:{...letterFields,logo_variant:'SCHOOL'},attachments:[]}),{message:'campus_brand_required'});
- await assert.rejects(letterAction('prepare',{application_id:a.id,request_id:crypto.randomUUID(),fields:{...letterFields,school_name:'Spoofed School'},attachments:[]}),{message:'invalid_letter'});
+ await assert.rejects(letterAction('prepare',{application_id:a.id,request_id:crypto.randomUUID(),expected_config_revision:settings.revision,fields:{...letterFields,logo_variant:'SCHOOL'},attachments:[]}),{message:'campus_brand_required'});
+ await assert.rejects(letterAction('prepare',{application_id:a.id,request_id:crypto.randomUUID(),expected_config_revision:settings.revision,fields:{...letterFields,school_name:'Spoofed School'},attachments:[]}),{message:'invalid_letter'});
  await db.exec('update private.mbn_original_assets set installed_at=now()');
- await assert.rejects(letterAction('prepare',{application_id:a.id,request_id:crypto.randomUUID(),fields:letterFields,attachments:['cgv_cescom']}),{message:'invalid_attachments'});
- await assert.rejects(letterAction('prepare',{application_id:a.id,request_id:crypto.randomUUID(),fields:letterFields,attachments:['avi_attestation']}),{message:'avi_attachment_conflict'});
+ await assert.rejects(letterAction('prepare',{application_id:a.id,request_id:crypto.randomUUID(),expected_config_revision:settings.revision,fields:letterFields,attachments:['cgv_cescom']}),{message:'invalid_attachments'});
+ await assert.rejects(letterAction('prepare',{application_id:a.id,request_id:crypto.randomUUID(),expected_config_revision:settings.revision,fields:letterFields,attachments:['avi_attestation']}),{message:'avi_attachment_conflict'});
 }));
 test('letter previews are immutable and send once with an explicit approval, never an invented delivery',()=>isolated(async()=>{
  const {a,id,prepared}=await admissionLetter();assert.equal(prepared.fields.school_name,'Marne-la-Vallée BTS');assert.equal(prepared.fields.campus_name,'Campus Innovation Marne-la-Vallée');assert.equal(prepared.message_id,null);
- await assert.rejects(letterAction('prepare',{application_id:a.id,request_id:id,fields:{...letterFields,registration_fee:'2000'},attachments:['cgv_group']}),{message:'reference_conflict'});
+ await assert.rejects(letterAction('prepare',{application_id:a.id,request_id:id,expected_config_revision:prepared.fields.config_revision,fields:{...letterFields,place_of_birth:'Autre lieu synthétique'},attachments:['cgv_group']}),{message:'reference_conflict'});
  await db.query('insert into storage.objects(bucket_id,name,metadata) values($1,$2,$3)',['mbn-admission-letters',id+'/admission.pdf',JSON.stringify({size:100,mimetype:'application/pdf'})]);
  await letterAction('generated',{id,sha256:'f'.repeat(64),byte_size:100});
  await assert.rejects(letterAction('claim',{id,confirmed:true}),{message:'sender_not_ready'});
