@@ -3,7 +3,7 @@ import zipfile,json,hashlib
 
 root=Path(__file__).resolve().parents[1]
 archive=root/'MBN_GLOBAL_SUITE_DEVELOPPEMENT.zip'
-excluded={'node_modules','.git','.temp','__pycache__','legacy','apps-script','.netlify','dist'}
+excluded={'node_modules','.git','.temp','.branches','.release','__pycache__','legacy','apps-script','.netlify','dist'}
 inactive_files={'build_backend.py','apps-script.test.ts','environment.test.ts','http.test.ts'}
 with zipfile.ZipFile(archive,'w',zipfile.ZIP_DEFLATED,compresslevel=9) as output:
     for path in sorted(root.rglob('*')):
@@ -12,6 +12,9 @@ with zipfile.ZipFile(archive,'w',zipfile.ZIP_DEFLATED,compresslevel=9) as output
         if path.is_symlink() or not path.is_file() or path==archive:continue
         if path.name in inactive_files:continue
         if path.suffix in {'.zip','.log'}:continue
+        if path.name=='.env' or path.name.startswith('.env.') and path.name!='.env.example':continue
+        if relative.parts[:2]==('source','forms'):continue
+        if len(relative.parts)==2 and relative.parts[0]=='source' and path.suffix in {'.docx','.pdf','.jpg'}:continue
         # Original financial/contractual files are already retained in the supplied Library assets.
         # Keep their manifest; do not duplicate banking annex bytes into the code deliverable.
         if relative.parts[:2]==('source','mail-assets') and path.suffix in {'.pdf','.jpg'}:continue

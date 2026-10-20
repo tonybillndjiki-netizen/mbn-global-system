@@ -6,11 +6,11 @@ Le site est publié sur Netlify. Supabase gère les utilisateurs, les autorisati
 
 Utiliser Node 24.19.0 et Python 3.12. Installer les dépendances avec `npm ci --ignore-scripts`, puis exécuter `npm run check`. Cette commande teste les fonctions et la base locale, vérifie TypeScript et fabrique le ZIP destiné à Netlify. Le constructeur exclut les sources privées et vérifie les références locales des 19 formulaires. Le fichier public `health.json` indique la version publiée et l’empreinte des scripts.
 
-Le workflow GitHub Actions fourni effectue ces mêmes vérifications. Il sera actif une fois le projet placé dans un dépôt GitHub. Le dépôt Git et le déploiement continu ne sont pas encore raccordés. Ne pas utiliser `supabase db push` aveuglément : les anciennes migrations hébergées ont des horodatages différents de leurs fichiers locaux, conservés dans VALIDATION.json.
+Le dépôt GitHub contient les contrôles automatisés. Le [guide d’installation et de déploiement](docs/INSTALLATION_DEPLOIEMENT.md) décrit la reconstruction d’une base neuve et le workflow de livraison, désactivé par défaut. Les anciennes migrations hébergées ont des horodatages différents de leurs fichiers locaux : le contrôle d’historique bloque cette situation jusqu’à une réconciliation revue. Le workflow ne répare pas cet historique automatiquement.
 
 ## Activer MBN Mail avec Brevo
 
-Suivre [CONNEXION_BREVO.md](CONNEXION_BREVO.md). Ajouter MBN_BREVO_API_KEY dans les secrets Supabase ; enregistrer les deux expéditeurs automatiques et le plafond quotidien commun ; renseigner le groupe et le contact admissions des 19 écoles ; vérifier chaque expéditeur ; configurer les retours communs ; confirmer la remise d’un test administrateur pour chaque expéditeur avant de l’activer.
+Suivre [CONNEXION_BREVO.md](CONNEXION_BREVO.md) et [les trois groupes d’expédition](docs/BREVO_MULTI_ECOLES.md). Ajouter MBN_BREVO_API_KEY dans les secrets Supabase ; enregistrer les trois expéditeurs et le plafond quotidien commun ; renseigner le groupe et le contact admissions des 19 écoles ; vérifier chaque expéditeur ; configurer les retours communs ; confirmer la remise d’un test administrateur pour chaque expéditeur avant de l’activer.
 
 Le webhook mbn-brevo-events utilise un jeton Bearer dédié conservé côté serveur. Chaque événement est corrélé au destinataire et à l’identifiant Brevo, puis dédupliqué. Les erreurs temporaires renvoient 429 pour conserver les nouvelles tentatives Brevo. Les rejets permanents et plaintes entraînent l’exclusion globale de l’adresse ; une désinscription arrête les campagnes.
 

@@ -17,7 +17,6 @@ before(async()=>{
     create table auth.users(id uuid primary key,email text,raw_user_meta_data jsonb default '{}'::jsonb,email_confirmed_at timestamptz);
     create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid $$;
     grant usage on schema auth to anon,authenticated,service_role; grant execute on function auth.uid() to anon,authenticated,service_role;`);
-  await db.exec(readFileSync(new URL('tests/fixtures/remote-baseline.sql',root),'utf8'));
   await db.exec(storageFixture);
   for (const name of readdirSync(new URL('supabase/migrations/',root)).filter(n=>n.endsWith('.sql')).sort()) await db.exec(readFileSync(new URL('supabase/migrations/'+name,root),'utf8'));
   await db.exec(`update public.schools set is_active=true where code in ('MLV BTS','EVRY BTS','CESCOM','EMSP');

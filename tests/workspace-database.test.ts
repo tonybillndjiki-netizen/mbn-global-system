@@ -12,12 +12,13 @@ before(async()=>{
  create table auth.users(id uuid primary key,email text,raw_user_meta_data jsonb default '{}'::jsonb,email_confirmed_at timestamptz);
  create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;
  grant usage on schema auth to anon,authenticated,service_role;grant execute on function auth.uid() to anon,authenticated,service_role;`);
- await db.exec(readFileSync(new URL('tests/fixtures/remote-baseline.sql',root),'utf8'));await db.exec(storageFixture);
+ await db.exec(storageFixture);
  // Match the hosted Vault signature, including its defaulted fourth argument.
  await db.exec(`create schema vault;create table vault.decrypted_secrets(id uuid primary key,decrypted_secret text);
  create function vault.create_secret(new_secret text,new_name text default null,new_description text default '',new_key_id uuid default null)
  returns uuid language plpgsql as $$declare v_id uuid:=gen_random_uuid();begin insert into vault.decrypted_secrets values(v_id,new_secret);return v_id;end;$$;`);
  for(const file of readdirSync(new URL('supabase/migrations/',root)).filter(f=>f.endsWith('.sql')).sort())await db.exec(readFileSync(new URL('supabase/migrations/'+file,root),'utf8'));
+ await db.exec("insert into private.admin_allowlist(email) values ('nbtonybill@gmail.com') on conflict do nothing");
  await db.exec(`insert into auth.users(id,email,email_confirmed_at) values('${owner}','nbtonybill@gmail.com',now()),('${cm}','cm@example.invalid',now()),('${reviewer}','reviewer@example.invalid',now()),('${other}','other@example.invalid',now());
  update public.profiles set is_active=true;insert into auth.sessions(id,user_id) select replace(id::text,'20000000','30000000')::uuid,id from auth.users;
  update public.schools set is_active=true,slug=lower(replace(code,' ','-'));update public.schools set name='Marne-la-Vallée BTS' where code='MLV BTS';insert into public.school_programs(id,school_code,name,cycle,is_active) values('${program}','MLV BTS','Synthetic BTS','BTS',true);

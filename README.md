@@ -31,7 +31,9 @@ npm run check
 python3 scripts/package_release.py
 ```
 
-`npm run check` exécute les tests de la base locale PGlite et des services HTTP, le typage TypeScript et la construction du paquet statique Netlify. Le workflow `.github/workflows/validate.yml` lance ces vérifications à chaque push et pull request, puis conserve le ZIP public comme artefact. Le déploiement continu Netlify reste à raccorder au dépôt.
+`npm run check` exécute les tests de la base locale PGlite, des services HTTP et des garde-fous de livraison, le typage TypeScript et la construction du paquet statique Netlify. Le workflow `.github/workflows/validate.yml` lance ces vérifications à chaque push et pull request, conserve le ZIP public et reconstruit une pile Supabase locale jetable.
+
+Le [bloc installation et déploiement](docs/INSTALLATION_DEPLOIEMENT.md) rétablit les migrations initiales, fournit le catalogue reproductible de 1 275 formations et prépare les livraisons par environnement. Le workflow de déploiement démarre désactivé ; ses comptes, secrets et protections restent à configurer. Une base existante dont l’historique diffère est bloquée avant toute mise à jour. Aucun déploiement n’est réalisé par la préparation de ce bloc.
 
 Les tests hébergés `tests/hosted-workspace-transaction.sql` utilisent des données synthétiques dans une transaction annulée. Ils n’envoient aucun e-mail et ne créent aucun document réel. Les tests de fichiers natifs et de PIN restent inclus. Le relevé de validation propre à l’environnement déployé reste dans le dossier privé du projet.
 

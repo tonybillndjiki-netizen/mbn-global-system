@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --import tsx --test tests/database.test.ts tests/native-*.test.ts tests/pin-*.test.ts tests/workspace-*.test.ts tests/letters-*.test.ts tests/meta-*.test.ts",
+    "test": "node --import tsx --test tests/database.test.ts tests/native-*.test.ts tests/pin-*.test.ts tests/workspace-*.test.ts tests/letters-*.test.ts tests/meta-*.test.ts tests/installation-*.test.ts && python3 -m unittest discover -s tests -p 'test_release.py'",
     "typecheck": "tsc -p supabase/functions/tsconfig.json",
     "build:forms": "node scripts/build_native_forms.mjs",
     "build": "python3 scripts/build_netlify.py",

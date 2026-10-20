@@ -6,18 +6,26 @@ import hashlib
 import json
 import shutil
 import zipfile
+import argparse
 from datetime import datetime, timezone
+from release_config import target_from_env
 
 root = Path(__file__).resolve().parents[1]
-publish = root / 'dist'
-archive = root / 'MBN_GLOBAL_NETLIFY.zip'
+parser = argparse.ArgumentParser()
+parser.add_argument('--release', action='store_true', help='Build inside the generated .release directory')
+args = parser.parse_args()
+config = target_from_env(required=args.release)
+publish = root / ('.release/dist' if args.release else 'dist')
+archive = root / ('.release/site.zip' if args.release else 'MBN_GLOBAL_NETLIFY.zip')
+if args.release and (root / '.release').is_symlink():
+    raise SystemExit('.release must not be a symbolic link')
 
 # Recreate this generated directory so stale source documents cannot be uploaded.
 if publish.is_symlink():
     raise SystemExit('dist must not be a symbolic link')
 if publish.exists():
     shutil.rmtree(publish)
-publish.mkdir()
+publish.mkdir(parents=True)
 
 selected = [root / name for name in ['index.html', 'MBN_GLOBAL_Admin_Supabase.html', 'apply.html', 'preferences.html', 'documents.html']]
 selected += sorted((root / 'assets').rglob('*.js'))
@@ -32,9 +40,21 @@ for source in selected:
     target.parent.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(source, target)
 shutil.copyfile(root / 'netlify' / '_headers', publish / '_headers')
+if config:
+    for path in publish.rglob('*'):
+        if path.is_file() and (path.suffix in {'.html', '.js', '.css', '.json'} or path.name == '_headers'):
+            path.write_text(config.rewrite(path.read_text()))
 package = json.loads((root / 'package.json').read_text())
 asset_fingerprint = hashlib.sha256(b''.join(p.read_bytes() for p in sorted((publish / 'assets').glob('*.js')))).hexdigest()
-(publish / 'health.json').write_text(json.dumps({'application': 'MBN GLOBAL', 'version': package['version'], 'built_at': datetime.now(timezone.utc).isoformat(), 'assets_sha256': asset_fingerprint, 'modules': ['MBN MAIL', 'MBN CRM']}, indent=2)+'\n')
+health = {'application': 'MBN GLOBAL', 'version': package['version'], 'built_at': datetime.now(timezone.utc).isoformat(), 'assets_sha256': asset_fingerprint, 'modules': ['MBN MAIL', 'MBN CRM']}
+if config:
+    import os
+    import re
+    commit = os.environ.get('MBN_RELEASE_COMMIT', '')
+    if commit and not re.fullmatch('[a-f0-9]{40}', commit):
+        raise SystemExit('Invalid MBN_RELEASE_COMMIT')
+    health.update(project_ref=config.ref, public_origin=config.origin, commit=commit)
+(publish / 'health.json').write_text(json.dumps(health, indent=2)+'\n')
 
 assert len(list((publish / 'forms').glob('*.html'))) == 19
 assert len(list((publish / 'assets' / 'brands').glob('*.png'))) == 21
