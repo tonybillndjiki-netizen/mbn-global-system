@@ -28,6 +28,109 @@ async function isolated(fn:()=>Promise<void>){await db.exec('begin');try{await f
 async function invoke(name:string,args:unknown[]=[]){await db.exec('savepoint call_api;set local role service_role');try{const r=await db.query<{v:any}>('select public.'+name+'('+args.map((_,i)=>'$'+(i+1)).join(',')+') as v',args);await db.exec('reset role;release savepoint call_api');return r.rows[0].v;}catch(e){await db.exec('rollback to savepoint call_api;release savepoint call_api');throw e;}}
 const action=(name:string,data:object={},actor=owner)=>invoke('mbn_workspace_action',[actor,sid(actor),name,JSON.stringify(data)]);
 const lead=(overrides={})=>({school_code:'MLV BTS',full_name:'Synthetic Prospect',email:'synthetic@example.invalid',source:'META_LEAD',consent_email:true,consent_source:'Synthetic explicit form consent',...overrides});
+const metaAdmin=(name:string,data:object={},actor=owner)=>invoke('mbn_meta_admin_action',[actor,sid(actor),name,JSON.stringify(data)]);
+const metaRoute=(patch={})=>({page_id:'111110000001',form_id:'222220000001',label:'Formulaire synthétique',school_code:'MLV BTS',campus_code:'NOISIEL',program_id:program,
+ field_map:{name:'full_name',email:'email',phone:'phone_number',country:'country'},consent_field:'',consent_value:'',consent_statement:'',enabled:false,...patch});
+const metaEvent=(patch={})=>({page_id:'111110000001',form_id:'222220000001',leadgen_id:'333330000001',...patch});
+const metaData=(patch={})=>({id:'333330000001',form_id:'222220000001',created_time:'2026-10-19T12:00:00.000Z',fields:{full_name:['Synthetic Meta'],email:['meta@example.invalid']},...patch});
+const receiveMeta=(...events:object[])=>invoke('mbn_meta_receive',[JSON.stringify(events)]);
+const finishMeta=(job:any,data:object|null=metaData(),error:string|null=null,retry=false)=>invoke('mbn_meta_finish',[job.id,job.attempt_id,job.route_revision,JSON.stringify(data),error,retry]);
+async function claimedMeta(routePatch={},eventPatch={}){const route=await metaAdmin('save',metaRoute({enabled:true,...routePatch}));await receiveMeta(metaEvent(eventPatch));return {route,job:await invoke('mbn_meta_claim')};}
+test('Meta administration is initially empty, owner-only and does not expose applicant fields',()=>isolated(async()=>{
+ const data=await metaAdmin('context');assert.equal(data.schools.length,19);assert.deepEqual(data.routes,[]);assert.deepEqual(data.events,[]);
+ for(const actor of [cm,reviewer,other])await assert.rejects(metaAdmin('context',{},actor),{message:'access_denied'});
+ await assert.rejects(invoke('mbn_meta_admin_action',[owner,sid(cm),'context','{}']),{message:'access_denied'});
+}));
+test('Meta form routing validates school/catalog scope, consent evidence, uniqueness and revisions',()=>isolated(async()=>{
+ for(const patch of [{page_id:'https://evil.invalid'},{campus_code:'INVALID'},{program_id:crypto.randomUUID()},{field_map:{name:'full_name',email:''}},{consent_field:'opt_in'},{consent_value:'yes'}])await assert.rejects(metaAdmin('save',metaRoute(patch)),{message:'invalid_meta_route'});
+ const route=await metaAdmin('save',metaRoute());assert.equal(route.enabled,false);
+ await assert.rejects(metaAdmin('save',metaRoute()),{message:'meta_form_already_mapped'});
+ const updated=await metaAdmin('save',{...metaRoute({enabled:true}),id:route.id,expected_revision:route.revision});assert.notEqual(updated.revision,route.revision);
+ await assert.rejects(metaAdmin('save',{...metaRoute(),id:route.id,expected_revision:route.revision}),{message:'meta_route_changed'});
+ assert.equal((await db.query<{n:number}>('select count(*)::int n from private.mbn_meta_admin_events')).rows[0].n,2);
+}));
+test('signed Meta identifiers deduplicate and wait without guessing an unmapped school',()=>isolated(async()=>{
+ assert.equal((await receiveMeta(metaEvent())).created,1);assert.equal((await receiveMeta(metaEvent())).created,0);
+ assert.equal(await invoke('mbn_meta_claim'),null);const context=await metaAdmin('context');assert.equal(context.events[0].status,'UNMAPPED');assert.ok(!('email' in context.events[0]));
+ await assert.rejects(receiveMeta(metaEvent({page_id:'111110000002'})),{message:'invalid_meta_event'});
+ await metaAdmin('save',metaRoute({enabled:true}));assert.ok((await invoke('mbn_meta_claim')).attempt_id);
+}));
+test('paused Meta routes and inactive catalogs cannot claim a personal-data retrieval',()=>isolated(async()=>{
+ let route=await metaAdmin('save',metaRoute());await receiveMeta(metaEvent());assert.equal(await invoke('mbn_meta_claim'),null);
+ route=await metaAdmin('save',{...metaRoute({enabled:true}),id:route.id,expected_revision:route.revision});
+ await db.query('update public.school_programs set is_active=false where id=$1',[program]);assert.equal(await invoke('mbn_meta_claim'),null);
+ await db.query('update public.school_programs set is_active=true where id=$1',[program]);assert.ok((await invoke('mbn_meta_claim')).id);
+}));
+test('a Meta retrieval creates one school-scoped prospect without granting consent or creating mail or a dossier',()=>isolated(async()=>{
+ const {job}=await claimedMeta();assert.equal((await finishMeta(job)).status,'IMPORTED');
+ const detail=(await action('leads_list')).rows[0];assert.equal(detail.source,'META_LEAD');assert.equal(detail.source_external_id,'333330000001');assert.equal(detail.consent_email,false);assert.equal(detail.school_code,'MLV BTS');
+ assert.equal((await finishMeta(job)).status,'STALE');assert.equal((await action('leads_list')).total,1);
+ assert.equal((await action('applications_list')).total,0);assert.equal((await db.query<{n:number}>('select count(*)::int n from public.mail_messages')).rows[0].n,0);
+}));
+test('Meta custom fields and first/last-name fallback keep catalog routing on the server',()=>isolated(async()=>{
+ const {job}=await claimedMeta({field_map:{name:'full_name',email:'contact_email',phone:'',country:''}});
+ await finishMeta(job,metaData({fields:{first_name:['Fatou'],last_name:['Synthétique'],contact_email:[' META@example.invalid '],school_code:['CESCOM']}}));
+ const row=(await db.query('select * from public.crm_leads')).rows[0];assert.equal(row.full_name,'Fatou Synthétique');assert.equal(row.email,'meta@example.invalid');assert.equal(row.program_id,program);assert.equal(row.campus_code,'NOISIEL');assert.equal(row.school_code,'MLV BTS');
+}));
+test('Meta email consent requires the exact configured response and retains its statement as evidence',()=>isolated(async()=>{
+ const {job}=await claimedMeta({consent_field:'email_opt_in',consent_value:'Oui',consent_statement:'Je souhaite recevoir les e-mails de cette école.'});
+ const data=metaData();(data.fields as any).email_opt_in=['Oui'];await finishMeta(job,data);
+ const row=(await db.query<any>('select * from public.crm_leads')).rows[0];assert.equal(row.consent_email,true);assert.ok(row.consent_source.includes('Je souhaite recevoir'));
+ const evidence=(await db.query<any>('select consent_evidence from private.mbn_meta_inbox')).rows[0].consent_evidence;assert.equal(evidence.received_value,'Oui');assert.equal(evidence.effective,true);
+}));
+test('an absent or ambiguous Meta agreement never becomes marketing consent',()=>isolated(async()=>{
+ await metaAdmin('save',metaRoute({enabled:true,consent_field:'email_opt_in',consent_value:'Oui',consent_statement:'Je souhaite recevoir les e-mails.'}));
+ for(const [i,value] of [undefined,['true'],['Oui','Non']].entries()){
+  const id='33333000000'+(i+1);await receiveMeta(metaEvent({leadgen_id:id}));const job=await invoke('mbn_meta_claim');
+  const fields:any={full_name:['Synthetic'],email:['meta'+i+'@example.invalid']};if(value)fields.email_opt_in=value;
+  await finishMeta(job,metaData({id,fields}));
+ }
+ assert.ok((await db.query<any>('select consent_email from public.crm_leads')).rows.every(r=>r.consent_email===false));
+}));
+test('a Meta duplicate never overwrites an existing identity or restores a withdrawn consent',()=>isolated(async()=>{
+ const existing=await action('lead_save',lead({email:'meta@example.invalid',full_name:'Existing Synthetic',consent_email:false,consent_source:''}));await action('lead_exclude',{id:existing.id,note:'Synthetic exclusion'});
+ const {job}=await claimedMeta({consent_field:'email_opt_in',consent_value:'Oui',consent_statement:'Je souhaite recevoir les e-mails.'});
+ const data=metaData();(data.fields as any).email_opt_in=['Oui'];assert.equal((await finishMeta(job,data)).status,'DUPLICATE');
+ const row=(await action('lead_detail',{id:existing.id})).lead;assert.equal(row.full_name,'Existing Synthetic');assert.equal(row.consent_email,false);assert.equal(row.status,'DISQUALIFIED');assert.equal((await action('leads_list')).total,1);
+}));
+test('a cross-school withdrawal or suppression is preserved when Meta creates another school prospect',()=>isolated(async()=>{
+ await action('lead_save',lead({school_code:'EMSP',email:'meta@example.invalid',consent_email:false,consent_source:''}));
+ await db.exec("update public.crm_leads set status='UNSUBSCRIBED',unsubscribed_at=now(),email_suppressed_at=now() where school_code='EMSP'");
+ const {job}=await claimedMeta({consent_field:'email_opt_in',consent_value:'Oui',consent_statement:'Je souhaite recevoir les e-mails.'});const data=metaData();(data.fields as any).email_opt_in=['Oui'];await finishMeta(job,data);
+ const row=(await db.query<any>("select * from public.crm_leads where school_code='MLV BTS'")).rows[0];assert.equal(row.consent_email,false);assert.equal(row.status,'UNSUBSCRIBED');assert.ok(row.email_suppressed_at);
+}));
+test('a Meta external ID owned by another school cannot be silently reassigned',()=>isolated(async()=>{
+ await action('lead_save',lead({school_code:'EMSP',email:'other@example.invalid',source_external_id:'333330000001'}));
+ const {job}=await claimedMeta();assert.equal((await finishMeta(job)).status,'FAILED');assert.equal((await db.query<any>('select error_code from private.mbn_meta_inbox')).rows[0].error_code,'meta_source_conflict');
+ assert.equal((await action('leads_list')).total,1);
+}));
+test('a changed Meta route invalidates an in-flight retrieval and requires a reviewed retry',()=>isolated(async()=>{
+ const {route,job}=await claimedMeta();await metaAdmin('save',{...metaRoute({enabled:true}),id:route.id,expected_revision:route.revision,label:'Updated Synthetic'});
+ assert.equal((await finishMeta(job)).status,'FAILED');assert.equal((await action('leads_list')).total,0);
+ const event=(await metaAdmin('context')).events[0];await metaAdmin('retry',{id:event.id,expected_revision:event.revision});
+ await assert.rejects(metaAdmin('retry',{id:event.id,expected_revision:event.revision}),{message:'meta_event_changed'});
+ assert.ok((await invoke('mbn_meta_claim')).attempt_id);
+}));
+test('transient Meta reads back off, expire old leases, and stop after five automatic attempts',()=>isolated(async()=>{
+ const {job:first}=await claimedMeta();await finishMeta(first,null,'meta_temporarily_unavailable',true);assert.equal(await invoke('mbn_meta_claim'),null);
+ await db.exec("update private.mbn_meta_inbox set available_at=now()-interval '1 second'");const second=await invoke('mbn_meta_claim');
+ await db.exec("update private.mbn_meta_inbox set claimed_at=now()-interval '2 minutes'");const third=await invoke('mbn_meta_claim');assert.notEqual(third.attempt_id,second.attempt_id);
+ assert.equal((await finishMeta(second)).status,'STALE');await finishMeta(third,null,'meta_temporarily_unavailable',true);
+ for(let n=4;n<=5;n++){await db.exec("update private.mbn_meta_inbox set available_at=now()-interval '1 second'");const job=await invoke('mbn_meta_claim');assert.equal((await finishMeta(job,null,'meta_temporarily_unavailable',true)).status,n===5?'FAILED':'RETRY');}
+ assert.equal(await invoke('mbn_meta_claim'),null);assert.equal((await action('leads_list')).total,0);
+}));
+test('Meta data without a usable email or with a forged identity never creates an incomplete prospect',()=>isolated(async()=>{
+ for(const [i,patch] of [{fields:{full_name:['Synthetic']}},{id:'999990000001'}].entries()){
+  if(i===0)await metaAdmin('save',metaRoute({enabled:true}));const id='33333000000'+(i+1);await receiveMeta(metaEvent({leadgen_id:id}));const job=await invoke('mbn_meta_claim');assert.equal((await finishMeta(job,metaData({...patch}))).status,'FAILED');
+ }
+ assert.equal((await action('leads_list')).total,0);
+}));
+test('Meta RPCs and private tables are unavailable to browser roles',()=>isolated(async()=>{
+ const {rows}=await db.query<any>(`select p.proname,p.prosecdef,has_function_privilege('anon',p.oid,'EXECUTE') anon,has_function_privilege('authenticated',p.oid,'EXECUTE') staff from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='public' and p.proname like 'mbn_meta_%'`);
+ assert.equal(rows.length,4);for(const row of rows){assert.equal(row.prosecdef,false);assert.equal(row.anon,false);assert.equal(row.staff,false);}
+ const {rows:tables}=await db.query<any>(`select c.relrowsecurity,has_table_privilege('authenticated',c.oid,'SELECT') allowed from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='private' and c.relkind='r' and c.relname like 'mbn_meta_%'`);
+ assert.equal(tables.length,3);for(const row of tables){assert.equal(row.relrowsecurity,true);assert.equal(row.allowed,false);}
+}));
 test('runtime keys initialize against the real defaulted Vault signature and remain service-only',()=>isolated(async()=>{
  assert.equal((await db.query<{n:number}>('select count(*)::int n from private.mbn_runtime_secrets')).rows[0].n,3);
  assert.ok(String(await invoke('mbn_runtime_key',['brevo_webhook'])).length>=80);

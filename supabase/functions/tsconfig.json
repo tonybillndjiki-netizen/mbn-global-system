@@ -24,6 +24,7 @@
     "mbn-mail-events/handler.ts",
     "mbn-letters/handler.ts",
     "mbn-workspace/brevo.ts",
-    "mbn-brevo-events/handler.ts"
+    "mbn-brevo-events/handler.ts",
+    "mbn-meta/handler.ts"
   ]
 }

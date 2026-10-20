@@ -15,6 +15,8 @@ Trois profils d’expédition Brevo sont prévus : MBN Global Éducation, Campus
 
 Le [lot lettres d’admission](docs/LETTRES_ADMISSION.md) ajoute un modèle national distinct et centralise les frais, signataires et rentrées par école et type d’admission. Les 38 configurations démarrent vides et en pause. Le texte national doit être validé par la direction avant utilisation ; les aperçus devenus obsolètes doivent être régénérés avant envoi.
 
+Le [lot connexion Meta](docs/CONNEXION_META.md) prépare la réception signée des nouveaux prospects Lead Ads, leur rattachement par formulaire et une file de récupération avec reprises. Les notifications répétées sont dédupliquées et les consentements existants sont conservés ; aucun e-mail n’est créé par cette connexion. Le compte Meta, les accès aux pages et les formulaires restent à configurer et à tester réellement.
+
 Le [lot équipes et affectations](docs/EQUIPES_AFFECTATIONS.md) ajoute le choix des responsables par école, campus et formation, un suivi de configuration des écoles et un aperçu avant reprise des dossiers sans responsable. La répartition réelle reste à valider et à renseigner dans l’interface.
 
 Le [lot pièces complémentaires](docs/PIECES_COMPLEMENTAIRES.md) permet de préparer une demande, de l’envoyer avec l’expéditeur de l’école et de recevoir uniquement les pièces demandées sur un lien personnel. Les anciennes versions restent privées et les nouveaux fichiers reviennent en vérification.
