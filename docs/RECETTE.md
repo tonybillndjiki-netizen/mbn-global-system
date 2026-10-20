@@ -1,6 +1,6 @@
 # Recette de validation MBN GLOBAL
 
-Cette grille prépare les essais réels du parcours demandé dans le document de référence. Les tests locaux passent sur des données synthétiques ; ils ne constituent pas une validation avec les comptes Brevo, Meta ou un moteur antivirus réel. Les écrans sont exercés dans un DOM simulé ; la vérification visuelle dans un vrai navigateur reste à effectuer.
+Cette grille prépare les essais réels du parcours demandé dans le document de référence. Google Apps Script est désormais le fournisseur choisi pour les prochains envois ; suivre d’abord [son guide](APPS_SCRIPT.md). Les cas Brevo ci-dessous documentent le fournisseur historique. Les tests locaux passent sur des données synthétiques ; ils ne constituent pas une validation avec un compte Google, Brevo, Meta ou un moteur antivirus réel. Les écrans sont exercés dans un DOM simulé ; la vérification visuelle dans un vrai navigateur reste à effectuer.
 
 ## Relevé des vérifications automatisées
 
@@ -20,6 +20,9 @@ Renseigner l’environnement, le commit exact, la date, le nom du vérificateur 
 | Mauvaise cible | Présenter au précontrôle une origine qui ne correspond pas au site choisi | Arrêt avant les migrations et la publication | Couvert localement, essai d’environnement à faire |
 | Base historique | Lire et comparer l’historique hébergé avec les migrations | Écart identifié, aucune réparation automatique | Réconciliation à préparer avant livraison |
 | Premier accès | Créer et confirmer le propriétaire, configurer Mon accès | Connexion personnelle ; ancien accès révoqué après changement | À tester sur la cible |
+| Apps Script | Autoriser le projet avec le compte Google choisi, raccorder son URL et son secret | Compte réel et quota vérifiés ; aucun envoi par une autre adresse | Compte et déploiement Google à fournir |
+| Test Google | Recevoir un test puis confirmer sa réception dans le CRM | Confirmation humaine liée au bon test ; aucun statut de remise automatique inventé | À réaliser avec le propriétaire |
+| Reprise Google | Répéter une demande synthétique ; interrompre son résultat | Pas de deuxième mail ; résultat incertain à vérifier manuellement | Couvert avec les services simulés ; recette Google à réaliser |
 | Accès restreint | Se connecter avec un collaborateur limité à une seule école | Les autres écoles, pièces et actions restent inaccessibles | À tester en navigateur |
 | Trois expéditeurs | Renseigner puis vérifier chaque adresse et son groupe | Rattachements explicites des écoles et aucun groupe activé sans sa propre preuve de remise | Adresses et groupes à valider |
 | Test e-mail | Envoyer un test autorisé de chaque groupe et attendre son retour | Destinataire correct, nom Service admissions - école, bonne identité de campus et contact admissions | Brevo réel à configurer |

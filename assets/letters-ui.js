@@ -86,7 +86,7 @@ export async function openLetterEditor(deps,applicationId){
   <div class="error form-error" role="alert" hidden></div><div class="dialog-actions"><button class="btn" type="submit" ${canGenerate?'':'disabled'}>Générer l’aperçu PDF</button></div></div>
   <div class="preview-column"><span class="eyebrow">LETTRE ET NOTICE</span><div id="letterPreview" class="notice" role="status">L’aperçu PDF apparaîtra ici après génération.</div><p id="letterPreviewStatus" class="small" role="status"></p>
   <label class="check-label"><input type="checkbox" id="approveLetter" disabled> J’ai vérifié le candidat, le logo, la formation, la rentrée, les frais, le texte et chaque pièce jointe.</label>
-  <button class="btn full" type="button" id="sendLetter" disabled>Envoyer la lettre et ses pièces avec Brevo</button><p class="small">La génération ne déclenche aucun envoi. Une acceptation par Brevo et la remise au serveur destinataire sont suivies séparément.</p></div></div></form>
+  <button class="btn full" type="button" id="sendLetter" disabled>Envoyer la lettre et ses pièces</button><p class="small">La génération ne déclenche aucun envoi. Un message transmis au service d’envoi ne constitue pas une confirmation de réception.</p></div></div></form>
   ${data.letters.length?`<h3 class="more">Lettres générées</h3><div class="document-list">${data.letters.map(l=>`<div class="row between wrap"><span>${h(new Date(l.created_at).toLocaleString('fr-FR'))} / ${h(l.status||'Aperçu généré')}</span>${l.generated_at?`<button class="btn ghost sm" type="button" data-letter-download="${h(l.id)}">Télécharger le PDF</button>`:''}</div>`).join('')}</div>`:''}`,{wide:true});
  const form=node.querySelector('#letterForm'),generate=form.querySelector('[type=submit]'),send=node.querySelector('#sendLetter'),approval=node.querySelector('#approveLetter'),preview=node.querySelector('#letterPreview'),status=node.querySelector('#letterPreviewStatus'),error=form.querySelector('.form-error');
  let generatedId,previewURL,editVersion=0;
@@ -116,7 +116,7 @@ export async function openLetterEditor(deps,applicationId){
  };
  send.onclick=async()=>{
   if(!generatedId||!approval.checked)return;send.disabled=true;approval.disabled=true;generate.disabled=true;
-  try{const result=await request('letter_send',{id:generatedId,confirmed:true});clear();status.textContent=result.status==='ACCEPTED'?'Lettre acceptée par Brevo. Consultez ensuite son retour de livraison.':result.status==='UNCERTAIN'?'Résultat d’envoi à vérifier. Aucun nouvel envoi automatique ne sera effectué.':'Envoi refusé. Consultez la file d’envoi.';await refreshCRM();}
+  try{const result=await request('letter_send',{id:generatedId,confirmed:true});clear();status.textContent=result.status==='ACCEPTED'?'Lettre transmise au service d’envoi. Sa réception reste à vérifier.':result.status==='UNCERTAIN'?'Résultat d’envoi à vérifier. Aucun nouvel envoi automatique ne sera effectué.':'Envoi refusé. Consultez la file d’envoi.';await refreshCRM();}
   catch(e){status.textContent=e.message;approval.disabled=false;send.disabled=false;}
   finally{if(generate.isConnected)generate.disabled=!canGenerate;}
  };
