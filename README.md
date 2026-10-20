@@ -17,6 +17,8 @@ Le [lot équipes et affectations](docs/EQUIPES_AFFECTATIONS.md) ajoute le choix 
 
 Le [lot pièces complémentaires](docs/PIECES_COMPLEMENTAIRES.md) permet de préparer une demande, de l’envoyer avec l’expéditeur de l’école et de recevoir uniquement les pièces demandées sur un lien personnel. Les anciennes versions restent privées et les nouveaux fichiers reviennent en vérification.
 
+Le [lot relances après clic](docs/RELANCES_APRES_CLIC.md) ajoute un calendrier et des messages réglables par école dans MBN Mail. Les relances concernent les prochains clics confirmés après activation, s’arrêtent au dépôt et expirent sans rattrapage groupé.
+
 ## Développement et livraison
 
 Node 24.19.0, Python 3.12. Dépendances exactes et verrouillées.

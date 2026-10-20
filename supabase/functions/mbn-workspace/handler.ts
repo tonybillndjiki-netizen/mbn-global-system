@@ -106,6 +106,7 @@ export function createHandler(deps:Dependencies){
    if(!actor)throw new AppError('authentication_required',401);
    const input=await readJSON(request);if(Object.keys(input).some(k=>!['action','data'].includes(k)))throw new AppError('invalid_request');
    const data=object(input.data||{}),args={p_actor:actor.id,p_session:actor.session_id,p_action:input.action,p_data:data};
+   if(['followups_context','followup_save','followup_toggle'].includes(input.action))return json(await rpc('mbn_followup_action',args));
    if(['document_requests_context','document_request_create','document_request_cancel','document_request_send'].includes(input.action)){
     const action=input.action==='document_requests_context'?'context':input.action==='document_request_create'?'create':input.action==='document_request_cancel'?'cancel':'context';
     if(input.action!=='document_request_send')return json(await rpc('mbn_document_requests_action',{...args,p_action:action}));

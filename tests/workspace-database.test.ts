@@ -721,3 +721,111 @@ test('a correction request stays bound to its dossier and rejects invalid metada
  assert.equal(await documentAction('authorized',{id:q.id,attempt_id:claim.message.attempt_id}),false);
  assert.equal((await db.query<any>('select status from public.mail_messages where id=$1',[claim.message.id])).rows[0].status,'CANCELED');
 }));
+
+const followup=(name:string,data:object={},actor=owner)=>invoke('mbn_followup_action',[actor,sid(actor),name,JSON.stringify(data)]);
+const followupSteps=[{days:2,subject:'Votre candidature {{ecole}}',body:'Bonjour {{prenom}}, votre candidature reste à déposer.'},{days:5,subject:'Compléter votre candidature',body:'Bonjour {{prenom}}, notre service admissions reste à votre écoute.'}];
+const followupSchool=async(actor=owner)=>(await followup('followups_context',{},actor)).schools.find((s:any)=>s.school_code==='MLV BTS');
+async function setFollowups(steps=followupSteps){
+ const current=await followupSchool(),saved=await followup('followup_save',{school_code:'MLV BTS',expected_revision:current.revision,steps});
+ return followup('followup_toggle',{school_code:'MLV BTS',expected_revision:saved.revision,enabled:true});
+}
+async function followupProspect(email='followup@example.invalid'){
+ const l=await action('lead_save',lead({email})),c=await campaign();await action('campaign_launch',{id:c.id});const link=await invoke('mbn_mail_link',[l.id]);return {lead:l,link,campaign:c};
+}
+const followupRows=async()=> (await db.query<any>("select q.*,m.id message_id,m.status mail_status,m.subject,m.body from public.crm_outreach_queue q join public.mail_messages m on m.outreach_id=q.id where q.sequence_type='CLICKED_NOT_SUBMITTED' order by q.attempt_number")).rows;
+async function dueFollowup(){await db.exec("update public.crm_outreach_queue set scheduled_at=now()-make_interval(secs=>4-attempt_number) where sequence_type='CLICKED_NOT_SUBMITTED';update public.mail_messages m set scheduled_at=q.scheduled_at from public.crm_outreach_queue q where q.id=m.outreach_id and q.sequence_type='CLICKED_NOT_SUBMITTED'");}
+
+test('followup calendars start empty and enforce school campaign permission, versions and strict days',()=>isolated(async()=>{
+ const initial=await followupSchool();assert.deepEqual(initial.steps,[]);assert.equal(initial.enabled,false);assert.equal(initial.revision,null);
+ assert.equal((await followupSchool(cm)).can_edit,false);
+ const data={school_code:'MLV BTS',expected_revision:null,steps:followupSteps};
+ await assert.rejects(followup('followup_save',data,cm),{message:'access_denied'});
+ await assert.rejects(followup('followup_save',data,other),{message:'access_denied'});
+ for(const steps of [[],[...followupSteps,...followupSteps],[{...followupSteps[0],days:0}],[{...followupSteps[0],days:22}],[{...followupSteps[0],days:1.5}],[{...followupSteps[0],days:'2'}],[followupSteps[1],followupSteps[0]],[followupSteps[0],followupSteps[0]],[{...followupSteps[0],subject:'bad\r\nsubject'}],[{...followupSteps[0],body:null}]])await assert.rejects(followup('followup_save',{...data,steps}),{message:'invalid_followup'});
+ const saved=await followup('followup_save',data);assert.equal(saved.enabled,false);
+ await assert.rejects(followup('followup_toggle',{school_code:'MLV BTS',expected_revision:null,enabled:true}),{message:'followup_changed'});
+ const active=await followup('followup_toggle',{school_code:'MLV BTS',expected_revision:saved.revision,enabled:true});assert.equal(active.enabled,true);assert.notEqual(active.revision,saved.revision);
+ assert.equal((await followup('followup_toggle',{school_code:'MLV BTS',expected_revision:active.revision,enabled:true})).revision,active.revision);
+ const {rows:[priv]}=await db.query<any>("select has_function_privilege('authenticated','public.mbn_followup_action(uuid,uuid,text,jsonb)','EXECUTE') allowed,has_table_privilege('anon','private.mbn_followup_settings','SELECT') readable");assert.equal(priv.allowed,false);assert.equal(priv.readable,false);
+}));
+
+test('confirmed clicks create the configured second sequence once and do not restart the invitation sequence',()=>isolated(async()=>{
+ const settings=await setFollowups(),p=await followupProspect();
+ await invoke('mbn_candidate_context',[p.link.id,'info']);assert.equal((await followupRows()).length,0);
+ await invoke('mbn_candidate_context',[p.link.id,'engage']);await invoke('mbn_candidate_context',[p.link.id,'engage']);
+ const rows=await followupRows();assert.equal(rows.length,2);assert.deepEqual(rows.map(r=>r.attempt_number),[1,2]);
+ assert.ok(rows.every(r=>r.followup_revision===settings.revision&&r.mail_status==='QUEUED'&&r.campaign_id===p.campaign.id));
+ assert.equal(rows[0].body,followupSteps[0].body);
+ const {rows:delays}=await db.query<any>("select extract(epoch from (q.scheduled_at-l.clicked_at))/86400 days,extract(epoch from (q.expires_at-q.scheduled_at))/3600 hours from public.crm_outreach_queue q join public.crm_leads l on l.id=q.lead_id where q.sequence_type='CLICKED_NOT_SUBMITTED' order by q.attempt_number");
+ assert.deepEqual(delays.map(d=>[Number(d.days),Number(d.hours)]),[[2,24],[5,24]]);
+ assert.equal((await db.query<any>("select count(*)::int n from public.mail_messages m join public.crm_outreach_queue q on q.id=m.outreach_id where q.sequence_type='META_UNCLICKED' and m.status='QUEUED'")).rows[0].n,0);
+ await db.query("update public.crm_leads set status='STARTED' where id=$1",[p.lead.id]);assert.ok((await followupRows()).every(r=>r.mail_status==='QUEUED'));
+ assert.equal((await action('lead_detail',{id:p.lead.id})).events.filter((e:any)=>e.event_type==='FOLLOWUPS_PLANNED').length,1);
+}));
+
+test('activation does not backfill historical clicks or enroll contacts outside the Meta campaign',()=>isolated(async()=>{
+ const historical=await followupProspect();await invoke('mbn_candidate_context',[historical.link.id,'engage']);await setFollowups();
+ await invoke('mbn_candidate_context',[historical.link.id,'engage']);assert.equal((await followupRows()).length,0);
+ const direct=await action('lead_save',lead({email:'direct-followup@example.invalid',source:'DIRECT'})),directLink=await invoke('mbn_mail_link',[direct.id]);
+ await invoke('mbn_candidate_context',[directLink.id,'engage']);assert.equal((await followupRows()).length,0);
+ const messenger=await action('lead_save',lead({email:'messenger-followup@example.invalid',source:'META_MESSENGER'})),messengerLink=await invoke('mbn_mail_link',[messenger.id]);
+ await invoke('mbn_candidate_context',[messengerLink.id,'engage']);assert.equal((await followupRows()).length,0);
+ const withoutCampaign=await action('lead_save',lead({email:'manual-link@example.invalid'})),manualLink=await invoke('mbn_mail_link',[withoutCampaign.id]);
+ await invoke('mbn_candidate_context',[manualLink.id,'engage']);assert.equal((await followupRows()).length,0);
+}));
+
+test('followups wait for their due date, respect campaign pause and the common quota, and finish without inviting again',()=>isolated(async()=>{
+ await enableGroups();await setFollowups();const p=await followupProspect();await invoke('mbn_candidate_context',[p.link.id,'engage']);
+ assert.equal(await invoke('mbn_mail_profile_claim',['CAMPUS_INNOVATION_MLV',null]),null);
+ await dueFollowup();await action('campaign_pause',{id:p.campaign.id});assert.equal(await invoke('mbn_mail_profile_claim',['CAMPUS_INNOVATION_MLV',null]),null);
+ await action('campaign_resume',{id:p.campaign.id});await action('mail_limit_save',{daily_limit:3});assert.equal(await invoke('mbn_mail_profile_claim',['CAMPUS_INNOVATION_MLV',null]),null);
+ await action('mail_limit_save',{daily_limit:4});
+ const first=await invoke('mbn_mail_profile_claim',['CAMPUS_INNOVATION_MLV',null]);assert.ok(first);assert.equal(first.subject,followupSteps[0].subject);assert.equal(first.sender.from_email,groupEmail('CAMPUS_INNOVATION_MLV'));
+ assert.equal(await invoke('mbn_mail_profile_authorized',[first.id,first.attempt_id]),true);
+ assert.equal(await invoke('mbn_mail_profile_claim',['CAMPUS_INNOVATION_MLV',null]),null);
+ assert.equal(await invoke('mbn_mail_finish',[first.id,first.attempt_id,'ACCEPTED','synthetic-followup-id',null]),true);
+ assert.equal((await action('lead_detail',{id:p.lead.id})).lead.status,'CLICKED');assert.equal((await followupSchool()).accepted,1);
+ assert.equal((await followupRows())[1].mail_status,'QUEUED');
+}));
+
+test('editing or disabling followups cancels pending messages, revokes an outstanding lease and never replays old clicks',()=>isolated(async()=>{
+ await enableGroups();await setFollowups();const p=await followupProspect();await invoke('mbn_candidate_context',[p.link.id,'engage']);await dueFollowup();
+ const claim=await invoke('mbn_mail_profile_claim',['CAMPUS_INNOVATION_MLV',null]),current=await followupSchool();assert.ok(claim);
+ const edited=await followup('followup_save',{school_code:'MLV BTS',expected_revision:current.revision,steps:[{...followupSteps[0],days:3}]});assert.equal(edited.enabled,false);
+ assert.equal(await invoke('mbn_mail_profile_authorized',[claim.id,claim.attempt_id]),false);
+ assert.ok((await followupRows()).every(r=>r.mail_status==='CANCELED'));
+ const active=await followup('followup_toggle',{school_code:'MLV BTS',expected_revision:edited.revision,enabled:true});
+ await invoke('mbn_candidate_context',[p.link.id,'engage']);assert.equal((await followupRows()).length,2);
+ const fresh=await followupProspect('fresh-followup@example.invalid');await invoke('mbn_candidate_context',[fresh.link.id,'engage']);assert.equal((await followupRows()).length,3);
+ await followup('followup_toggle',{school_code:'MLV BTS',expected_revision:active.revision,enabled:false});assert.ok((await followupRows()).every(r=>r.mail_status==='CANCELED'));
+}));
+
+test('a missed followup expires instead of catching up and a revoked or short-lived link cannot receive late reminders',()=>isolated(async()=>{
+ await enableGroups();await setFollowups();const p=await followupProspect();await invoke('mbn_candidate_context',[p.link.id,'engage']);await dueFollowup();
+ await db.exec("update public.crm_outreach_queue set expires_at=now()-interval '1 second' where sequence_type='CLICKED_NOT_SUBMITTED'");
+ assert.equal(await invoke('mbn_mail_profile_claim',['CAMPUS_INNOVATION_MLV',null]),null);assert.ok((await followupRows()).every(r=>r.mail_status==='CANCELED'));
+ const short=await followupProspect('short-link@example.invalid');await db.query("update private.mbn_admission_links set expires_at=now()+interval '3 days' where id=$1",[short.link.id]);await invoke('mbn_candidate_context',[short.link.id,'engage']);
+ assert.equal((await followupRows()).filter(r=>r.lead_id===short.lead.id).length,1);
+ await db.query('update private.mbn_admission_links set revoked_at=now() where id=$1',[short.link.id]);await dueFollowup();
+ assert.equal(await invoke('mbn_mail_profile_claim',['CAMPUS_INNOVATION_MLV',null]),null);assert.ok((await followupRows()).every(r=>r.mail_status==='CANCELED'));
+}));
+
+test('the retired single-sender worker leaves the new sequence intact',()=>isolated(async()=>{
+ await setFollowups();const p=await followupProspect();await invoke('mbn_candidate_context',[p.link.id,'engage']);await dueFollowup();
+ await db.exec("update private.mbn_mail_settings set sender_verified=true,account_sending_enabled=true,production_access=true,enabled=true,provider_checked_at=now()");
+ assert.equal(await invoke('mbn_mail_claim',[null]),null);assert.ok((await followupRows()).every(r=>r.mail_status==='QUEUED'));
+}));
+
+test('withdrawal, exclusion, submission, bounce, missing permission and a changed address stop pending followups',async()=>{
+ for(const mutation of ["consent_email=false","status='DISQUALIFIED'","submitted_at=now(),status='SUBMITTED'","email_suppressed_at=now()","email='different@example.invalid'"]){await isolated(async()=>{
+  await enableGroups();await setFollowups();const p=await followupProspect();await invoke('mbn_candidate_context',[p.link.id,'engage']);await dueFollowup();
+  await db.query('update public.crm_leads set '+mutation+' where id=$1',[p.lead.id]);
+  assert.equal(await invoke('mbn_mail_profile_claim',['CAMPUS_INNOVATION_MLV',null]),null);assert.ok((await followupRows()).every(r=>r.mail_status==='CANCELED'));
+ });}
+ await isolated(async()=>{
+  await enableGroups();await db.query('update public.school_memberships set can_send_campaigns=true where user_id=$1',[cm]);
+  const saved=await followup('followup_save',{school_code:'MLV BTS',expected_revision:null,steps:followupSteps},cm);await followup('followup_toggle',{school_code:'MLV BTS',expected_revision:saved.revision,enabled:true},cm);
+  const p=await followupProspect();await invoke('mbn_candidate_context',[p.link.id,'engage']);await dueFollowup();await db.query('update public.school_memberships set can_send_campaigns=false where user_id=$1',[cm]);
+  assert.equal(await invoke('mbn_mail_profile_claim',['CAMPUS_INNOVATION_MLV',null]),null);assert.ok((await followupRows()).every(r=>r.mail_status==='CANCELED'));
+ });
+});
