@@ -53,5 +53,7 @@ jobs:
           supabase start
           supabase db reset --local
           docker exec -i supabase_db_mbn-global-system psql -U postgres -d postgres -v ON_ERROR_STOP=1 < tests/fresh-installation.sql
+      - name: Check sender resets with hosted write protection
+        run: docker exec -i supabase_db_mbn-global-system psql -U supabase_admin -d postgres -v ON_ERROR_STOP=1 < tests/mail-safeupdate.sql
       - if: always()
         run: supabase stop --no-backup
