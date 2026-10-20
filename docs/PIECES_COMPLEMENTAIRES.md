@@ -72,8 +72,9 @@ complet ou admis après le dépôt.
   les nouveaux fichiers. Une reprise reconnue ne crée pas de doublon.
 - Les nouvelles tables et RPC sont réservées au serveur ; les rôles navigateur
   n’obtiennent aucun accès direct au stockage privé.
-- Les documents restent marqués `NOT_SCANNED` : l’analyse antivirus demeure
-  un chantier distinct du document du responsable.
+- Le [bloc antivirus](ANTIVIRUS.md) prend en charge les documents encore
+  `NOT_SCANNED`. Une nouvelle version exige sa propre analyse avant téléchargement
+  et validation ; le résultat de l’ancienne version n’est jamais réutilisé.
 
 ## Livraison et vérification
 

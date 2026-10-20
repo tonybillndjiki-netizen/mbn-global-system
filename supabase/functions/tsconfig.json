@@ -25,6 +25,7 @@
     "mbn-letters/handler.ts",
     "mbn-workspace/brevo.ts",
     "mbn-brevo-events/handler.ts",
-    "mbn-meta/handler.ts"
+    "mbn-meta/handler.ts",
+    "mbn-antivirus/handler.ts"
   ]
 }

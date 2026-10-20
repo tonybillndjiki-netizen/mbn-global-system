@@ -1,0 +1,15 @@
+# Merge with the daemon configuration for your host. Both daemon and adapter use UTC.
+LocalSocket /run/clamav/clamd.sock
+LocalSocketMode 660
+FixStaleSocket yes
+User clamav
+DatabaseDirectory /var/lib/clamav
+StreamMaxLength 6M
+MaxFileSize 6M
+MaxScanSize 24M
+MaxScanTime 15000
+ScanPDF yes
+AlertEncrypted yes
+AlertExceedsMax yes
+HeuristicAlerts yes
+SelfCheck 300

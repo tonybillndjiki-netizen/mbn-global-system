@@ -71,7 +71,9 @@ L’installation hébergée historique comporte des horodatages de migrations di
 
 Après validation complète, dont la reconstruction Supabase locale, le contrôleur vérifie le site Netlify, la clé publique, les inscriptions Auth, l’historique et l’origine déjà installée. Il utilise ensuite le CLI épinglé pour lier la copie préparée, effectuer `db push --dry-run`, puis appliquer les migrations. Il initialise le catalogue seulement pour une base neuve ou lorsque `MBN_INITIALIZE_CATALOG=true` est explicitement demandé. Les activations existantes sont préservées.
 
-Il contrôle Vault, configure les URL du planificateur, publie les huit fonctions, installe les vingt logos et les deux polices dont les empreintes sont fixées en base, puis vérifie la santé du backend. Le site est publié en dernier. Le contrôleur attend l’état Netlify `ready` et contrôle le commit et la cible dans `health.json`.
+Il contrôle Vault, configure les URL du planificateur, publie les neuf fonctions, installe les vingt logos et les deux polices dont les empreintes sont fixées en base, puis vérifie la santé du backend. Le site est publié en dernier. Le contrôleur attend l’état Netlify `ready` et contrôle le commit et la cible dans `health.json`.
+
+La neuvième fonction, `mbn-antivirus`, exige l’installation et la recette d’un moteur ClamAV selon [ANTIVIRUS.md](ANTIVIRUS.md). Son traitement démarre en pause. Dès l’installation de sa migration, les pièces non analysées ne peuvent plus être téléchargées ou nouvellement approuvées, et elles bloquent les nouvelles décisions protégées. Préparer ce raccordement en recette avant une livraison en production.
 
 L’exécution locale d’une livraison exige un checkout propre, `MBN_DEPLOY_ENABLED=true`, les secrets attendus et la référence exacte de la cible :
 

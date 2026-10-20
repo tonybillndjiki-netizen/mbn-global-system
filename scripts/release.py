@@ -14,7 +14,7 @@ from release_config import target_from_env
 
 ROOT = Path(__file__).resolve().parents[1]
 GENERATED = ROOT / '.release'
-FUNCTIONS = ('mbn-auth', 'mbn-form-ingest', 'mbn-workspace', 'mbn-admissions', 'mbn-letters', 'mbn-brevo-events', 'mbn-mail-events', 'mbn-meta')
+FUNCTIONS = ('mbn-auth', 'mbn-form-ingest', 'mbn-workspace', 'mbn-admissions', 'mbn-letters', 'mbn-brevo-events', 'mbn-mail-events', 'mbn-meta', 'mbn-antivirus')
 CLI_VERSION = '2.121.0'
 
 
@@ -183,7 +183,7 @@ def apply(providers, manifest, plan):
     for function in FUNCTIONS:
         cli('functions', 'deploy', function, '--project-ref', providers.target.ref, '--use-api', '--no-verify-jwt')
     install_public_assets(providers)
-    for service in ('mbn-form-ingest', 'mbn-letters'):
+    for service in ('mbn-form-ingest', 'mbn-letters', 'mbn-antivirus'):
         health = http(providers.target.url + '/functions/v1/' + service + '?health=1', headers={'apikey': providers.target.key})
         if health.get('service') != service:
             raise ValueError('Backend health check failed before the site publication')

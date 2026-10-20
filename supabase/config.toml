@@ -43,3 +43,6 @@ verify_jwt = false
 verify_jwt = false
 [functions.mbn-meta]
 verify_jwt = false
+
+[functions.mbn-antivirus]
+verify_jwt = false

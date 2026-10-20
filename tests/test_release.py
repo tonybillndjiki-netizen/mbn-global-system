@@ -131,8 +131,8 @@ class ProviderBoundaries(unittest.TestCase):
             release.apply(self.provider, manifest, {'fresh': False})
         self.assertEqual(cli.call_args_list[1].args, ('db', 'push', '--dry-run'))
         self.assertEqual(cli.call_args_list[2].args, ('db', 'push'))
-        self.assertEqual(trace[:2], [TARGET.url + '/functions/v1/mbn-form-ingest?health=1', TARGET.url + '/functions/v1/mbn-letters?health=1'])
-        self.assertEqual(trace[2], '/deploys')
+        self.assertEqual(trace[:3], [TARGET.url + '/functions/v1/' + service + '?health=1' for service in ('mbn-form-ingest', 'mbn-letters', 'mbn-antivirus')])
+        self.assertEqual(trace[3], '/deploys')
         self.assertTrue(trace[-1].startswith(TARGET.origin + '/health.json?commit=' + manifest['commit']))
 
 

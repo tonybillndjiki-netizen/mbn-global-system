@@ -1,0 +1,21 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {parseHTML,HTMLElement,HTMLInputElement} from 'linkedom';
+import {openAntivirus} from '../assets/antivirus-ui.js';
+test('antivirus controls cannot activate a missing engine or override an infected document',async()=>{
+ const {document}=parseHTML('<html><body></body></html>');globalThis.document=document as unknown as Document;
+ Object.defineProperty(HTMLElement.prototype,'elements',{get(){return Object.fromEntries([...this.querySelectorAll('[name]')].map(el=>[el.getAttribute('name'),el]));}});
+ Object.defineProperty(HTMLInputElement.prototype,'checked',{get(){return this.hasAttribute('checked');},set(value){this.toggleAttribute('checked',Boolean(value));}});
+ const context={configured:false,settings:{enabled:false,revision:'settings-revision'},counts:{NOT_SCANNED:2,INFECTED:1},errors:[{id:'infected',kind:'CV <img src=x>',scan_status:'INFECTED',scan_attempts:1,scan_revision:'infected-revision'},{id:'failed',kind:'DIPLOME',scan_status:'ERROR',scan_attempts:5,scan_revision:'error-revision'}]};
+ const calls:any[]=[];
+ const request=async(action:string,data={})=>{calls.push({action,data});if(action==='scan_context')return structuredClone(context);return {};};
+ const dialog=(_title:string,body:string)=>{const node=document.createElement('dialog') as any;node.innerHTML=body;node.close=()=>node.remove();document.body.append(node);return node;};
+ const h=(value:unknown)=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]!));
+ const deps={request,dialog,escapeHTML:h,toast:()=>{}};let node=await openAntivirus(deps);
+ assert.equal(node.querySelector('[name=enabled]').disabled,true);assert.equal(node.querySelector('#processScans').disabled,true);assert.equal(node.querySelector('[data-scan-retry=infected]'),null);assert.equal(node.querySelectorAll('img').length,0);
+ await node.querySelector('[data-scan-retry=failed]').onclick();assert.deepEqual(calls.find(c=>c.action==='scan_retry').data,{id:'failed',expected_revision:'error-revision'});
+ for(const dialog of document.querySelectorAll('dialog'))(dialog as any).close();context.configured=true;
+ node=await openAntivirus(deps);const form=node.querySelector('form');form.elements.enabled.checked=true;await form.onsubmit({preventDefault(){},currentTarget:form});
+ assert.deepEqual(calls.find(c=>c.action==='scan_save').data,{enabled:true,expected_revision:'settings-revision'});
+ assert.ok(!calls.some(c=>JSON.stringify(c.data).includes('CLEAN')));
+});

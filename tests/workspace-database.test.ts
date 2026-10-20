@@ -27,6 +27,12 @@ before(async()=>{
 after(()=>db.close());
 async function isolated(fn:()=>Promise<void>){await db.exec('begin');try{await fn();}finally{await db.exec('rollback');}}
 async function invoke(name:string,args:unknown[]=[]){await db.exec('savepoint call_api;set local role service_role');try{const r=await db.query<{v:any}>('select public.'+name+'('+args.map((_,i)=>'$'+(i+1)).join(',')+') as v',args);await db.exec('reset role;release savepoint call_api');return r.rows[0].v;}catch(e){await db.exec('rollback to savepoint call_api;release savepoint call_api');throw e;}}
+async function scanPendingFixtures(){
+ // Synthetic antivirus verdicts isolate the business tests from a real engine.
+ await db.exec('update private.mbn_scan_settings set enabled=true');
+ for(let i=0;i<20;i++){const job=await invoke('mbn_scan_claim');if(!job)break;await invoke('mbn_scan_finish',[job.id,job.attempt_id,job.sha256,'CLEAN','ClamAV synthetic/1',null]);}
+ await db.exec('update private.mbn_scan_settings set enabled=false');
+}
 const action=(name:string,data:object={},actor=owner)=>invoke('mbn_workspace_action',[actor,sid(actor),name,JSON.stringify(data)]);
 const lead=(overrides={})=>({school_code:'MLV BTS',full_name:'Synthetic Prospect',email:'synthetic@example.invalid',source:'META_LEAD',consent_email:true,consent_source:'Synthetic explicit form consent',...overrides});
 const metaAdmin=(name:string,data:object={},actor=owner)=>invoke('mbn_meta_admin_action',[actor,sid(actor),name,JSON.stringify(data)]);
@@ -236,7 +242,7 @@ test('every new public business RPC is invoker-only and forbidden to browser rol
  assert.ok(rows.length>=10);for(const row of rows){assert.equal(row.prosecdef,false,row.proname);assert.equal(row.anon,false,row.proname);assert.equal(row.staff,false,row.proname);}
 }));
 
-test('a public capability reserves files first, commits the exact lead/application/documents atomically and acknowledges replays',()=>isolated(async()=>{
+test('a synthetic application passes intake, clean scans, review, admission, approved letter and correlated delivery',()=>isolated(async()=>{
  const l=await action('lead_save',lead()),link=await invoke('mbn_mail_link',[l.id]);
  const payload={event:'application_submitted',reference_dossier:'MBNAPP-'+link.id,school_code:'MLV BTS',campus_code:'NOISIEL',program_id:program,program_name:'Synthetic BTS',cycle:'BTS',full_name:'Synthetic Prospect',email:'synthetic@example.invalid',country_of_residence:'Cameroun',consent_email:false,source:'DIRECT'};
  const docs=['CV','DIPLOME','PIECE_IDENTITE'].map(kind=>({kind,original_name:kind+'.pdf',mime_type:'application/pdf',byte_size:20,sha256:'a'.repeat(64),extension:'pdf'}));
@@ -250,6 +256,7 @@ test('a public capability reserves files first, commits the exact lead/applicati
  assert.equal((await invoke('mbn_candidate_prepare',args)).completed,true);
  await assert.rejects(invoke('mbn_candidate_prepare',[link.id,JSON.stringify({...payload,email:'another@example.invalid'}),'{}',JSON.stringify(docs),'f'.repeat(64)]),{message:'invitation_mismatch'});
  const detail=await action('application_detail',{id:receipt.application_id});assert.equal(detail.documents.length,3);assert.equal(detail.lead.source,'META_LEAD');assert.equal(detail.application.admission_type,'INTERNATIONAL');
+ await scanPendingFixtures();
  for(const doc of detail.documents)await action('document_review',{id:receipt.application_id,document_id:doc.id,review_status:'APPROVED',note:'Synthetic verification'},reviewer);
  await action('application_transition',{id:receipt.application_id,expected_status:'RECEIVED',status:'IN_REVIEW'},reviewer);
  await action('application_transition',{id:receipt.application_id,expected_status:'IN_REVIEW',status:'COMPLETE'},reviewer);
@@ -257,6 +264,17 @@ test('a public capability reserves files first, commits the exact lead/applicati
  await action('application_transition',{id:receipt.application_id,expected_status:'READY_FOR_DECISION',status:'ADMITTED',note:'Synthetic owner approval'});
  assert.equal((await action('application_detail',{id:receipt.application_id})).application.status,'ADMITTED');
  assert.ok(!(await action('application_detail',{id:receipt.application_id},cm)).events.some((e:any)=>e.event_type==='DOCUMENT_REVIEWED'));
+ // The storage metadata and provider callbacks are synthetic; this is not a real delivery receipt.
+ await enableGroups();const settings=await configureLetters();await db.exec('update private.mbn_original_assets set installed_at=now()');
+ const id=crypto.randomUUID();await letterAction('prepare',{application_id:receipt.application_id,request_id:id,expected_config_revision:settings.revision,fields:letterFields,attachments:['cgv_group']});
+ await db.query('insert into storage.objects(bucket_id,name,metadata) values($1,$2,$3)',['mbn-admission-letters',id+'/admission.pdf',JSON.stringify({size:100,mimetype:'application/pdf'})]);
+ await letterAction('generated',{id,sha256:'f'.repeat(64),byte_size:100});
+ await assert.rejects(letterAction('claim',{id}),{message:'letter_approval_required'});
+ const claim=await letterAction('claim',{id,confirmed:true});assert.equal(await letterAction('authorized',{id,attempt_id:claim.message.attempt_id}),true);
+ await invoke('mbn_letter_finish',[claim.message.id,claim.message.attempt_id,'ACCEPTED','synthetic-e2e-provider',null]);
+ assert.equal((await db.query<any>('select status from public.mail_messages where id=$1',[claim.message.id])).rows[0].status,'ACCEPTED');
+ await invoke('mbn_brevo_event',['9'.repeat(64),JSON.stringify({event:'delivered',provider_id:'synthetic-e2e-provider',message_id:claim.message.id,email:claim.fields.email})]);
+ assert.equal((await db.query<any>('select status from public.mail_messages where id=$1',[claim.message.id])).rows[0].status,'DELIVERED');
 }));
 
 test('hosted Messenger entries create no prospect or campaign until an actual complete application',()=>isolated(async()=>{
@@ -812,7 +830,7 @@ test('school readiness follows the effective general rule instead of an unused l
 const documentAction=(name:string,data:object={},actor=reviewer)=>invoke('mbn_document_requests_action',[actor,sid(actor),name,JSON.stringify(data)]);
 const correctionItems=[{kind:'CV',reason:'Merci de joindre un CV lisible et à jour.'}];
 const correctionManifest=[{kind:'CV',original_name:'updated-cv.pdf',mime_type:'application/pdf',byte_size:20,sha256:'b'.repeat(64),extension:'pdf'}];
-async function correctionApplication(){
+async function correctionApplication(review=true){
  const leadRow=await action('lead_save',lead()),link=await invoke('mbn_mail_link',[leadRow.id]);
  const payload={reference_dossier:'MBNAPP-'+link.id,school_code:'MLV BTS',campus_code:'NOISIEL',program_id:program,program_name:'Synthetic BTS',cycle:'BTS',full_name:'Synthetic Prospect',email:'synthetic@example.invalid',country_of_residence:'Cameroun',consent_email:false};
  const docs=['CV','DIPLOME','PIECE_IDENTITE'].map(kind=>({kind,original_name:kind+'.pdf',mime_type:'application/pdf',byte_size:20,sha256:'a'.repeat(64),extension:'pdf'}));
@@ -820,10 +838,72 @@ async function correctionApplication(){
  for(const d of docs)await db.query('insert into storage.objects(bucket_id,name,metadata) values($1,$2,$3)',['mbn-admissions',draft.submission_id+'/'+d.kind+'.pdf',JSON.stringify({size:20,mimetype:'application/pdf'})]);
  const receipt=await invoke('mbn_candidate_complete',[link.id,draft.submission_id]);
  const detail=await action('application_detail',{id:receipt.application_id});
- for(const doc of detail.documents)await action('document_review',{id:receipt.application_id,document_id:doc.id,review_status:doc.kind==='CV'?'REJECTED':'APPROVED',note:'Synthetic review'},reviewer);
+ if(review){await scanPendingFixtures();
+ for(const doc of detail.documents)await action('document_review',{id:receipt.application_id,document_id:doc.id,review_status:doc.kind==='CV'?'REJECTED':'APPROVED',note:'Synthetic review'},reviewer);}
  return {id:receipt.application_id,documents:detail.documents,lead_id:leadRow.id};
 }
 const createCorrection=(application_id:string,overrides={})=>documentAction('create',{application_id,request_id:crypto.randomUUID(),items:correctionItems,...overrides});
+const scanAdmin=(name:string,data:object={},actor=owner)=>invoke('mbn_scan_admin_action',[actor,sid(actor),name,JSON.stringify(data)]);
+const finishScan=(job:any,status='CLEAN',error:string|null=null)=>invoke('mbn_scan_finish',[job.id,job.attempt_id,job.sha256,status,status==='ERROR'?null:'ClamAV synthetic/1',error]);
+async function enableScanning(){const context=await scanAdmin('context');await scanAdmin('save',{enabled:true,expected_revision:context.settings.revision});}
+test('antivirus starts paused and blocks unscanned downloads and approvals without making a network call',()=>isolated(async()=>{
+ const app=await correctionApplication(false),doc=app.documents[0];assert.equal((await scanAdmin('context')).settings.enabled,false);
+ assert.equal(await invoke('mbn_scan_claim'),null);
+ await assert.rejects(invoke('mbn_workspace_document',[owner,sid(owner),doc.id]),{message:'document_scan_required'});
+ await assert.rejects(invoke('mbn_native_document',[owner,doc.id]),{message:'document_scan_required'});
+ await assert.rejects(action('document_review',{id:app.id,document_id:doc.id,review_status:'APPROVED'}),{message:'document_scan_required'});
+ await assert.rejects(invoke('mbn_workspace_document',[cm,sid(cm),doc.id]),{message:'record_not_found'});
+}));
+test('antivirus administration checks the real owner and versions every pause or retry',()=>isolated(async()=>{
+ for(const actor of [cm,reviewer,other])await assert.rejects(scanAdmin('context',{},actor),{message:'access_denied'});
+ const context=await scanAdmin('context');await scanAdmin('save',{enabled:true,expected_revision:context.settings.revision});
+ await assert.rejects(scanAdmin('save',{enabled:false,expected_revision:context.settings.revision}),{message:'scan_changed'});
+ const {rows}=await db.query<any>(`select prosecdef,has_function_privilege('anon',p.oid,'execute') as anon,has_function_privilege('authenticated',p.oid,'execute') as browser from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='public' and p.proname in ('mbn_scan_claim','mbn_scan_finish','mbn_scan_admin_action')`);
+ assert.equal(rows.length,3);for(const row of rows)assert.deepEqual(row,{prosecdef:false,anon:false,browser:false});
+}));
+test('a clean scan authorizes only its exact document and finish callbacks cannot be replayed',()=>isolated(async()=>{
+ const app=await correctionApplication(false);await enableScanning();const job=await invoke('mbn_scan_claim');
+ assert.equal((await invoke('mbn_scan_finish',[job.id,job.attempt_id,'b'.repeat(64),'CLEAN','ClamAV synthetic/1',null])).status,'STALE');
+ await assert.rejects(invoke('mbn_workspace_document',[owner,sid(owner),job.id]),{message:'document_scan_required'});
+ assert.equal((await finishScan(job)).status,'CLEAN');assert.equal((await finishScan(job)).status,'STALE');
+ const downloaded=await invoke('mbn_workspace_document',[owner,sid(owner),job.id]);assert.equal(downloaded.bucket,'mbn-admissions');
+ await action('document_review',{id:app.id,document_id:job.id,review_status:'APPROVED'});
+ const next=app.documents.find((d:any)=>d.id!==job.id);await assert.rejects(invoke('mbn_workspace_document',[owner,sid(owner),next.id]),{message:'document_scan_required'});
+}));
+test('a detected threat stays private and cannot be reset through the error retry action',()=>isolated(async()=>{
+ const app=await correctionApplication(false);await enableScanning();const job=await invoke('mbn_scan_claim');await finishScan(job,'INFECTED');
+ await assert.rejects(invoke('mbn_workspace_document',[owner,sid(owner),job.id]),{message:'document_scan_required'});
+ await assert.rejects(action('document_review',{id:app.id,document_id:job.id,review_status:'APPROVED'}),{message:'document_scan_required'});
+ const context=await scanAdmin('context'),doc=context.errors.find((d:any)=>d.id===job.id);assert.equal(doc.scan_status,'INFECTED');assert.equal(doc.original_name,undefined);
+ await assert.rejects(scanAdmin('retry',{id:job.id,expected_revision:doc.scan_revision}),{message:'scan_changed'});
+}));
+test('scan errors back off, stop after five attempts and need a versioned manual retry',()=>isolated(async()=>{
+ await correctionApplication(false);await enableScanning();const job=await invoke('mbn_scan_claim');await finishScan(job,'ERROR','scanner_unavailable');
+ const row=(await db.query<any>('select * from public.application_documents where id=$1',[job.id])).rows[0];assert.ok(new Date(row.scan_available_at).getTime()>Date.now());
+ await db.query("update public.application_documents set scan_attempts=5 where id=$1",[job.id]);
+ const context=await scanAdmin('context'),failed=context.errors.find((d:any)=>d.id===job.id);await scanAdmin('retry',{id:job.id,expected_revision:failed.scan_revision});
+ await assert.rejects(scanAdmin('retry',{id:job.id,expected_revision:failed.scan_revision}),{message:'scan_changed'});
+ const reset=(await db.query<any>('select scan_attempts,scan_status from public.application_documents where id=$1',[job.id])).rows[0];assert.deepEqual(reset,{scan_attempts:0,scan_status:'NOT_SCANNED'});
+}));
+test('expired scan leases lose authority and a final interrupted attempt becomes an error',()=>isolated(async()=>{
+ await correctionApplication(false);await enableScanning();const old=await invoke('mbn_scan_claim');
+ await db.query("update public.application_documents set scan_claimed_at=now()-interval '2 minutes',scan_available_at=now()-interval '1 hour' where id=$1",[old.id]);
+ const current=await invoke('mbn_scan_claim');assert.equal(current.id,old.id);assert.notEqual(current.attempt_id,old.attempt_id);assert.equal((await finishScan(old)).status,'STALE');
+ await db.query("update public.application_documents set scan_attempts=5,scan_claimed_at=now()-interval '2 minutes' where id=$1",[current.id]);
+ await invoke('mbn_scan_claim');assert.equal((await db.query<any>('select scan_status from public.application_documents where id=$1',[old.id])).rows[0].scan_status,'ERROR');
+}));
+test('a superseded document cannot receive a delayed verdict and its content identity cannot change',()=>isolated(async()=>{
+ await correctionApplication(false);await enableScanning();const job=await invoke('mbn_scan_claim');
+ await db.exec('savepoint identity');await assert.rejects(db.query("update public.application_documents set sha256=$1 where id=$2",['b'.repeat(64),job.id]),{message:'document_content_immutable'});await db.exec('rollback to savepoint identity');
+ await db.query('update public.application_documents set superseded_at=now() where id=$1',[job.id]);assert.equal((await finishScan(job)).status,'STALE');
+}));
+test('historical document approval does not replace the antivirus check for a new decision',()=>isolated(async()=>{
+ const app=await correctionApplication(false);await scanPendingFixtures();
+ for(const doc of app.documents)await action('document_review',{id:app.id,document_id:doc.id,review_status:'APPROVED'});
+ await db.query("update public.application_documents set scan_status='NOT_SCANNED' where application_id=$1",[app.id]);
+ await action('application_transition',{id:app.id,expected_status:'RECEIVED',status:'IN_REVIEW'});
+ await assert.rejects(action('application_transition',{id:app.id,expected_status:'IN_REVIEW',status:'COMPLETE'}),{message:'document_scan_required'});
+}));
 async function uploadCorrection(request_id:string){
  const draft=await invoke('mbn_correction_prepare',[request_id,JSON.stringify(correctionManifest),'c'.repeat(64)]);
  await db.query('insert into storage.objects(bucket_id,name,metadata) values($1,$2,$3)',['mbn-admissions',draft.submission_id+'/CV.pdf',JSON.stringify({size:20,mimetype:'application/pdf'})]);return draft;
@@ -859,6 +939,8 @@ test('requested corrections reserve exact files, retain earlier versions and req
  assert.equal((await action('application_detail',{id:app.id})).application.status,'DOCUMENTS_TO_VERIFY');
  await assert.rejects(action('document_review',{id:app.id,document_id:old.id,review_status:'APPROVED',note:'Stale review'},reviewer),{message:'document_superseded'});
  await assert.rejects(action('application_transition',{id:app.id,expected_status:'DOCUMENTS_TO_VERIFY',status:'COMPLETE'},reviewer),{message:'required_documents_not_approved'});
+ await assert.rejects(action('document_review',{id:app.id,document_id:current.id,review_status:'APPROVED'},reviewer),{message:'document_scan_required'});
+ await scanPendingFixtures();
  await action('document_review',{id:app.id,document_id:current.id,review_status:'APPROVED',note:'New review'},reviewer);
  await action('application_transition',{id:app.id,expected_status:'DOCUMENTS_TO_VERIFY',status:'COMPLETE'},reviewer);
  assert.equal((await action('application_detail',{id:app.id})).application.status,'COMPLETE');

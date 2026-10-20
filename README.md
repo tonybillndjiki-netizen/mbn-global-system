@@ -21,6 +21,10 @@ Le [lot équipes et affectations](docs/EQUIPES_AFFECTATIONS.md) ajoute le choix 
 
 Le [lot pièces complémentaires](docs/PIECES_COMPLEMENTAIRES.md) permet de préparer une demande, de l’envoyer avec l’expéditeur de l’école et de recevoir uniquement les pièces demandées sur un lien personnel. Les anciennes versions restent privées et les nouveaux fichiers reviennent en vérification.
 
+Le [bloc antivirus](docs/ANTIVIRUS.md) ajoute la file d’analyse des pièces et un adaptateur ClamAV à héberger. Le téléchargement, la nouvelle approbation et les nouvelles décisions protégées exigent un résultat sans menace détectée. Le moteur réel reste à configurer et tester ; le traitement démarre en pause.
+
+Pour reprendre le développement, consulter [REPRISE_PROJET.md](docs/REPRISE_PROJET.md) puis [la grille de recette](docs/RECETTE.md). Ces guides indiquent les branches publiées, les blocs encore locaux, les paramètres à obtenir et les essais réels restants. Les relances après clic restent sur leur branche distincte et ne sont pas intégrées à la branche de finitions.
+
 ## Développement et livraison
 
 Node 24.19.0, Python 3.12. Dépendances exactes et verrouillées.

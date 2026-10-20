@@ -128,7 +128,7 @@ livrés ensemble dans l'environnement de validation lors de la mise en service.
 
 ## Validation et éléments encore nécessaires
 
-`npm run check` : **162 tests réussis**, typage réussi et paquet statique
+Lors de la livraison initiale de ce lot : **162 tests réussis**, typage réussi et paquet statique
 construit. Les contrôles couvrent les trois expéditeurs, leurs preuves de remise
 séparées, le plafond commun et le changement de groupe d’une école. Ils vérifient
 que les quatre écoles du profil commun gardent leur propre contact admissions,
@@ -142,9 +142,9 @@ les 19 formulaires, le changement ESETH de MBN vers le profil commun et sa
 persistance après rechargement, le renommage du groupe, le plafond et
 l’aperçu bloqué d’une école sans groupe. La vérification visuelle dans un
 navigateur reste à réaliser ; aucun moteur de navigateur n’est installé ici.
-Les tests de base utilisent PGlite et le schéma initial de référence fourni par
-le dépôt. La reconstitution des migrations initiales manquantes reste un
-chantier distinct identifié dans le PDF du responsable.
+Les tests de base utilisent PGlite. Le [bloc installation](INSTALLATION_DEPLOIEMENT.md)
+a depuis rétabli les migrations initiales et le catalogue dans le dépôt ; les tests
+ne dépendent plus d’un schéma applicatif fourni uniquement comme fixture locale.
 
 Pour mettre les envois en service, il reste à fournir et vérifier :
 
@@ -156,6 +156,7 @@ Pour mettre les envois en service, il reste à fournir et vérifier :
 - L'autorisation de réaliser les tests réels, puis la réception de chaque test
   et le parcours complet « candidature → admission → lettre → remise ».
 
-Le modèle national, les affectations automatiques, le redépôt des pièces,
-les relances après clic, Meta, la réinstallation complète et l'antivirus
-restent à traiter suivant les autres chantiers du document du responsable.
+Le modèle national, les affectations, le redépôt, Meta, la réinstallation et
+l’antivirus sont développés dans les blocs suivants. Voir le [guide de reprise](REPRISE_PROJET.md)
+pour leur état et les essais réels restants. Les relances après clic restent sur
+leur branche séparée et n’entrent pas dans la branche de finitions.

@@ -30,6 +30,7 @@ const hasCode=(code:string)=>(error:unknown)=>(error as {code:string}).code===co
 test('a fresh installation contains every school and catalog choice without granting an owner or enabling sends',async()=>{
  assert.deepEqual((await db.query(`select (select count(*)::int from public.schools) as schools,(select count(*)::int from public.school_programs) as programs,(select count(*)::int from private.admin_allowlist) as owners,(select count(*)::int from public.school_programs where is_active) as active_programs,(select count(*)::int from private.mbn_installation_settings) as targets`)).rows[0],{schools:19,programs:1275,owners:0,active_programs:0,targets:0});
  assert.equal((await db.query(`select enabled from private.mbn_mail_settings where id`)).rows[0].enabled,false);
+ assert.equal((await db.query(`select enabled from private.mbn_scan_settings where id`)).rows[0].enabled,false);
  assert.equal((await db.query(`select count(*)::int as n from private.mbn_runtime_secrets r join vault.decrypted_secrets d on d.id=r.vault_id`)).rows[0].n,3);
 });
 test('the committed seed exactly follows the literal active forms and keeps existing activation decisions',()=>isolated(async()=>{
