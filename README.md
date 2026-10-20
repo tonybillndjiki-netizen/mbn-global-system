@@ -11,7 +11,23 @@ Ouvrir https://mbn-global.netlify.app/mbn_global_admin_supabase. Les fichiers HT
 - **19 écoles** : logos fournis, activation des établissements et des collaborateurs, catalogue central. Évry BTS conserve son identité et ses propres identifiants de formation, avec le cursus de Marne-la-Vallée BTS.
 - **Candidatures** : invitations personnelles signées, consentement marketing distinct, dépôt privé reprenable, contrôle du catalogue et déduplication. Les liens publics hébergés ouvrent une session de candidature par école, sans compte administrateur ; les formulaires ouverts sans session restent en mode test. Voir MBN_LIENS_FORMULAIRES_19_ECOLES.md.
 
-L’expédition Brevo est désactivée tant que l’expéditeur et ses identifiants ne sont pas configurés et testés. Le module de lettres internationales génère un PDF après admission, avec l’identité de l’école et une validation humaine avant l’envoi. Les sept annexes originales ont été installées dans le stockage privé, avec accord explicite le 19 octobre 2026 et contrôle des empreintes ; la clé API et l’expéditeur Brevo attendent leur configuration. Voir [CONNEXION_BREVO.md](CONNEXION_BREVO.md) et [OPERATIONS.md](OPERATIONS.md).
+Trois profils d’expédition Brevo sont prévus : MBN Global Éducation, Campus Innovation Marne-la-Vallée et un profil commun neutre pour les autres écoles. Le nom visible est « Service admissions - nom de l’école ». Chaque école doit être rattachée explicitement à son groupe avec son contact admissions. Les trois adresses restent à renseigner et les envois de chaque groupe restent en pause jusqu’à la remise de son propre test. Voir [le lot Brevo multi-écoles et sa reprise](docs/BREVO_MULTI_ECOLES.md). Le module de lettres nationales et internationales génère un PDF après admission, avec l’identité de l’école et une validation humaine avant l’envoi. Les sept annexes originales ont été installées dans le stockage privé, avec accord explicite le 19 octobre 2026 et contrôle des empreintes ; la clé API et l’expéditeur Brevo attendent leur configuration. Voir [CONNEXION_BREVO.md](CONNEXION_BREVO.md) et [OPERATIONS.md](OPERATIONS.md).
+
+Le [lot lettres d’admission](docs/LETTRES_ADMISSION.md) ajoute un modèle national distinct et centralise les frais, signataires et rentrées par école et type d’admission. Les 38 configurations démarrent vides et en pause. Le texte national doit être validé par la direction avant utilisation ; les aperçus devenus obsolètes doivent être régénérés avant envoi.
+
+Le [lot connexion Meta](docs/CONNEXION_META.md) prépare la réception signée des nouveaux prospects Lead Ads, leur rattachement par formulaire et une file de récupération avec reprises. Les notifications répétées sont dédupliquées et les consentements existants sont conservés ; aucun e-mail n’est créé par cette connexion. Le compte Meta, les accès aux pages et les formulaires restent à configurer et à tester réellement.
+
+Le [lot équipes et affectations](docs/EQUIPES_AFFECTATIONS.md) ajoute le choix des responsables par école, campus et formation, un suivi de configuration des écoles et un aperçu avant reprise des dossiers sans responsable. La répartition réelle reste à valider et à renseigner dans l’interface.
+
+Le [lot pièces complémentaires](docs/PIECES_COMPLEMENTAIRES.md) permet de préparer une demande, de l’envoyer avec l’expéditeur de l’école et de recevoir uniquement les pièces demandées sur un lien personnel. Les anciennes versions restent privées et les nouveaux fichiers reviennent en vérification.
+
+Le [lot relances après clic](docs/RELANCES_APRES_CLIC.md) ajoute un calendrier et des messages réglables par école dans MBN Mail. Les relances concernent les prochains clics confirmés après activation, s’arrêtent au dépôt et expirent sans rattrapage groupé.
+
+Le [bloc antivirus](docs/ANTIVIRUS.md) ajoute la file d’analyse des pièces et un adaptateur ClamAV à héberger. Le téléchargement, la nouvelle approbation et les nouvelles décisions protégées exigent un résultat sans menace détectée. Le moteur réel reste à configurer et tester ; le traitement démarre en pause.
+
+Les huit chantiers sont réunis dans cette version, y compris les relances après clic. Le traitement des campagnes alterne entre les expéditeurs prêts, avec un maximum de 20 messages par appel et un plafond quotidien commun. Les lettres vérifient le groupe de leur école ; le contrôle échoué d’une autre adresse ne les bloque plus.
+
+Pour reprendre le développement, consulter [REPRISE_PROJET.md](docs/REPRISE_PROJET.md) puis [la grille de recette](docs/RECETTE.md). Ces guides indiquent les paramètres à obtenir et les essais réels restants. La configuration des services et la validation de la livraison réelle restent nécessaires avant la mise en production.
 
 ## Développement et livraison
 
@@ -23,7 +39,9 @@ npm run check
 python3 scripts/package_release.py
 ```
 
-`npm run check` exécute les tests de la base locale PGlite et des services HTTP, le typage TypeScript et la construction du paquet statique Netlify. Le workflow `.github/workflows/validate.yml` lance ces vérifications à chaque push et pull request, puis conserve le ZIP public comme artefact. Le déploiement continu Netlify reste à raccorder au dépôt.
+`npm run check` exécute les tests de la base locale PGlite, des services HTTP et des garde-fous de livraison, le typage TypeScript et la construction du paquet statique Netlify. Le workflow `.github/workflows/validate.yml` lance ces vérifications à chaque push et pull request, conserve le ZIP public et reconstruit une pile Supabase locale jetable.
+
+Le [bloc installation et déploiement](docs/INSTALLATION_DEPLOIEMENT.md) rétablit les migrations initiales, fournit le catalogue reproductible de 1 275 formations et prépare les livraisons par environnement. Le workflow de déploiement démarre désactivé ; ses comptes, secrets et protections restent à configurer. Une base existante dont l’historique diffère est bloquée avant toute mise à jour. Aucun déploiement n’est réalisé par la préparation de ce bloc.
 
 Les tests hébergés `tests/hosted-workspace-transaction.sql` utilisent des données synthétiques dans une transaction annulée. Ils n’envoient aucun e-mail et ne créent aucun document réel. Les tests de fichiers natifs et de PIN restent inclus. Le relevé de validation propre à l’environnement déployé reste dans le dossier privé du projet.
 

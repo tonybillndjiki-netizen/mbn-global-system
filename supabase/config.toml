@@ -1,0 +1,48 @@
+project_id = "mbn-global-system"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 5000
+
+[db]
+port = 54322
+shadow_port = 54320
+major_version = 17
+
+[db.seed]
+enabled = true
+sql_paths = ["./seed.sql"]
+
+[auth]
+enabled = true
+site_url = "http://localhost:3000"
+additional_redirect_urls = []
+enable_signup = false
+enable_anonymous_sign_ins = false
+
+[storage]
+enabled = true
+file_size_limit = "20MiB"
+
+[functions.mbn-auth]
+verify_jwt = false
+[functions.mbn-form-ingest]
+verify_jwt = false
+[functions.mbn-workspace]
+verify_jwt = false
+[functions.mbn-admissions]
+verify_jwt = false
+[functions.mbn-letters]
+verify_jwt = false
+[functions.mbn-brevo-events]
+verify_jwt = false
+[functions.mbn-mail-events]
+verify_jwt = false
+[functions.mbn-meta]
+verify_jwt = false
+
+[functions.mbn-antivirus]
+verify_jwt = false

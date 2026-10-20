@@ -23,7 +23,8 @@ LIVRAISON NETLIFY
 MBN_GLOBAL_NETLIFY.zip contient seulement les fichiers publics. Ne pas déposer l’archive complète de développement sur Netlify : elle contient des sources privées. La version 0.8 Mail/CRM avec Brevo est publiée sur Netlify, avec Campus Innovation, les liens de partage, l’éditeur de lettres, l’affichage des tests et health.json. La publication et les fichiers publics ont été vérifiés. La connexion du compte Brevo et le test réel restent à terminer.
 
 DÉVELOPPEMENT
-Voir README.md, OPERATIONS.md et VALIDATION.json. Les contrôles automatisés passent. Un workflow GitHub Actions est fourni mais le dépôt Git et le déploiement continu ne sont pas encore connectés.
+Pour la passation du projet et la recette finale : docs/REPRISE_PROJET.md et docs/RECETTE.md. Le bloc antivirus est décrit dans docs/ANTIVIRUS.md. Son moteur reste à installer et tester ; après installation de sa migration, les pièces non analysées sont bloquées au téléchargement et à la nouvelle validation.
+Voir README.md, OPERATIONS.md et docs/INSTALLATION_DEPLOIEMENT.md. Le dépôt contient les migrations initiales et le catalogue reproductible des 19 écoles. Les contrôles automatisés et le workflow de livraison sont fournis ; le déploiement reste désactivé par défaut. Les comptes et protections des environnements restent à configurer. Une base historique dont les migrations diffèrent doit être réconciliée avant toute mise à jour.
 
 FORMULAIRES À PARTAGER
 MBN_LIENS_FORMULAIRES_19_ECOLES.md contient les 19 liens hébergés, utilisables sans compte administrateur. FORMULAIRES_VERIFICATION.json documente la conformité des formations aux formulaires reçus. Le campus est identifié Campus Innovation Marne-la-Vallée pour les huit écoles concernées.

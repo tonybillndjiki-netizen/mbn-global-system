@@ -9,6 +9,9 @@ export function brandFor(school) {
   return {schoolName,slug,campus,name:campus?CAMPUS_INNOVATION:schoolName,
     logo:campus?'campus-innovation-mlv':slug,schoolLogo:slug};
 }
+
+/** @param {string} school */
+export function admissionsSenderName(school){return 'Service admissions - '+brandFor(school).schoolName;}
 /** @param {string} code */
 export function campusName(code) {
   return code==='NOISIEL'?CAMPUS_INNOVATION:({'EVRY':'Évry','LYON':'Lyon','TORCY':'Torcy'}[code]||code);

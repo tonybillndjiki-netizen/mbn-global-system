@@ -6,11 +6,11 @@ Le site est publié sur Netlify. Supabase gère les utilisateurs, les autorisati
 
 Utiliser Node 24.19.0 et Python 3.12. Installer les dépendances avec `npm ci --ignore-scripts`, puis exécuter `npm run check`. Cette commande teste les fonctions et la base locale, vérifie TypeScript et fabrique le ZIP destiné à Netlify. Le constructeur exclut les sources privées et vérifie les références locales des 19 formulaires. Le fichier public `health.json` indique la version publiée et l’empreinte des scripts.
 
-Le workflow GitHub Actions fourni effectue ces mêmes vérifications. Il sera actif une fois le projet placé dans un dépôt GitHub. Le dépôt Git et le déploiement continu ne sont pas encore raccordés. Ne pas utiliser `supabase db push` aveuglément : les anciennes migrations hébergées ont des horodatages différents de leurs fichiers locaux, conservés dans VALIDATION.json.
+Le dépôt GitHub contient les contrôles automatisés. Le [guide d’installation et de déploiement](docs/INSTALLATION_DEPLOIEMENT.md) décrit la reconstruction d’une base neuve et le workflow de livraison, désactivé par défaut. Les anciennes migrations hébergées ont des horodatages différents de leurs fichiers locaux : le contrôle d’historique bloque cette situation jusqu’à une réconciliation revue. Le workflow ne répare pas cet historique automatiquement.
 
 ## Activer MBN Mail avec Brevo
 
-Suivre [CONNEXION_BREVO.md](CONNEXION_BREVO.md). Ajouter MBN_BREVO_API_KEY dans les secrets Supabase ; enregistrer l’adresse d’expédition, la réponse et le plafond quotidien ; vérifier Brevo ; configurer les retours ; envoyer le test administrateur et confirmer sa remise avant d’activer les envois.
+Suivre [CONNEXION_BREVO.md](CONNEXION_BREVO.md) et [les trois groupes d’expédition](docs/BREVO_MULTI_ECOLES.md). Ajouter MBN_BREVO_API_KEY dans les secrets Supabase ; enregistrer les trois expéditeurs et le plafond quotidien commun ; renseigner le groupe et le contact admissions des 19 écoles ; vérifier chaque expéditeur ; configurer les retours communs ; confirmer la remise d’un test administrateur pour chaque expéditeur avant de l’activer.
 
 Le webhook mbn-brevo-events utilise un jeton Bearer dédié conservé côté serveur. Chaque événement est corrélé au destinataire et à l’identifiant Brevo, puis dédupliqué. Les erreurs temporaires renvoient 429 pour conserver les nouvelles tentatives Brevo. Les rejets permanents et plaintes entraînent l’exclusion globale de l’adresse ; une désinscription arrête les campagnes.
 
@@ -20,9 +20,9 @@ Le job mbn-mail-due reste désactivé tant que les envois sont en pause. Une acc
 
 L’ajout ou l’import CSV crée un prospect, sans candidature prématurée. Les imports ont une limite de 500 lignes et ignorent les adresses déjà présentes dans la même école sans restaurer leur consentement. Les preuves de consentement sont obligatoires lorsqu’un consentement est déclaré.
 
-Une campagne Meta crée exactement quatre échéances : J0, J+2, J+4, J+6. Elle exige la source Meta Lead Ads et un consentement documenté. Les contacts Messenger, dossiers déposés, clics confirmés, désinscrits et exclus restent hors séquence. Les relances après clic sont désactivées : leur calendrier n’a pas encore été validé.
+Une campagne Meta crée exactement quatre échéances : J0, J+2, J+4, J+6. Elle exige la source Meta Lead Ads et un consentement documenté. Les contacts Messenger, dossiers déposés, clics confirmés, désinscrits et exclus restent hors séquence. Les relances après clic disposent d’un calendrier configurable par école, initialement en pause. Après activation, seuls les prochains clics confirmés déclenchent cette séquence distincte ; elle s’arrête au dépôt ou au retrait et ses échéances expirées ne sont pas rattrapées. Voir docs/RELANCES_APRES_CLIC.md.
 
-Chaque prospect possède une invitation signée personnelle. Une simple visite du lien ne confirme aucun clic. Le bouton « Continuer ma candidature » confirme l’engagement et arrête la séquence A. Les 19 formulaires utilisent le catalogue actif central. Une invitation doit correspondre à l’école et à l’adresse du candidat. Les fichiers sont limités à PDF, PNG et JPEG, 5 Mo par pièce et 20 Mo au total ; leur intégrité est vérifiée. Leur dépôt est reprenable et le CRM n’est finalisé qu’après la présence des pièces. Les fichiers n’ont pas d’analyse antivirus dans cette version ; le téléchargement est forcé en pièce jointe, en accès privé.
+Chaque prospect possède une invitation signée personnelle. Une simple visite du lien ne confirme aucun clic. Le bouton « Continuer ma candidature » confirme l’engagement et arrête la séquence A. Les 19 formulaires utilisent le catalogue actif central. Une invitation doit correspondre à l’école et à l’adresse du candidat. Les fichiers sont limités à PDF, PNG et JPEG, 5 Mo par pièce et 20 Mo au total ; leur intégrité est vérifiée. Leur dépôt est reprenable et le CRM n’est finalisé qu’après la présence des pièces. Le [bloc antivirus](docs/ANTIVIRUS.md) bloque le téléchargement et la nouvelle validation d’une pièce sans résultat propre. Son moteur ClamAV reste à installer, raccorder et tester réellement ; le traitement démarre en pause.
 
 ## CRM et équipe
 

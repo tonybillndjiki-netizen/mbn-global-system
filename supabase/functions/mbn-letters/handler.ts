@@ -1,7 +1,7 @@
 import {AppError,object,json,readJSON,rpcError,UUID,renderMessage,type Actor} from '../mbn-workspace/handler.ts';
 import {digest} from '../mbn-form-ingest/handler.ts';
 import type {Sender,Inspection,Outcome,Attachment} from '../mbn-workspace/ses.ts';
-import {brandFor} from '../../../assets/branding.js';
+import {brandFor,admissionsSenderName} from '../../../assets/branding.js';
 import {makeLetterPDF} from './pdf.ts';
 import {admissionMail} from './template.ts';
 type Asset={key:string;bucket:string;object_path:string;sha256:string;byte_size:number;mime_type:string;filename:string};
@@ -41,6 +41,9 @@ export function createHandler(deps:Dependencies){
    if(!actor)throw new AppError('authentication_required',401);
    const input=await readJSON(request,32768);if(Object.keys(input).some(k=>!['action','data'].includes(k)))throw new AppError('invalid_request');
    const data=object(input.data||{});
+   if(input.action==='letter_config_get'||input.action==='letter_config_save'){
+    return json(await rpc('mbn_letter_config_action',{p_actor:actor.id,p_session:actor.session_id,p_action:input.action==='letter_config_get'?'get':'save',p_data:data}));
+   }
    const action=async(p_action:string,p_data:Record<string,unknown>=data)=>rpc('mbn_letter_action',{p_actor:actor.id,p_session:actor.session_id,p_action,p_data});
    if(input.action==='letter_context')return json(await action('context'));
    if(input.action==='letter_asset'){
@@ -69,19 +72,23 @@ export function createHandler(deps:Dependencies){
     // All content and files are prepared before taking the irreversible send lease.
     const row=object(await action('download'));
     if(!row.generated_at)throw new AppError('documents_pending',409);
-    const settings=object(await rpc('mbn_mail_transport_settings'));
-    const inspection=await deps.transport.inspect(settings as Sender);await rpc('mbn_mail_provider_checked',{p_result:inspection});
+    const settings=object(await rpc('mbn_mail_profile_settings',{p_school:row.school_code}));
+    const inspection=await deps.transport.inspect(settings as Sender);
+    await rpc('mbn_mail_profile_checked',{p_group:settings.code,p_revision:settings.revision,p_result:inspection});
     if(!inspection.sender_verified||!inspection.production_access||!inspection.account_sending_enabled||inspection.remaining<=0)throw new AppError(inspection.error||'sender_not_ready',422);
     const attachments:Attachment[]=[{filename:'admission-'+row.fields.reference.replace(/[^a-zA-Z0-9-]/g,'_')+'.pdf',mime_type:'application/pdf',base64:base64(await pdf(row))}];
     for(const a of row.assets as Asset[])if(row.attachments.includes(a.key))attachments.push({filename:a.filename,mime_type:a.mime_type,base64:base64(await asset(a))});
-    const claim=object(await action('claim')),message=object(claim.message);
+    const profileAction=(p_action:string)=>rpc('mbn_letter_profile_action',{p_actor:actor.id,p_session:actor.session_id,p_action,p_data:data});
+    const claim=object(await profileAction('claim')),message=object(claim.message);
     if(!UUID.test(message.id)||!UUID.test(message.attempt_id))throw Error('invalid_claim');
     let outcome:Outcome;
     try{
-     if(await action('authorized',{id:row.id,attempt_id:message.attempt_id})!==true)outcome={status:'FAILED',error:'authorization_changed'};
+     if(await rpc('mbn_letter_profile_action',{p_actor:actor.id,p_session:actor.session_id,p_action:'authorized',p_data:{id:row.id,attempt_id:message.attempt_id}})!==true)outcome={status:'FAILED',error:'authorization_changed'};
      else{
-      const rendered=renderMessage({school_code:row.school_code,lead:{full_name:row.fields.full_name},subject:'Votre admission · '+row.fields.school_name,body:admissionMail(row.fields)});
-      outcome=await deps.transport.send({...settings,from_name:brandFor(row.school_code).name}as Sender,{id:message.id,recipient:row.fields.email,...rendered,attachments});
+      if(!message.service_contact_email)throw new AppError('mail_route_missing',422);
+      const sender=object(claim.sender);
+      const rendered=renderMessage({school_code:row.school_code,lead:{full_name:row.fields.full_name},subject:'Votre admission · '+row.fields.school_name,body:admissionMail(row.fields),service_contact_email:message.service_contact_email});
+      outcome=await deps.transport.send({...sender,from_name:admissionsSenderName(row.school_code),reply_to:sender.from_email}as Sender,{id:message.id,recipient:row.fields.email,...rendered,attachments});
      }
     }catch{outcome={status:'UNCERTAIN',error:'brevo_acceptance_uncertain'};}
     await rpc('mbn_letter_finish',{p_id:message.id,p_attempt:message.attempt_id,p_status:outcome.status,p_provider_id:outcome.provider_id||null,p_error:outcome.error||null});

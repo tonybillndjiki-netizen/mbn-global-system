@@ -105,7 +105,7 @@ async function bodyBytes(request: Request, max: number) {
   for(const chunk of chunks){bytes.set(chunk,at);at+=chunk.byteLength;}
   return bytes;
 }
-export async function parseSubmission(request: Request,mode:'TEST'|'CANDIDATE'='TEST') {
+export async function parseSubmission(request: Request,mode:'TEST'|'CANDIDATE'|'CORRECTION'='TEST') {
   let form:FormData;
   try {
     const bytes=await bodyBytes(request,MAX_BODY_BYTES);
@@ -117,7 +117,8 @@ export async function parseSubmission(request: Request,mode:'TEST'|'CANDIDATE'='
   if(form.getAll('payload').length!==1 || typeof form.get('payload')!=='string' || String(form.get('payload')).length>16384) throw new InputError('invalid_payload');
   let raw:unknown;
   try {raw=JSON.parse(String(form.get('payload')));} catch {throw new InputError('invalid_json');}
-  const normalized=normalizeNativePayload(raw,mode), files:NativeFile[]=[];
+  if(mode==='CORRECTION'&&Object.keys(object(raw)).length)throw new InputError('invalid_payload');
+  const normalized=mode==='CORRECTION'?{payload:{},details:{}}:normalizeNativePayload(raw,mode), files:NativeFile[]=[];
   let total=0;
   for(const [kind,value] of form.entries()) {
     if(kind==='payload')continue;

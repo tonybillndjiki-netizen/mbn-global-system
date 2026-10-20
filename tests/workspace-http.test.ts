@@ -20,8 +20,17 @@ test('workspace authenticates before reading JSON and ignores spoofed actor iden
  const allowed=api();assert.equal((await allowed.handler(req('bootstrap'))).status,200);assert.equal(allowed.calls[0].args.p_actor,actor.id);assert.equal(allowed.calls[0].args.p_session,actor.session_id);
  assert.equal((await allowed.handler(req('bootstrap',{}, {p_actor:'spoof'}))).status,400);
 });
+test('routing administration uses the authenticated server actor and never calls the mail provider',async()=>{
+ const calls:any[]=[];let external=0;
+ const handler=createHandler({authenticate:async()=>actor,rpc:async(name,args)=>{calls.push({name,args});return {data:null,error:{code:'PT403',message:'access_denied'}};},transport:{configured:true,inspect:async()=>{external++;throw Error('unexpected');},send:async()=>{external++;throw Error('unexpected');}},download:async()=>new Uint8Array(),sleep:async()=>{}});
+ for(const action of ['routing_context','routing_save','routing_toggle','routing_reassign_preview','routing_reassign_apply']){
+  const response=await handler(req(action));assert.equal(response.status,403);
+  assert.equal(calls.at(-1).name,'mbn_routing_action');assert.equal(calls.at(-1).args.p_actor,actor.id);assert.equal(calls.at(-1).args.p_session,actor.session_id);
+ }
+ assert.equal(external,0);
+});
 test('missing SES credentials are explicit; a test is not queued or marked sent',async()=>{
- const {handler,calls}=api({reply:(name)=>name==='mbn_workspace_action'||name==='mbn_mail_transport_settings'?sender:null});
+ const {handler,calls}=api({reply:(name)=>name==='mbn_workspace_action'||name==='mbn_mail_profile_settings'||name==='mbn_mail_profile_checked'?sender:null});
  const response=await handler(req('test_send'));assert.equal(response.status,422);assert.equal((await response.json()).error,'aws_credentials_missing');
  assert.ok(!calls.some(c=>c.args.p_action==='test_prepare'||c.name==='mbn_mail_claim'));
 });

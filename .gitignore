@@ -25,4 +25,6 @@ tests/apps-script.test.ts
 tests/environment.test.ts
 tests/http.test.ts
 supabase/.temp/
+.release/
+supabase/.branches/
 .DS_Store

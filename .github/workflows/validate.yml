@@ -3,10 +3,11 @@ on:
   push:
   pull_request:
   workflow_dispatch:
+  workflow_call:
 permissions:
   contents: read
 concurrency:
-  group: validate-${{ github.ref }}
+  group: validate-${{ github.workflow }}-${{ github.ref }}-${{ github.event.inputs.environment || 'staging' }}
   cancel-in-progress: true
 jobs:
   validate:
@@ -34,3 +35,23 @@ jobs:
           path: MBN_GLOBAL_NETLIFY.zip
           if-no-files-found: error
           retention-days: 14
+  fresh-installation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      SUPABASE_TELEMETRY_DISABLED: '1'
+      DO_NOT_TRACK: '1'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: supabase/setup-cli@1dedf2c611547ede7232d26866dd3c56ab903bbb # v1
+        with:
+          version: 2.121.0
+      - name: Rebuild a disposable local Supabase database
+        run: |
+          supabase start
+          supabase db reset --local
+          docker exec -i supabase_db_mbn-global-system psql -U postgres -d postgres -v ON_ERROR_STOP=1 < tests/fresh-installation.sql
+      - if: always()
+        run: supabase stop --no-backup
