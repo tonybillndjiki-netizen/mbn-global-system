@@ -49,6 +49,6 @@ Activer le traitement automatique après cette recette. Le job `mbn-antivirus-du
 
 Les tests locaux vérifient la liaison entre empreinte et verdict, le protocole de transmission, les permissions, les baux, les reprises, les versions remplacées et les blocages de téléchargement, validation et décision. Les services HTTP et le moteur sont simulés. Un test supplémentaire de socket Unix est exécuté en CI et explicitement ignoré si le runtime local interdit les sockets.
 
-La connexion à un vrai moteur, le test EICAR, la mise à jour de ses signatures et la vérification de l’hébergement restent nécessaires. La reconstruction Docker complète de Supabase reste elle aussi à exécuter. Les annexes officielles installées par manifeste et les PDF générés ne sont pas des pièces candidates et ne passent pas dans cette file.
+La connexion à un vrai moteur, le test EICAR, la mise à jour de ses signatures et la vérification de l’hébergement restent nécessaires. La reconstruction Docker complète de Supabase est vérifiée par le job de CI dédié. Les annexes officielles installées par manifeste et les PDF générés ne sont pas des pièces candidates et ne passent pas dans cette file.
 
 Références : [protocole officiel ClamAV](https://docs.clamav.net/manual/Usage/ClamdProtocol.html), [gestion des signatures](https://docs.clamav.net/manual/Usage/SignatureManagement.html), [fichier de test EICAR](https://www.eicar.org/download-anti-malware-testfile/).

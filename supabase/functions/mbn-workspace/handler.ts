@@ -64,14 +64,27 @@ export function createHandler(deps:Dependencies){
  }
  async function dispatch(testId?:string,selectedGroup?:string){
   const start=Date.now(),outcomes:{id:string;status:string}[]=[],skipped:{sender_group:string;error:string}[]=[];
+  const profiles:{group:string;inspection:Inspection;lastDispatched:number;claimed:number;exhausted:boolean}[]=[];
   for(const group of selectedGroup?[selectedGroup]:SENDER_GROUPS){
    const {settings,inspection}=await check(group);
    const error=!inspection.sender_verified||!inspection.account_sending_enabled||inspection.remaining<=0||inspection.rate<=0?inspection.error||'sender_not_ready':!testId&&(!settings.enabled||!inspection.production_access)?'sending_disabled':null;
    if(error){if(testId)throw new AppError(error,422);skipped.push({sender_group:group,error});continue;}
-   for(let n=0;n<(testId?1:Math.min(20,Math.floor(inspection.remaining)));n++){
-   if(outcomes.length>=20)break;
-   if(Date.now()-start>40000)break;
-   const raw=await rpc('mbn_mail_profile_claim',{p_group:group,p_test_id:testId||null});if(raw===null)break;const msg=object(raw);
+   profiles.push({group,inspection,lastDispatched:Date.parse(settings.last_dispatch_at)||0,claimed:0,exhausted:false});
+  }
+  profiles.sort((a,b)=>a.lastDispatched-b.lastDispatched);
+  // Take one message from each ready group per round so a busy sender cannot
+  // spend the shared daily allowance before the other schools are considered.
+  const limit=testId?1:20;
+  while(outcomes.length<limit&&Date.now()-start<=40000){
+   let progressed=false;
+   for(const profile of profiles){
+   if(outcomes.length>=limit||Date.now()-start>40000)break;
+   const {group,inspection}=profile;
+   if(profile.exhausted||profile.claimed>=Math.min(limit,Math.floor(inspection.remaining)))continue;
+   const raw=await rpc('mbn_mail_profile_claim',{p_group:group,p_test_id:testId||null});
+   if(raw===null){profile.exhausted=true;continue;}
+   profile.claimed++;progressed=true;
+   const msg=object(raw);
    if(!UUID.test(msg.id)||!UUID.test(msg.attempt_id))throw Error('invalid_claim');
    let result:Outcome;
    try{
@@ -83,10 +96,10 @@ export function createHandler(deps:Dependencies){
    }catch{result={status:'FAILED',error:'message_preparation_failed'};}
    await rpc('mbn_mail_finish',{p_id:msg.id,p_attempt:msg.attempt_id,p_status:result.status,p_provider_id:result.provider_id||null,p_error:result.error||null});
    outcomes.push({id:msg.id,status:result.status});
-   if(result.status!=='ACCEPTED')break;
+   if(result.status!=='ACCEPTED')profile.exhausted=true;
    if(!testId)await deps.sleep(Math.max(1000,Math.ceil(1000/inspection.rate)));
    }
-   if(outcomes.length>=20||Date.now()-start>40000)break;
+   if(!progressed)break;
   }
   return {outcomes,processed:outcomes.length,skipped};
  }
@@ -106,6 +119,7 @@ export function createHandler(deps:Dependencies){
    if(!actor)throw new AppError('authentication_required',401);
    const input=await readJSON(request);if(Object.keys(input).some(k=>!['action','data'].includes(k)))throw new AppError('invalid_request');
    const data=object(input.data||{}),args={p_actor:actor.id,p_session:actor.session_id,p_action:input.action,p_data:data};
+   if(['followups_context','followup_save','followup_toggle'].includes(input.action))return json(await rpc('mbn_followup_action',args));
    if(['document_requests_context','document_request_create','document_request_cancel','document_request_send'].includes(input.action)){
     const action=input.action==='document_requests_context'?'context':input.action==='document_request_create'?'create':input.action==='document_request_cancel'?'cancel':'context';
     if(input.action!=='document_request_send')return json(await rpc('mbn_document_requests_action',{...args,p_action:action}));

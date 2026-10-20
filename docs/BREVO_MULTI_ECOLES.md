@@ -160,3 +160,19 @@ Le modèle national, les affectations, le redépôt, Meta, la réinstallation et
 l’antivirus sont développés dans les blocs suivants. Voir le [guide de reprise](REPRISE_PROJET.md)
 pour leur état et les essais réels restants. Les relances après clic restent sur
 leur branche séparée et n’entrent pas dans la branche de finitions.
+
+
+## Répartition du traitement et indépendance des expéditeurs
+
+Les groupes sont ordonnés selon leur dernière réservation réelle, les moins
+récemment servis en premier. Les tests de connexion ne modifient pas cet ordre.
+Un appel du planificateur réserve un message par groupe prêt à chaque tour,
+jusqu’à 20 messages au total ou 40 secondes de traitement. Un groupe sans
+message, en pause ou non vérifié ne monopolise pas le traitement. Le plafond
+quotidien reste commun et sa réservation est contrôlée dans la base.
+
+La préparation d’envoi d’une lettre exige la preuve de livraison et la
+configuration actuelles du groupe de son école. Les résultats de vérification
+d’une autre adresse ne remplacent pas ces preuves. La clé partagée, les
+changements de routage, la mise en pause, le quota et l’approbation humaine
+gardent leurs contrôles.

@@ -39,7 +39,7 @@ Renseigner l’environnement, le commit exact, la date, le nom du vérificateur 
 | Approbation de lettre | Modifier le formulaire ou les paramètres après aperçu | Ancien aperçu non envoyable ; nouvel aperçu et nouvelle approbation nécessaires | À tester en navigateur |
 | Remise | Envoyer une lettre approuvée à une adresse de démonstration autorisée | Acceptation puis remise distinctes, corrélées au bon message et destinataire | À confirmer dans Brevo et la boîte destinataire |
 | Exclusions | Retirer le consentement ou simuler une plainte dans l’environnement de test du fournisseur | Arrêt des campagnes, aucun rétablissement par un nouvel import | À contrôler avec Brevo |
-| Après clic | Examiner le bloc 4 et son calendrier séparés | Aucune activation ni reprise d’anciens contacts sans calendrier approuvé | Bloc séparé, non intégré ici |
+| Après clic | Configurer un calendrier après clic puis confirmer un lien de démonstration | Aucune activation ni reprise d’anciens contacts sans calendrier approuvé | Intégré ; tests synthétiques réussis, réception réelle à tester |
 | Navigation | Vérifier ordinateur et mobile, clavier, ouverture et fermeture des fenêtres | Libellés Brevo cohérents, erreurs lisibles, boutons indisponibles explicites et aucun débordement | Revue visuelle à faire |
 
 Une ligne bloquée empêche la validation du parcours qu’elle protège. Le compte rendu final doit distinguer le développement terminé, le paramétrage terminé et la recette réelle réussie. La remise d’une seule lettre de démonstration ne valide pas automatiquement les paramètres des 19 écoles.
